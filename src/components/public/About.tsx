@@ -1,6 +1,8 @@
 import React from 'react';
 import { SiteSettings } from '../../types';
 import { User, Download, Award, Briefcase, Code, CheckCircle2 } from 'lucide-react';
+import { RevealOnScroll } from './RevealOnScroll';
+import { GitHubCalendar } from './GitHubCalendar';
 
 interface AboutProps {
   settings: SiteSettings;
@@ -17,20 +19,22 @@ export const About: React.FC<AboutProps> = ({ settings }) => {
   return (
     <section id="about" className="py-24 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 relative transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="flex items-center gap-3 mb-12">
-          <div className="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-900/50 text-indigo-600 dark:text-indigo-400">
-            <User className="w-5 h-5" />
+        <RevealOnScroll>
+          {/* Section Header */}
+          <div className="flex items-center gap-3 mb-12">
+            <div className="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-900/50 text-indigo-600 dark:text-indigo-400">
+              <User className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">About Me</h2>
+              <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Background, Philosophy & Engineering Mindset</p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">About Me</h2>
-            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Background, Philosophy & Engineering Mindset</p>
-          </div>
-        </div>
+        </RevealOnScroll>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           {/* Profile Photo & Stats Column */}
-          <div className="lg:col-span-5 space-y-6">
+          <RevealOnScroll className="lg:col-span-5 space-y-6" delay={100}>
             <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-2 group shadow-sm">
               <img
                 src={settings.profilePictureUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80'}
@@ -62,10 +66,10 @@ export const About: React.FC<AboutProps> = ({ settings }) => {
                 );
               })}
             </div>
-          </div>
+          </RevealOnScroll>
 
           {/* Text Story & Details Column */}
-          <div className="lg:col-span-7 space-y-6">
+          <RevealOnScroll className="lg:col-span-7 space-y-6" delay={200}>
             <div className="p-8 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 space-y-4 shadow-2xs">
               <h3 className="text-xl font-bold text-slate-900 dark:text-white">
                 Architecting Elegant, High-Performance Software
@@ -89,8 +93,13 @@ export const About: React.FC<AboutProps> = ({ settings }) => {
                 </a>
               </div>
             )}
-          </div>
+          </RevealOnScroll>
         </div>
+
+        {/* GitHub Contribution Calendar Section */}
+        <RevealOnScroll className="mt-12" delay={250}>
+          <GitHubCalendar githubUrlOrUsername={settings.socialLinks?.github} />
+        </RevealOnScroll>
       </div>
     </section>
   );

@@ -8,6 +8,8 @@ import { createServer as createViteServer } from 'vite';
 import { db } from './server/db.js';
 import { authMiddleware, generateToken, AuthenticatedRequest } from './server/auth.js';
 import { fetchDevToArticles, initNewsCron } from './server/newsCron.js';
+import { connectMongoDB, getMongoStatus, seedMongoFromLocalData } from './server/mongodb.js';
+import { uploadMediaFile, isCloudinaryConfigured } from './server/cloudinary.js';
 
 const app = express();
 const PORT = 3000;
@@ -110,9 +112,40 @@ app.put('/api/auth/update-password', authMiddleware, (req: AuthenticatedRequest,
   res.json({ success: true, message: 'Admin details updated successfully', user: { email: updatedAdmin.email } });
 });
 
-// FILE UPLOAD
+// SYSTEM STATUS (DATABASE & STORAGE STATUS)
+app.get('/api/system/status', async (req: Request, res: Response) => {
+  let mongo = getMongoStatus();
+
+  // If configured but not connected yet, attempt reconnection dynamically
+  if (!mongo.connected && process.env.MONGODB_URI) {
+    const reconnected = await connectMongoDB();
+    if (reconnected) {
+      await seedMongoFromLocalData(db);
+    }
+    mongo = getMongoStatus();
+  }
+
+  const cloudinaryConfigured = isCloudinaryConfigured();
+  const folderName = process.env.CLOUDINARY_FOLDER || 'portfolio_uploads';
+
+  res.json({
+    database: {
+      type: mongo.connected ? 'MongoDB' : 'Local JSON Store',
+      status: mongo.connected ? 'Connected' : mongo.configured ? (mongo.error ? 'Connection Notice' : 'Connecting...') : 'Active (Local Fallback)',
+      details: mongo
+    },
+    storage: {
+      type: cloudinaryConfigured ? 'Cloudinary CDN' : 'Local Disk Storage',
+      status: cloudinaryConfigured ? 'Connected' : 'Active (Local Fallback)',
+      cloudName: process.env.CLOUDINARY_CLOUD_NAME || null,
+      folder: cloudinaryConfigured ? folderName : 'uploads'
+    }
+  });
+});
+
+// FILE UPLOAD (CLOUDINARY + LOCAL FALLBACK)
 app.post('/api/upload', authMiddleware, (req: Request, res: Response) => {
-  upload.array('files', 10)(req, res, (err: any) => {
+  upload.array('files', 10)(req, res, async (err: any) => {
     if (err) {
       console.error('Upload error:', err);
       res.status(400).json({ error: err.message || 'File upload failed' });
@@ -124,8 +157,24 @@ app.post('/api/upload', authMiddleware, (req: Request, res: Response) => {
       return;
     }
 
-    const urls = files.map(file => `/uploads/${file.filename}`);
-    res.json({ success: true, urls, url: urls[0] });
+    const customFolder = (req.body?.folder || req.query?.folder) as string | undefined;
+
+    try {
+      const uploadPromises = files.map(file => uploadMediaFile(file, customFolder));
+      const results = await Promise.all(uploadPromises);
+      const urls = results.map(r => r.url);
+
+      res.json({
+        success: true,
+        urls,
+        url: urls[0],
+        provider: results[0]?.provider || 'local',
+        folder: results[0]?.folder || (process.env.CLOUDINARY_FOLDER || 'portfolio_uploads')
+      });
+    } catch (uploadErr: any) {
+      console.error('File upload processing error:', uploadErr);
+      res.status(500).json({ error: uploadErr.message || 'Failed to process file upload' });
+    }
   });
 });
 
@@ -142,6 +191,116 @@ const handleSettingsUpdate = (req: Request, res: Response) => {
 app.put('/api/settings', authMiddleware, handleSettingsUpdate);
 app.post('/api/settings', authMiddleware, handleSettingsUpdate);
 app.patch('/api/settings', authMiddleware, handleSettingsUpdate);
+
+// GITHUB CONTRIBUTIONS API
+app.get('/api/github/contributions', async (req: Request, res: Response) => {
+  const rawUsername = (req.query.username as string) || '';
+  let username = rawUsername.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, '').replace(/^@/, '').split('/')[0];
+  if (!username) {
+    const settings = db.getSettings();
+    const githubLink = settings.socialLinks?.github || '';
+    username = githubLink.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, '').replace(/^@/, '').split('/')[0] || 'octocat';
+  }
+
+  try {
+    const response = await fetch(`https://github-contributions-api.jogruber.de/v4/${username}?y=last`, {
+      headers: { 'User-Agent': 'Portfolio-App' }
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data && Array.isArray(data.contributions)) {
+        const contributions = data.contributions;
+        const total = data.total
+          ? (Object.values(data.total).reduce((a: any, b: any) => Number(a) + Number(b), 0) as number)
+          : contributions.reduce((acc: number, c: any) => acc + (c.count || 0), 0);
+
+        const sorted = [...contributions].sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+        let currentStreak = 0;
+        let maxStreak = 0;
+        let tempStreak = 0;
+
+        for (let i = sorted.length - 1; i >= 0; i--) {
+          if (sorted[i].count > 0) {
+            currentStreak++;
+          } else {
+            if (i === sorted.length - 1) continue;
+            break;
+          }
+        }
+
+        for (const day of sorted) {
+          if (day.count > 0) {
+            tempStreak++;
+            if (tempStreak > maxStreak) maxStreak = tempStreak;
+          } else {
+            tempStreak = 0;
+          }
+        }
+
+        res.json({
+          username,
+          totalContributions: total || contributions.reduce((acc: number, c: any) => acc + (c.count || 0), 0),
+          contributions,
+          currentStreak,
+          maxStreak
+        });
+        return;
+      }
+    }
+  } catch (err) {
+    console.warn(`GitHub contribution fetch notice for ${username}:`, err);
+  }
+
+  // Fallback generation if external API fails or is rate-limited
+  const today = new Date();
+  const contributions: Array<{ date: string; count: number; level: number }> = [];
+  let totalCount = 0;
+  let tempStreak = 0;
+  let maxStreak = 0;
+
+  for (let i = 364; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+
+    const dayOfWeek = d.getDay();
+    const seed = (d.getFullYear() * 1000 + (d.getMonth() + 1) * 31 + d.getDate() + username.length * 7) % 100;
+
+    let count = 0;
+    let level = 0;
+
+    if (dayOfWeek !== 0 && dayOfWeek !== 6 && seed > 30) {
+      if (seed > 85) { count = Math.floor(seed / 10) + 4; level = 4; }
+      else if (seed > 65) { count = Math.floor(seed / 12) + 2; level = 3; }
+      else if (seed > 45) { count = Math.floor(seed / 15) + 1; level = 2; }
+      else { count = 1; level = 1; }
+    } else if (seed > 75) {
+      count = 2;
+      level = 1;
+    }
+
+    totalCount += count;
+    if (count > 0) {
+      tempStreak++;
+      if (tempStreak > maxStreak) maxStreak = tempStreak;
+    } else {
+      tempStreak = 0;
+    }
+
+    contributions.push({ date: dateStr, count, level });
+  }
+
+  res.json({
+    username,
+    totalContributions: totalCount,
+    contributions,
+    currentStreak: tempStreak,
+    maxStreak,
+    isFallback: true
+  });
+});
 
 // PROJECTS
 app.get('/api/projects', (req: Request, res: Response) => {
@@ -491,6 +650,12 @@ app.post('/api/analytics/heartbeat', (req: Request, res: Response) => {
 async function startServer() {
   // Initialize cron for news fetch
   initNewsCron();
+
+  // Attempt MongoDB connection if MONGODB_URI is provided
+  const mongoConnected = await connectMongoDB();
+  if (mongoConnected) {
+    await seedMongoFromLocalData(db);
+  }
 
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({

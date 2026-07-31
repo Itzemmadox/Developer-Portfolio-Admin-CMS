@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   LayoutDashboard,
   FolderGit2,
@@ -121,18 +122,25 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
                   setActiveTab(item.id as AdminTab);
                   setSidebarOpen(false);
                 }}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-mono transition-all ${
+                className={`relative w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-mono transition-colors cursor-pointer ${
                   isActive
-                    ? 'bg-cyan-500 text-slate-950 font-bold shadow-md shadow-cyan-500/20'
+                    ? 'text-slate-950 font-bold'
                     : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'
                 }`}
               >
-                <div className="flex items-center gap-2.5">
+                {isActive && (
+                  <motion.div
+                    layoutId="activeAdminTab"
+                    className="absolute inset-0 bg-cyan-500 rounded-xl shadow-md shadow-cyan-500/20"
+                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  />
+                )}
+                <div className="relative z-10 flex items-center gap-2.5">
                   <Icon className="w-4 h-4" />
                   <span>{item.label}</span>
                 </div>
                 {item.badge && item.badge > 0 ? (
-                  <span className="px-2 py-0.5 rounded-full text-[10px] bg-rose-500 text-white font-bold">
+                  <span className="relative z-10 px-2 py-0.5 rounded-full text-[10px] bg-rose-500 text-white font-bold">
                     {item.badge}
                   </span>
                 ) : null}
@@ -143,7 +151,19 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
 
         {/* Main Content Area */}
         <main className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-950">
-          <div className="max-w-6xl mx-auto">{children}</div>
+          <div className="max-w-6xl mx-auto">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.2, ease: 'easeInOut' }}
+              >
+                {children}
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </main>
       </div>
     </div>

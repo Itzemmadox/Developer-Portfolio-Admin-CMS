@@ -135,31 +135,136 @@ export const api = {
     }
   },
 
+  // Cache helpers
+  getLocalCache: <T>(key: string): T | null => {
+    try {
+      const item = localStorage.getItem(`cache_${key}`);
+      return item ? JSON.parse(item) : null;
+    } catch {
+      return null;
+    }
+  },
+  setLocalCache: <T>(key: string, value: T): void => {
+    try {
+      localStorage.setItem(`cache_${key}`, JSON.stringify(value));
+    } catch {
+      // ignore storage errors
+    }
+  },
+
   // Settings
-  getSettings: () => request<SiteSettings>('/api/settings'),
-  updateSettings: (data: Partial<SiteSettings>) =>
-    request<SiteSettings>('/api/settings', {
+  getSettings: async (): Promise<SiteSettings> => {
+    try {
+      const serverData = await request<SiteSettings>('/api/settings');
+      const cached = api.getLocalCache<SiteSettings>('settings');
+
+      // If server returned data, compare with local cache
+      if (serverData) {
+        // If cached exists and has user modifications that server lost (e.g. server restarted)
+        if (
+          cached &&
+          cached.updatedAt &&
+          serverData.updatedAt &&
+          new Date(cached.updatedAt).getTime() > new Date(serverData.updatedAt).getTime() + 1000
+        ) {
+          console.log('🔄 Restoring user custom settings from persistent local cache...');
+          try {
+            const restored = await request<SiteSettings>('/api/settings', {
+              method: 'PUT',
+              body: JSON.stringify(cached)
+            });
+            api.setLocalCache('settings', restored);
+            return restored;
+          } catch {
+            return cached;
+          }
+        }
+        api.setLocalCache('settings', serverData);
+        return serverData;
+      }
+      return cached || serverData;
+    } catch (err) {
+      console.warn('Error fetching settings, using cache:', err);
+      const cached = api.getLocalCache<SiteSettings>('settings');
+      if (cached) return cached;
+      throw err;
+    }
+  },
+
+  updateSettings: async (data: Partial<SiteSettings>): Promise<SiteSettings> => {
+    const res = await request<SiteSettings>('/api/settings', {
       method: 'PUT',
       body: JSON.stringify(data)
-    }),
+    });
+    api.setLocalCache('settings', res);
+    return res;
+  },
 
   // Projects
-  getProjects: () => request<Project[]>('/api/projects'),
+  getProjects: async (): Promise<Project[]> => {
+    try {
+      const projects = await request<Project[]>('/api/projects');
+      const cached = api.getLocalCache<Project[]>('projects');
+
+      if (Array.isArray(projects) && projects.length > 0) {
+        // If cached has different length or modified items, keep cache synced
+        if (cached && cached.length > projects.length) {
+          console.log('🔄 Restoring user projects from persistent local cache...');
+          for (const proj of cached) {
+            const exists = projects.some((p) => p.id === proj.id);
+            if (!exists) {
+              await request<Project>('/api/projects', {
+                method: 'POST',
+                body: JSON.stringify(proj)
+              }).catch(() => {});
+            }
+          }
+          const resynced = await request<Project[]>('/api/projects');
+          api.setLocalCache('projects', resynced);
+          return resynced;
+        }
+        api.setLocalCache('projects', projects);
+        return projects;
+      }
+      return cached || projects;
+    } catch (err) {
+      console.warn('Error fetching projects, using cache:', err);
+      const cached = api.getLocalCache<Project[]>('projects');
+      if (cached) return cached;
+      throw err;
+    }
+  },
   getProjectBySlug: (slug: string) => request<Project>(`/api/projects/${slug}`),
-  createProject: (data: Partial<Project>) =>
-    request<Project>('/api/projects', {
+  createProject: async (data: Partial<Project>) => {
+    const res = await request<Project>('/api/projects', {
       method: 'POST',
       body: JSON.stringify(data)
-    }),
-  updateProject: (id: string, data: Partial<Project>) =>
-    request<Project>(`/api/projects/${id}`, {
+    });
+    const current = api.getLocalCache<Project[]>('projects') || [];
+    api.setLocalCache('projects', [...current, res]);
+    return res;
+  },
+  updateProject: async (id: string, data: Partial<Project>) => {
+    const res = await request<Project>(`/api/projects/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data)
-    }),
-  deleteProject: (id: string) =>
-    request<{ success: boolean }>(`/api/projects/${id}`, {
+    });
+    const current = api.getLocalCache<Project[]>('projects') || [];
+    const updated = current.map((p) => (p.id === id ? { ...p, ...res } : p));
+    api.setLocalCache('projects', updated);
+    return res;
+  },
+  deleteProject: async (id: string) => {
+    const res = await request<{ success: boolean }>(`/api/projects/${id}`, {
       method: 'DELETE'
-    }),
+    });
+    const current = api.getLocalCache<Project[]>('projects') || [];
+    api.setLocalCache(
+      'projects',
+      current.filter((p) => p.id !== id)
+    );
+    return res;
+  },
   reorderProjects: (orders: { id: string; order: number }[]) =>
     request<{ success: boolean }>('/api/projects/reorder', {
       method: 'PATCH',
@@ -281,5 +386,23 @@ export const api = {
     request<{ success: boolean; activeNow: number }>('/api/analytics/heartbeat', {
       method: 'POST',
       body: JSON.stringify({ sessionId })
-    })
+    }),
+
+  // System & Database Engine Status
+  getSystemStatus: () =>
+    request<{
+      database: { type: string; status: string; details: any };
+      storage: { type: string; status: string; cloudName: string | null };
+    }>('/api/system/status'),
+
+  // GitHub Contributions
+  getGithubContributions: (username?: string) =>
+    request<{
+      username: string;
+      totalContributions: number;
+      contributions: Array<{ date: string; count: number; level: number }>;
+      currentStreak: number;
+      maxStreak: number;
+      isFallback?: boolean;
+    }>(`/api/github/contributions${username ? `?username=${encodeURIComponent(username)}` : ''}`)
 };

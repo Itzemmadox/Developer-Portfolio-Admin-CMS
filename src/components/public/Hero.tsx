@@ -28,7 +28,7 @@ export const Hero: React.FC<HeroProps> = ({ settings }) => {
   }, [taglines.length]);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center pt-28 pb-20 overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+    <section id="hero" className="relative min-h-screen flex items-center justify-center pt-28 pb-20 overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
       {/* Three.js Interactive WebGL Background */}
       <HeroBackground />
 

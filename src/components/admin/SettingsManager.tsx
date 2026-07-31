@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SiteSettings } from '../../types';
-import { Save, Upload, Plus, X, Lock, CheckCircle2, ShieldCheck, User, Globe, FileText } from 'lucide-react';
+import { Save, Upload, Plus, X, Lock, CheckCircle2, ShieldCheck, User, Globe, FileText, Database, HardDrive, Cloud, Server, Sparkles } from 'lucide-react';
 import { api } from '../../lib/api';
 
 interface SettingsManagerProps {
@@ -15,14 +15,26 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({ settings, onRe
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  // System Database & Cloudinary Status State
+  const [systemStatus, setSystemStatus] = useState<{
+    database: { type: string; status: string; details: any };
+    storage: { type: string; status: string; cloudName: string | null };
+  } | null>(null);
+
   // Admin Password state
   const [pwData, setPwData] = useState({ currentPassword: '', newPassword: '', newEmail: '' });
   const [pwSaving, setPwSaving] = useState(false);
   const [pwMsg, setPwMsg] = useState<string | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setFormData({ ...settings });
   }, [settings]);
+
+  useEffect(() => {
+    api.getSystemStatus()
+      .then((status) => setSystemStatus(status))
+      .catch((err) => console.warn('Failed to load system status:', err));
+  }, []);
 
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,6 +119,77 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({ settings, onRe
         <p className="text-xs font-mono text-slate-400">
           Global developer profile, rotating hero phrases, profile photo, resume, and SEO metadata.
         </p>
+      </div>
+
+      {/* DATABASE & STORAGE STATUS DISPLAY */}
+      <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-900/90 via-slate-900/60 to-indigo-950/40 border border-slate-800 space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
+              <Server className="w-4 h-4" />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold font-mono text-slate-100">Database & Media Cloud Storage Status</h2>
+              <p className="text-[11px] font-mono text-slate-400">Real-time status of MongoDB Mongoose ORM & Cloudinary Media CDN</p>
+            </div>
+          </div>
+          <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-cyan-500/10 border border-cyan-500/30 text-cyan-300">
+            <Sparkles className="w-3 h-3 text-cyan-400" />
+            Dual-Storage Engine
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+          {/* MongoDB Status Box */}
+          <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold font-mono text-slate-300 flex items-center gap-2">
+                <Database className="w-4 h-4 text-emerald-400" />
+                MongoDB (Mongoose)
+              </span>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold border ${
+                systemStatus?.database.status === 'Connected'
+                  ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
+                  : 'bg-amber-500/10 border-amber-500/30 text-amber-300'
+              }`}>
+                {systemStatus?.database.status || 'Checking...'}
+              </span>
+            </div>
+            <p className="text-[11px] font-mono text-slate-400">
+              {systemStatus?.database.status === 'Connected'
+                ? 'Connected directly to MongoDB Atlas cluster with Mongoose ORM models.'
+                : 'Running on local JSON database engine. All edits, projects, and messages persist continuously.'}
+            </p>
+            {systemStatus?.database.details?.error && (
+              <div className="mt-2 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[10px] font-mono text-amber-300 space-y-1">
+                <p className="font-bold">Notice / Resolution:</p>
+                <p>{systemStatus.database.details.error}</p>
+              </div>
+            )}
+          </div>
+
+          {/* Cloudinary Status Box */}
+          <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold font-mono text-slate-300 flex items-center gap-2">
+                <Cloud className="w-4 h-4 text-cyan-400" />
+                Cloudinary Media CDN
+              </span>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold border ${
+                systemStatus?.storage.status === 'Connected'
+                  ? 'bg-cyan-500/20 border-cyan-500/40 text-cyan-300'
+                  : 'bg-slate-800 border-slate-700 text-slate-400'
+              }`}>
+                {systemStatus?.storage.status || 'Checking...'}
+              </span>
+            </div>
+            <p className="text-[11px] font-mono text-slate-400">
+              {systemStatus?.storage.status === 'Connected'
+                ? `Connected to Cloudinary (${systemStatus.storage.cloudName || 'Active'}). Uploads stored in dedicated folder: "${(systemStatus.storage as any).folder || 'portfolio_uploads'}" (subfolders: /images for photos, /documents for PDFs & files).`
+                : 'Active with local uploads directory. Set CLOUDINARY_CLOUD_NAME, API_KEY, and SECRET to stream uploads to Cloudinary.'}
+            </p>
+          </div>
+        </div>
       </div>
 
       {successMsg && (

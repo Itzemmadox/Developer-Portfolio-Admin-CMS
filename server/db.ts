@@ -1,6 +1,18 @@
 import fs from 'fs';
 import path from 'path';
 import bcrypt from 'bcryptjs';
+import {
+  AdminModel,
+  SettingsModel,
+  ProjectModel,
+  ExperienceModel,
+  EducationModel,
+  SkillModel,
+  CertificationModel,
+  TestimonialModel,
+  ContactMessageModel
+} from './models.js';
+import { getMongoStatus } from './mongodb.js';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 
@@ -254,6 +266,11 @@ export const db = {
   getAdmin: () => readJSON('admin.json', initialAdmin),
   setAdmin: (data: any) => {
     writeJSON('admin.json', data);
+    if (getMongoStatus().connected) {
+      (AdminModel as any).findOneAndUpdate({}, data, { upsert: true }).catch((err: any) =>
+        console.warn('Mongo async write error for admin:', err)
+      );
+    }
     return data;
   },
 
@@ -262,42 +279,78 @@ export const db = {
     const current = readJSON('settings.json', initialSettings);
     const updated = { ...current, ...data, updatedAt: new Date().toISOString() };
     writeJSON('settings.json', updated);
+    if (getMongoStatus().connected) {
+      (SettingsModel as any).findOneAndUpdate({}, updated, { upsert: true }).catch((err: any) =>
+        console.warn('Mongo async write error for settings:', err)
+      );
+    }
     return updated;
   },
 
   getProjects: () => readJSON('projects.json', initialProjects),
   setProjects: (data: any[]) => {
     writeJSON('projects.json', data);
+    if (getMongoStatus().connected) {
+      ProjectModel.deleteMany({}).then(() => ProjectModel.insertMany(data)).catch((err) =>
+        console.warn('Mongo async write error for projects:', err)
+      );
+    }
     return data;
   },
 
   getSkills: () => readJSON('skills.json', initialSkills),
   setSkills: (data: any[]) => {
     writeJSON('skills.json', data);
+    if (getMongoStatus().connected) {
+      SkillModel.deleteMany({}).then(() => SkillModel.insertMany(data)).catch((err) =>
+        console.warn('Mongo async write error for skills:', err)
+      );
+    }
     return data;
   },
 
   getExperience: () => readJSON('experience.json', initialExperience),
+  getExperiences: () => readJSON('experience.json', initialExperience),
   setExperience: (data: any[]) => {
     writeJSON('experience.json', data);
+    if (getMongoStatus().connected) {
+      ExperienceModel.deleteMany({}).then(() => ExperienceModel.insertMany(data)).catch((err) =>
+        console.warn('Mongo async write error for experience:', err)
+      );
+    }
     return data;
   },
 
   getEducation: () => readJSON('education.json', initialEducation),
   setEducation: (data: any[]) => {
     writeJSON('education.json', data);
+    if (getMongoStatus().connected) {
+      EducationModel.deleteMany({}).then(() => EducationModel.insertMany(data)).catch((err) =>
+        console.warn('Mongo async write error for education:', err)
+      );
+    }
     return data;
   },
 
   getTestimonials: () => readJSON('testimonials.json', initialTestimonials),
   setTestimonials: (data: any[]) => {
     writeJSON('testimonials.json', data);
+    if (getMongoStatus().connected) {
+      TestimonialModel.deleteMany({}).then(() => TestimonialModel.insertMany(data)).catch((err) =>
+        console.warn('Mongo async write error for testimonials:', err)
+      );
+    }
     return data;
   },
 
   getCertifications: () => readJSON('certifications.json', initialCertifications),
   setCertifications: (data: any[]) => {
     writeJSON('certifications.json', data);
+    if (getMongoStatus().connected) {
+      CertificationModel.deleteMany({}).then(() => CertificationModel.insertMany(data)).catch((err) =>
+        console.warn('Mongo async write error for certifications:', err)
+      );
+    }
     return data;
   },
 

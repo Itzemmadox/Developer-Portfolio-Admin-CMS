@@ -39,6 +39,8 @@ import { CertificationsManager } from './components/admin/CertificationsManager'
 import { SettingsManager } from './components/admin/SettingsManager';
 import { MessagesManager } from './components/admin/MessagesManager';
 
+import { useScrollAnimations } from './hooks/useScrollAnimations';
+
 export default function App() {
   // Dark Mode State
   const [darkMode, setDarkMode] = useState<boolean>(() => {
@@ -81,6 +83,9 @@ export default function App() {
   const [adminTab, setAdminTab] = useState<AdminTab>('dashboard');
   const [loading, setLoading] = useState(true);
   const [refreshingNews, setRefreshingNews] = useState(false);
+
+  // Initialize Lenis smooth scroll and GSAP ScrollTrigger section animations
+  useScrollAnimations(!isAdminView && !loading);
 
   // Load all public portfolio data
   const loadPublicData = async () => {
@@ -281,10 +286,10 @@ export default function App() {
 
   // Render Public Portfolio View
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-indigo-500 selection:text-white font-sans antialiased transition-colors duration-300">
+    <div className="min-h-screen max-w-full overflow-x-clip bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-indigo-500 selection:text-white font-sans antialiased transition-colors duration-300">
       <Navbar settings={defaultSettings} onOpenAdmin={handleOpenAdmin} darkMode={darkMode} onToggleDarkMode={toggleDarkMode} />
 
-      <main>
+      <main className="max-w-full overflow-x-clip">
         <Hero settings={defaultSettings} />
         <About settings={defaultSettings} />
         <Skills skills={skills} />
