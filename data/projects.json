@@ -1,0 +1,76 @@
+[
+  {
+    "id": "proj-1",
+    "title": "Solar System Installation (Final Year Project)",
+    "slug": "solar-system-installation",
+    "shortDescription": "Led design and implementation of a solar power system for the Department of Computer Science in promoting sustainable energy and documenting installation processes.",
+    "fullDescription": "Led the complete hardware design, load calculations, and physical implementation of a solar power system for the Department of Computer Science at Ambrose Alli University, Ekpoma.\n\n### Key Highlights\n- **Sustainable Energy**: Designed a reliable solar backup solution to power departmental computer hardware and lighting.\n- **Technical Documentation**: Authored comprehensive installation manuals, wiring schematics, and maintenance guides for department staff.\n- **Energy Management**: Conducted peak load audits to optimize battery capacity and inverter output efficiency.",
+    "techStack": [
+      "Solar Power Systems",
+      "System Design",
+      "Energy Auditing",
+      "Technical Documentation"
+    ],
+    "thumbnailUrl": "https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=1200&q=80",
+    "galleryUrls": [
+      "https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "liveUrl": "",
+    "githubUrl": "",
+    "featured": true,
+    "order": 1,
+    "createdAt": "2026-07-31T23:59:00.000Z",
+    "updatedAt": "2026-07-31T23:59:00.000Z"
+  },
+  {
+    "id": "proj-2",
+    "title": "Web3 Crypto Trading & Portfolio Analytics Portal",
+    "slug": "web3-crypto-analytics-portal",
+    "shortDescription": "Responsive Web3 dashboard built with Node.js, Express, and JavaScript for tracking cryptocurrency prices and market trends.",
+    "fullDescription": "A modern responsive Web3 crypto portfolio and market exploration portal designed for real-time tracking of crypto assets, Web3 wallet metrics, and decentralized protocol analytics.",
+    "techStack": [
+      "JavaScript",
+      "HTML5",
+      "TailwindCSS",
+      "Node.js",
+      "Express.js",
+      "Web3 API"
+    ],
+    "thumbnailUrl": "https://images.unsplash.com/photo-1621416894569-0f39ed31d247?auto=format&fit=crop&w=1200&q=80",
+    "galleryUrls": [
+      "https://images.unsplash.com/photo-1621416894569-0f39ed31d247?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "liveUrl": "https://github.com/kehindeoluwaseunemmanuel",
+    "githubUrl": "https://github.com/kehindeoluwaseunemmanuel",
+    "featured": true,
+    "order": 2,
+    "createdAt": "2026-07-31T23:59:00.000Z",
+    "updatedAt": "2026-07-31T23:59:00.000Z"
+  },
+  {
+    "id": "proj-3",
+    "title": "Interactive Secondary School Learning & Portal System",
+    "slug": "school-portal-management-system",
+    "shortDescription": "PHP & MySQL powered web application for lesson plan management, student grading, and academic event scheduling.",
+    "fullDescription": "Designed during NYSC teaching service at Olcas College Int'l to streamline SS student attendance, interactive problem-solving modules, and academic performance tracking.",
+    "techStack": [
+      "PHP",
+      "Laravel",
+      "MySQL",
+      "Bootstrap",
+      "JavaScript",
+      "HTML5/CSS3"
+    ],
+    "thumbnailUrl": "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80",
+    "galleryUrls": [
+      "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "liveUrl": "https://github.com/kehindeoluwaseunemmanuel",
+    "githubUrl": "https://github.com/kehindeoluwaseunemmanuel",
+    "featured": true,
+    "order": 3,
+    "createdAt": "2026-07-31T23:59:00.000Z",
+    "updatedAt": "2026-07-31T23:59:00.000Z"
+  }
+]

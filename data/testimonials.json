@@ -1,0 +1,18 @@
+[
+  {
+    "id": "test-1",
+    "quote": "Oluwaseun is a dedicated and highly disciplined full-stack developer with strong technical skills in web development, problem solving, and software engineering principles.",
+    "authorName": "Mr. Anthony A. Oyegunle",
+    "authorRole": "Professional Reference | +2348033165488",
+    "authorPhotoUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80",
+    "order": 1
+  },
+  {
+    "id": "test-2",
+    "quote": "Oluwaseun displays exceptional initiative, attention to detail, and passion for web development, clean coding practices, and technology innovation.",
+    "authorName": "Mr. Michael O. Kehinde",
+    "authorRole": "Professional Reference | +2347030090866",
+    "authorPhotoUrl": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80",
+    "order": 2
+  }
+]

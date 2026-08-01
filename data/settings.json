@@ -1,0 +1,26 @@
+{
+  "name": "Oluwaseun Emmanuel Kehinde",
+  "role": "Junior Full-Stack Developer",
+  "heroTaglines": [
+    "Junior Full-Stack Developer",
+    "Building Mobile-First & Responsive Web Applications",
+    "HTML5, CSS3, JavaScript, TailwindCSS & PHP/Node.js",
+    "Passionate about Web3 & Blockchain Technology"
+  ],
+  "bio": "Motivated and detail-oriented Junior Full-Stack Developer with hands-on experience in front-end development and a strong foundation in modern web technologies including HTML5, CSS3, JavaScript, TailwindCSS, PHP, Laravel, Node.js, Express.js, MySQL, MongoDB, and Web3.",
+  "aboutContent": "I am a motivated and detail-oriented Junior Full-Stack Developer with hands-on experience in front-end development and a strong foundation in modern web technologies.\n\nSkilled in building responsive, mobile-first interfaces using HTML5, CSS3, JavaScript, TailwindCSS, and Bootstrap, with exposure to back-end development using PHP, Laravel, Node.js, Express.js, and databases including MySQL and MongoDB.\n\nEager to contribute to collaborative development projects, improve user experience, and grow within a dynamic engineering team. I am also deeply passionate about Web3, blockchain technology, and writing clean, maintainable code.\n\n📍 Location: 33 Yemogun Road, Ogere-Remo, Ogun, Nigeria\n📞 Phone: +2349037286083\n✉️ Email: kehindeoluwaseunemmanuel@gmail.com\n⚽ Hobbies & Interests: Coding, watching movies & anime, sports enthusiast (boxing, MMA, football - passionate Barcelona FC supporter), volleyball player, driving, cryptocurrency trading and Web3 exploration.",
+  "profilePictureUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80",
+  "resumeUrl": "/uploads/sample_resume.pdf",
+  "socialLinks": {
+    "github": "https://github.com",
+    "linkedin": "https://linkedin.com",
+    "twitter": "https://x.com",
+    "email": "kehindeoluwaseunemmanuel@gmail.com"
+  },
+  "seo": {
+    "siteTitle": "Oluwaseun Emmanuel Kehinde | Junior Full-Stack Developer",
+    "metaDescription": "Personal portfolio & interactive developer showcase for Oluwaseun Emmanuel Kehinde, Junior Full-Stack Developer specializing in HTML5, CSS3, JavaScript, TailwindCSS, Node.js, PHP, Laravel, and Web3.",
+    "faviconUrl": ""
+  },
+  "updatedAt": "2026-07-31T23:59:00.000Z"
+}

@@ -1,0 +1,74 @@
+[
+  {
+    "id": "sk-1",
+    "name": "HTML5 & CSS3",
+    "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg",
+    "level": 95,
+    "yearsExperience": 3,
+    "category": "Frontend",
+    "order": 1
+  },
+  {
+    "id": "sk-2",
+    "name": "JavaScript (ES6+)",
+    "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg",
+    "level": 90,
+    "yearsExperience": 3,
+    "category": "Frontend",
+    "order": 2
+  },
+  {
+    "id": "sk-3",
+    "name": "TailwindCSS & Bootstrap",
+    "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg",
+    "level": 92,
+    "yearsExperience": 3,
+    "category": "Frontend",
+    "order": 3
+  },
+  {
+    "id": "sk-4",
+    "name": "PHP & Laravel",
+    "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-original.svg",
+    "level": 85,
+    "yearsExperience": 2,
+    "category": "Backend",
+    "order": 4
+  },
+  {
+    "id": "sk-5",
+    "name": "Node.js & Express.js",
+    "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg",
+    "level": 85,
+    "yearsExperience": 2,
+    "category": "Backend",
+    "order": 5
+  },
+  {
+    "id": "sk-6",
+    "name": "MySQL & MongoDB",
+    "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg",
+    "level": 85,
+    "yearsExperience": 2,
+    "category": "Database",
+    "order": 6
+  },
+  {
+    "id": "sk-7",
+    "name": "Web3 & Crypto Fundamentals",
+    "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg",
+    "level": 80,
+    "yearsExperience": 2,
+    "category": "Blockchain",
+    "order": 7
+  },
+  {
+    "id": "sk-8",
+    "name": "Git, Figma, CorelDRAW & VS Code",
+    "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg",
+    "level": 90,
+    "yearsExperience": 3,
+    "category": "Tools & Other",
+    "order": 8
+  }
+]

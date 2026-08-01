@@ -57,31 +57,36 @@ const initialAdmin = {
 };
 
 const initialSettings = {
-  name: 'Emmanuel Oluwaseun',
-  role: 'Senior Full-Stack Engineer & System Architect',
+  name: 'Oluwaseun Emmanuel Kehinde',
+  role: 'Junior Full-Stack Developer',
   heroTaglines: [
-    'Building Scalable Full-Stack Systems',
-    'Crafting Intuitive User Interfaces',
-    'Architecting Cloud-Native Applications',
-    'Automating Modern Workflows'
+    'Junior Full-Stack Developer',
+    'Building Mobile-First & Responsive Web Applications',
+    'HTML5, CSS3, JavaScript, TailwindCSS & PHP/Node.js',
+    'Passionate about Web3 & Blockchain Technology'
   ],
-  bio: 'Passionate Senior Full-Stack Engineer with 6+ years of experience designing high-throughput web architectures, real-time interactive apps, and elegant client solutions.',
-  aboutContent: `I am a Senior Full-Stack Engineer with a deep passion for building robust, scalable applications that solve real-world problems. Over the past 6+ years, I have engineered complex enterprise platforms, high-performance APIs, and interactive web tools.
+  bio: 'Motivated and detail-oriented Junior Full-Stack Developer with hands-on experience in front-end development and a strong foundation in modern web technologies including HTML5, CSS3, JavaScript, TailwindCSS, PHP, Laravel, Node.js, Express.js, MySQL, MongoDB, and Web3.',
+  aboutContent: `I am a motivated and detail-oriented Junior Full-Stack Developer with hands-on experience in front-end development and a strong foundation in modern web technologies.
 
-My expertise spans across modern frontend frameworks (React, Next.js, Vue, Three.js) and backend ecosystems (Node.js, Express, Python, PostgreSQL, Redis, Docker). I care deeply about clean code, performance optimization, modular component design, and seamless user experiences.
+Skilled in building responsive, mobile-first interfaces using HTML5, CSS3, JavaScript, TailwindCSS, and Bootstrap, with exposure to back-end development using PHP, Laravel, Node.js, Express.js, and databases including MySQL and MongoDB.
 
-When I'm not coding, I contribute to open-source software, mentor aspiring developers, and publish articles about modern web engineering and cloud systems.`,
+Eager to contribute to collaborative development projects, improve user experience, and grow within a dynamic engineering team. I am also deeply passionate about Web3, blockchain technology, and writing clean, maintainable code.
+
+📍 Location: 33 Yemogun Road, Ogere-Remo, Ogun, Nigeria
+📞 Phone: +2349037286083
+✉️ Email: kehindeoluwaseunemmanuel@gmail.com
+⚽ Hobbies & Interests: Coding, watching movies & anime, sports enthusiast (boxing, MMA, football - passionate Barcelona FC supporter), volleyball player, driving, cryptocurrency trading and Web3 exploration.`,
   profilePictureUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
   resumeUrl: '/uploads/sample_resume.pdf',
   socialLinks: {
     github: 'https://github.com',
     linkedin: 'https://linkedin.com',
     twitter: 'https://x.com',
-    email: 'emmanuel@portfolio.dev'
+    email: 'kehindeoluwaseunemmanuel@gmail.com'
   },
   seo: {
-    siteTitle: 'Emmanuel Oluwaseun | Senior Full-Stack Engineer',
-    metaDescription: 'Personal portfolio & interactive project showcase for Emmanuel Oluwaseun, Senior Full-Stack Engineer specializing in React, Node.js, and Cloud Systems.',
+    siteTitle: 'Oluwaseun Emmanuel Kehinde | Junior Full-Stack Developer',
+    metaDescription: 'Personal portfolio & interactive developer showcase for Oluwaseun Emmanuel Kehinde, Junior Full-Stack Developer specializing in HTML5, CSS3, JavaScript, TailwindCSS, Node.js, PHP, Laravel, and Web3.',
     faviconUrl: ''
   },
   updatedAt: new Date().toISOString()
@@ -90,18 +95,18 @@ When I'm not coding, I contribute to open-source software, mentor aspiring devel
 const initialProjects = [
   {
     id: 'proj-1',
-    title: 'Aura AI - Distributed Intelligence Platform',
-    slug: 'aura-ai-platform',
-    shortDescription: 'Enterprise AI orchestration platform for context-aware multi-agent workflows and real-time streaming LLM analytics.',
-    fullDescription: 'Aura AI is an enterprise-grade platform designed to streamline complex LLM workflow orchestration. Built with React, Express, WebSockets, and Redis, it handles streaming inferences, custom vector embeddings retrieval, and real-time agent execution pipelines.\n\n### Key Highlights\n- **Sub-100ms Latency**: Streamlined chunk token processing via SSE and WebSockets.\n- **Agent Visualizer**: Custom node-based flow editor for prompt chaining.\n- **Security**: Built-in OAuth2 authorization and granular token usage rate limits.',
-    techStack: ['React', 'TypeScript', 'Node.js', 'Express', 'Tailwind CSS', 'Redis', 'Gemini API'],
-    thumbnailUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
+    title: 'Solar System Installation (Final Year Project)',
+    slug: 'solar-system-installation',
+    shortDescription: 'Led design and implementation of a solar power system for the Department of Computer Science in promoting sustainable energy and documenting installation processes.',
+    fullDescription: 'Led the complete hardware design, load calculations, and physical implementation of a solar power system for the Department of Computer Science at Ambrose Alli University, Ekpoma.\n\n### Key Highlights\n- **Sustainable Energy**: Designed a reliable solar backup solution to power departmental computer hardware and lighting.\n- **Technical Documentation**: Authored comprehensive installation manuals, wiring schematics, and maintenance guides for department staff.\n- **Energy Management**: Conducted peak load audits to optimize battery capacity and inverter output efficiency.',
+    techStack: ['Solar Power Systems', 'System Design', 'Energy Auditing', 'Technical Documentation'],
+    thumbnailUrl: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=1200&q=80',
     galleryUrls: [
-      'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80'
+      'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?auto=format&fit=crop&w=1200&q=80'
     ],
-    liveUrl: 'https://example.com/aura-ai',
-    githubUrl: 'https://github.com/example/aura-ai',
+    liveUrl: '',
+    githubUrl: '',
     featured: true,
     order: 1,
     createdAt: new Date().toISOString(),
@@ -109,17 +114,17 @@ const initialProjects = [
   },
   {
     id: 'proj-2',
-    title: 'Nexus Cloud Monitoring & Observability',
-    slug: 'nexus-cloud-observability',
-    shortDescription: 'High-throughput telemetry dashboard tracking microservices metrics, request traces, and real-time incident alerts.',
-    fullDescription: 'Nexus Cloud provides continuous visibility into microservice health and distributed infrastructure. It parses millions of telemetry events per second using Node.js stream processing and visualizes latency histograms and error budgets in real time.',
-    techStack: ['TypeScript', 'React', 'D3.js', 'Express', 'Docker', 'PostgreSQL'],
-    thumbnailUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80',
+    title: 'Web3 Crypto Trading & Portfolio Analytics Portal',
+    slug: 'web3-crypto-analytics-portal',
+    shortDescription: 'Responsive Web3 dashboard built with Node.js, Express, and JavaScript for tracking cryptocurrency prices and market trends.',
+    fullDescription: 'A modern responsive Web3 crypto portfolio and market exploration portal designed for real-time tracking of crypto assets, Web3 wallet metrics, and decentralized protocol analytics.',
+    techStack: ['JavaScript', 'HTML5', 'TailwindCSS', 'Node.js', 'Express.js', 'Web3 API'],
+    thumbnailUrl: 'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?auto=format&fit=crop&w=1200&q=80',
     galleryUrls: [
-      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80'
+      'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?auto=format&fit=crop&w=1200&q=80'
     ],
-    liveUrl: 'https://example.com/nexus',
-    githubUrl: 'https://github.com/example/nexus-cloud',
+    liveUrl: 'https://github.com/kehindeoluwaseunemmanuel',
+    githubUrl: 'https://github.com/kehindeoluwaseunemmanuel',
     featured: true,
     order: 2,
     createdAt: new Date().toISOString(),
@@ -127,115 +132,95 @@ const initialProjects = [
   },
   {
     id: 'proj-3',
-    title: 'Vivid Studio - WebGL 3D Canvas Editor',
-    slug: 'vivid-studio-3d-editor',
-    shortDescription: 'In-browser 3D model customizer and interactive scene composer powered by Three.js and WebGL shaders.',
-    fullDescription: 'Vivid Studio empowers creators to manipulate 3D geometry, apply physically-based rendering (PBR) materials, tweak lighting environments, and export optimized GLTF models directly in the browser.',
-    techStack: ['Three.js', 'React', 'TypeScript', 'GLSL Shaders', 'Tailwind CSS'],
-    thumbnailUrl: 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=1200&q=80',
+    title: 'Interactive Secondary School Learning & Portal System',
+    slug: 'school-portal-management-system',
+    shortDescription: 'PHP & MySQL powered web application for lesson plan management, student grading, and academic event scheduling.',
+    fullDescription: 'Designed during NYSC teaching service at Olcas College Int\'l to streamline SS student attendance, interactive problem-solving modules, and academic performance tracking.',
+    techStack: ['PHP', 'Laravel', 'MySQL', 'Bootstrap', 'JavaScript', 'HTML5/CSS3'],
+    thumbnailUrl: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80',
     galleryUrls: [
-      'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=1200&q=80'
+      'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80'
     ],
-    liveUrl: 'https://example.com/vivid-3d',
-    githubUrl: 'https://github.com/example/vivid-studio',
+    liveUrl: 'https://github.com/kehindeoluwaseunemmanuel',
+    githubUrl: 'https://github.com/kehindeoluwaseunemmanuel',
     featured: true,
     order: 3,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: 'proj-4',
-    title: 'Horizon Fintech - High-Frequency Trading UI',
-    slug: 'horizon-fintech-trading',
-    shortDescription: 'Ultra-fast financial trading terminal featuring real-time WebSocket order books and order execution tools.',
-    fullDescription: 'Horizon Fintech is built for rapid market data processing. It renders live candlestick charts, order depth visualizers, and algorithmic execution controls with 60 FPS UI responsiveness under extreme load.',
-    techStack: ['React', 'WebSockets', 'Recharts', 'Tailwind CSS', 'Node.js'],
-    thumbnailUrl: 'https://images.unsplash.com/photo-1642543492481-44e81e3914a7?auto=format&fit=crop&w=1200&q=80',
-    galleryUrls: [
-      'https://images.unsplash.com/photo-1642543492481-44e81e3914a7?auto=format&fit=crop&w=1200&q=80'
-    ],
-    liveUrl: 'https://example.com/horizon-trade',
-    githubUrl: 'https://github.com/example/horizon-trade',
-    featured: false,
-    order: 4,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   }
 ];
 
 const initialSkills = [
-  { id: 'sk-1', name: 'TypeScript / JavaScript', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg', level: 95, yearsExperience: 6, category: 'Frontend', order: 1 },
-  { id: 'sk-2', name: 'React / Next.js', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg', level: 92, yearsExperience: 6, category: 'Frontend', order: 2 },
-  { id: 'sk-3', name: 'Three.js / WebGL', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/threejs/threejs-original.svg', level: 85, yearsExperience: 3, category: 'Frontend', order: 3 },
-  { id: 'sk-4', name: 'Node.js & Express', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg', level: 90, yearsExperience: 5, category: 'Backend', order: 4 },
-  { id: 'sk-5', name: 'Python & FastAPI', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg', level: 82, yearsExperience: 4, category: 'Backend', order: 5 },
-  { id: 'sk-6', name: 'PostgreSQL & MongoDB', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg', level: 88, yearsExperience: 5, category: 'Database', order: 6 },
-  { id: 'sk-7', name: 'Docker & Kubernetes', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg', level: 80, yearsExperience: 4, category: 'Cloud & DevOps', order: 7 },
-  { id: 'sk-8', name: 'AWS & Cloud Infrastructure', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg', level: 84, yearsExperience: 4, category: 'Cloud & DevOps', order: 8 },
-  { id: 'sk-9', name: 'Tailwind CSS', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg', level: 96, yearsExperience: 5, category: 'Frontend', order: 9 },
-  { id: 'sk-10', name: 'Git / GitHub CI/CD', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg', level: 92, yearsExperience: 6, category: 'Tools & Other', order: 10 }
+  { id: 'sk-1', name: 'HTML5 & CSS3', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg', level: 95, yearsExperience: 3, category: 'Frontend', order: 1 },
+  { id: 'sk-2', name: 'JavaScript (ES6+)', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg', level: 90, yearsExperience: 3, category: 'Frontend', order: 2 },
+  { id: 'sk-3', name: 'TailwindCSS & Bootstrap', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg', level: 92, yearsExperience: 3, category: 'Frontend', order: 3 },
+  { id: 'sk-4', name: 'PHP & Laravel', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-original.svg', level: 85, yearsExperience: 2, category: 'Backend', order: 4 },
+  { id: 'sk-5', name: 'Node.js & Express.js', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg', level: 85, yearsExperience: 2, category: 'Backend', order: 5 },
+  { id: 'sk-6', name: 'MySQL & MongoDB', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg', level: 85, yearsExperience: 2, category: 'Database', order: 6 },
+  { id: 'sk-7', name: 'Web3 & Crypto Fundamentals', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg', level: 80, yearsExperience: 2, category: 'Blockchain', order: 7 },
+  { id: 'sk-8', name: 'Git, Figma, CorelDRAW & VS Code', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg', level: 90, yearsExperience: 3, category: 'Tools & Other', order: 8 }
 ];
 
 const initialExperience = [
   {
     id: 'exp-1',
-    company: 'Apex Cloud Technologies',
-    role: 'Lead Full-Stack Engineer',
-    companyLogoUrl: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?auto=format&fit=crop&w=200&q=80',
-    startDate: '2023-01-01',
-    endDate: '', // Present
-    description: 'Directed architectural decisions for microservices serving over 2M active monthly users. Mentored a team of 8 engineers, reduced bundle sizes by 42%, and spearheaded real-time collaboration features.',
+    company: "Olcas College Int'l, Ipetumodu",
+    role: 'Mathematics Teacher (NYSC)',
+    companyLogoUrl: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=200&q=80',
+    startDate: '2024-04-01',
+    endDate: '2025-02-28',
+    description: '• Designed and delivered engaging lesson plans for SS (Senior Secondary) students.\n• Enhanced student problem-solving skills through interactive and practical mathematical methods.\n• Supported school events, academic activities, and overall student development.',
     order: 1
   },
   {
     id: 'exp-2',
-    company: 'Strata Software Labs',
-    role: 'Senior Frontend Developer',
-    companyLogoUrl: 'https://images.unsplash.com/photo-1572021335469-31706a17aaef?auto=format&fit=crop&w=200&q=80',
-    startDate: '2021-03-01',
-    endDate: '2022-12-31',
-    description: 'Engineered high-performance web dashboards with React and D3. Implemented robust state management patterns, optimized WebGL render pipelines, and improved test coverage from 55% to 90%.',
-    order: 2
-  },
-  {
-    id: 'exp-3',
-    company: 'Quantum Digital Interactive',
-    role: 'Full-Stack Software Engineer',
+    company: 'HiiT Plc, Ikeja, Lagos',
+    role: 'Front-End Developer Intern',
     companyLogoUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=200&q=80',
-    startDate: '2019-06-01',
-    endDate: '2021-02-28',
-    description: 'Developed REST APIs, database schemas, and client applications. Integrated payment webhooks, OAuth2 SSO, and multi-tenant user access control.',
-    order: 3
+    startDate: '2022-01-01',
+    endDate: '2022-07-31',
+    description: '• Built responsive HTML/CSS/JS web pages and mobile-first user interfaces.\n• Assisted in product design and UI/UX improvements across client applications.\n• Conducted cross-browser testing and performance audits for client web products.',
+    order: 2
   }
 ];
 
 const initialEducation = [
   {
     id: 'edu-1',
-    institution: 'University of Technology & Science',
-    degree: 'Bachelor of Science (B.S.)',
-    fieldOfStudy: 'Computer Science & Software Engineering',
-    startDate: '2015-09-01',
-    endDate: '2019-05-30',
-    description: 'Graduated First Class Honors. Specialization in Distributed Systems, Data Structures, and Computer Graphics.',
+    institution: 'Ambrose Alli University, Ekpoma - Edo State, Nigeria',
+    degree: 'BSc Computer Science',
+    fieldOfStudy: 'Computer Science',
+    startDate: '2018-01-01',
+    endDate: '2023-12-31',
+    description: 'Graduated with Bachelor of Science in Computer Science. Specialized in software development, algorithms, web technologies, and systems engineering.',
     order: 1
+  },
+  {
+    id: 'edu-2',
+    institution: 'Ositelu Memorial College, Ogere Remo, Ogun State',
+    degree: 'Secondary Education',
+    fieldOfStudy: 'Science & Mathematics',
+    startDate: '2012-09-01',
+    endDate: '2018-07-01',
+    description: 'Senior Secondary School Certificate Examination (SSCE) with distinction in science and mathematics.',
+    order: 2
   }
 ];
 
 const initialTestimonials = [
   {
     id: 'test-1',
-    quote: 'Emmanuel is an exceptional software engineer. His ability to take complex backend architectures and pair them with fluid, intuitive frontends transformed our product cycle speed.',
-    authorName: 'Sarah Jenkins',
-    authorRole: 'VP of Engineering at Apex Cloud',
-    authorPhotoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80',
+    quote: 'Oluwaseun is a dedicated and highly disciplined full-stack developer with strong technical skills in web development, problem solving, and software engineering principles.',
+    authorName: 'Mr. Anthony A. Oyegunle',
+    authorRole: 'Professional Reference | +2348033165488',
+    authorPhotoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
     order: 1
   },
   {
     id: 'test-2',
-    quote: 'Rarely do you find an engineer who excels at system performance, 3D graphics, and user experience simultaneously. Emmanuel delivered our core WebGL platform well ahead of schedule.',
-    authorName: 'David Vance',
-    authorRole: 'Chief Product Officer at Vivid Studio',
+    quote: 'Oluwaseun displays exceptional initiative, attention to detail, and passion for web development, clean coding practices, and technology innovation.',
+    authorName: 'Mr. Michael O. Kehinde',
+    authorRole: 'Professional Reference | +2347030090866',
     authorPhotoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80',
     order: 2
   }
@@ -244,20 +229,20 @@ const initialTestimonials = [
 const initialCertifications = [
   {
     id: 'cert-1',
-    title: 'AWS Certified Solutions Architect – Associate',
-    issuingOrg: 'Amazon Web Services (AWS)',
-    issueDate: '2023-04-15',
-    credentialUrl: 'https://aws.amazon.com/verification',
-    badgeImageUrl: 'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?auto=format&fit=crop&w=200&q=80',
+    title: 'Software Development - 6-Month Professional Training Programme',
+    issuingOrg: 'TS Academy',
+    issueDate: '2026-01-01',
+    credentialUrl: '',
+    badgeImageUrl: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=200&q=80',
     order: 1
   },
   {
     id: 'cert-2',
-    title: 'Meta Senior Full-Stack Engineer Certification',
-    issuingOrg: 'Meta Professional Certificates',
-    issueDate: '2022-08-10',
-    credentialUrl: 'https://coursera.org/verify/meta',
-    badgeImageUrl: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=200&q=80',
+    title: 'Diploma in Web Design (DWD) - Distinction',
+    issuingOrg: 'HiiT Plc, Ikeja, Lagos',
+    issueDate: '2022-01-01',
+    credentialUrl: '',
+    badgeImageUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=200&q=80',
     order: 2
   }
 ];
