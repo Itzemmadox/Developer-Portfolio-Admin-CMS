@@ -272,7 +272,18 @@ export const api = {
     }),
 
   // Skills
-  getSkills: () => request<Skill[]>('/api/skills'),
+  getSkills: async (): Promise<Skill[]> => {
+    try {
+      const skills = await request<Skill[]>('/api/skills');
+      if (Array.isArray(skills)) {
+        api.setLocalCache('skills', skills);
+        return skills;
+      }
+      return api.getLocalCache<Skill[]>('skills') || [];
+    } catch {
+      return api.getLocalCache<Skill[]>('skills') || [];
+    }
+  },
   createSkill: (data: Partial<Skill>) =>
     request<Skill>('/api/skills', {
       method: 'POST',
@@ -289,7 +300,18 @@ export const api = {
     }),
 
   // Experience
-  getExperience: () => request<Experience[]>('/api/experience'),
+  getExperience: async (): Promise<Experience[]> => {
+    try {
+      const exp = await request<Experience[]>('/api/experience');
+      if (Array.isArray(exp)) {
+        api.setLocalCache('experience', exp);
+        return exp;
+      }
+      return api.getLocalCache<Experience[]>('experience') || [];
+    } catch {
+      return api.getLocalCache<Experience[]>('experience') || [];
+    }
+  },
   createExperience: (data: Partial<Experience>) =>
     request<Experience>('/api/experience', {
       method: 'POST',
@@ -306,7 +328,18 @@ export const api = {
     }),
 
   // Education
-  getEducation: () => request<Education[]>('/api/education'),
+  getEducation: async (): Promise<Education[]> => {
+    try {
+      const edu = await request<Education[]>('/api/education');
+      if (Array.isArray(edu)) {
+        api.setLocalCache('education', edu);
+        return edu;
+      }
+      return api.getLocalCache<Education[]>('education') || [];
+    } catch {
+      return api.getLocalCache<Education[]>('education') || [];
+    }
+  },
   createEducation: (data: Partial<Education>) =>
     request<Education>('/api/education', {
       method: 'POST',
@@ -323,7 +356,18 @@ export const api = {
     }),
 
   // Testimonials
-  getTestimonials: () => request<Testimonial[]>('/api/testimonials'),
+  getTestimonials: async (): Promise<Testimonial[]> => {
+    try {
+      const test = await request<Testimonial[]>('/api/testimonials');
+      if (Array.isArray(test)) {
+        api.setLocalCache('testimonials', test);
+        return test;
+      }
+      return api.getLocalCache<Testimonial[]>('testimonials') || [];
+    } catch {
+      return api.getLocalCache<Testimonial[]>('testimonials') || [];
+    }
+  },
   createTestimonial: (data: Partial<Testimonial>) =>
     request<Testimonial>('/api/testimonials', {
       method: 'POST',
@@ -340,7 +384,18 @@ export const api = {
     }),
 
   // Certifications
-  getCertifications: () => request<Certification[]>('/api/certifications'),
+  getCertifications: async (): Promise<Certification[]> => {
+    try {
+      const certs = await request<Certification[]>('/api/certifications');
+      if (Array.isArray(certs)) {
+        api.setLocalCache('certifications', certs);
+        return certs;
+      }
+      return api.getLocalCache<Certification[]>('certifications') || [];
+    } catch {
+      return api.getLocalCache<Certification[]>('certifications') || [];
+    }
+  },
   createCertification: (data: Partial<Certification>) =>
     request<Certification>('/api/certifications', {
       method: 'POST',
@@ -357,7 +412,18 @@ export const api = {
     }),
 
   // News
-  getNews: () => request<CachedArticle[]>('/api/news'),
+  getNews: async (): Promise<CachedArticle[]> => {
+    try {
+      const news = await request<CachedArticle[]>('/api/news');
+      if (Array.isArray(news)) {
+        api.setLocalCache('news', news);
+        return news;
+      }
+      return api.getLocalCache<CachedArticle[]>('news') || [];
+    } catch {
+      return api.getLocalCache<CachedArticle[]>('news') || [];
+    }
+  },
   refreshNews: () =>
     request<{ success: boolean; count: number; articles: CachedArticle[] }>('/api/news/refresh', {
       method: 'POST'

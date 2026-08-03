@@ -100,31 +100,31 @@ export default function App() {
         certRes,
         newsRes
       ] = await Promise.all([
-        api.getSettings(),
-        api.getProjects(),
-        api.getSkills(),
-        api.getExperience(),
-        api.getEducation(),
-        api.getTestimonials(),
-        api.getCertifications(),
-        api.getNews()
+        api.getSettings().catch(() => null),
+        api.getProjects().catch(() => []),
+        api.getSkills().catch(() => []),
+        api.getExperience().catch(() => []),
+        api.getEducation().catch(() => []),
+        api.getTestimonials().catch(() => []),
+        api.getCertifications().catch(() => []),
+        api.getNews().catch(() => [])
       ]);
 
-      setSettings(settingsRes);
-      setProjects(projectsRes);
-      setSkills(skillsRes);
-      setExperience(expRes);
-      setEducation(eduRes);
-      setTestimonials(testRes);
-      setCertifications(certRes);
-      setNews(newsRes);
+      if (settingsRes) setSettings(settingsRes);
+      if (projectsRes) setProjects(projectsRes);
+      if (skillsRes) setSkills(skillsRes);
+      if (expRes) setExperience(expRes);
+      if (eduRes) setEducation(eduRes);
+      if (testRes) setTestimonials(testRes);
+      if (certRes) setCertifications(certRes);
+      if (newsRes) setNews(newsRes);
 
       // Update browser head title
       if (settingsRes?.seo?.siteTitle) {
         document.title = settingsRes.seo.siteTitle;
       }
     } catch (err) {
-      console.error('Error loading portfolio data:', err);
+      console.warn('Notice loading portfolio data:', err);
     } finally {
       setLoading(false);
     }

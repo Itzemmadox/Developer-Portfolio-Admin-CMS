@@ -60,20 +60,22 @@ export function useScrollAnimations(enabled: boolean = true) {
     // 4. Smooth Anchor Link Navigation (#about, #projects, etc.)
     const handleAnchorClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      const anchor = target.closest('a');
-      if (
-        anchor &&
-        anchor.hash &&
-        anchor.hash.startsWith('#') &&
-        (anchor.origin === window.location.origin || !anchor.origin)
-      ) {
-        const targetElement = document.querySelector(anchor.hash);
-        if (targetElement) {
-          e.preventDefault();
-          lenis.scrollTo(targetElement as HTMLElement, {
-            offset: -70,
-            duration: 1.4,
-          });
+      const anchor = target?.closest('a');
+      if (anchor) {
+        const href = anchor.getAttribute('href');
+        if (href && href.startsWith('#') && href.length > 1) {
+          try {
+            const targetElement = document.querySelector(href);
+            if (targetElement) {
+              e.preventDefault();
+              lenis.scrollTo(targetElement as HTMLElement, {
+                offset: -70,
+                duration: 1.4,
+              });
+            }
+          } catch {
+            // ignore invalid selectors
+          }
         }
       }
     };
