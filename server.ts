@@ -1,6 +1,25 @@
-import express, { Request, Response } from 'express';
+import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
+
+dotenv.config();
+
+// Auto-populate process.env from data/env.json if available
+try {
+  const envJsonPath = path.join(process.cwd(), 'data', 'env.json');
+  if (fs.existsSync(envJsonPath)) {
+    const envData = JSON.parse(fs.readFileSync(envJsonPath, 'utf8'));
+    for (const [k, v] of Object.entries(envData)) {
+      if (typeof v === 'string' && v.trim() !== '') {
+        process.env[k] = process.env[k] || v;
+      }
+    }
+  }
+} catch (e) {
+  // ignore
+}
+
+import express, { Request, Response } from 'express';
 import cookieParser from 'cookie-parser';
 import bcrypt from 'bcryptjs';
 import multer from 'multer';

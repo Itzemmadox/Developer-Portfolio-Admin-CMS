@@ -2,11 +2,25 @@ import { v2 as cloudinary } from 'cloudinary';
 import fs from 'fs';
 import path from 'path';
 
+function getEnvVal(key: string): string {
+  if (process.env[key]) return process.env[key] as string;
+  try {
+    const configPath = path.join(process.cwd(), 'data', 'env.json');
+    if (fs.existsSync(configPath)) {
+      const data = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+      if (data[key]) return data[key];
+    }
+  } catch (e) {
+    // ignore
+  }
+  return '';
+}
+
 // Check if Cloudinary credentials are fully provided and valid (not placeholders)
 export const isCloudinaryConfigured = (): boolean => {
-  const name = process.env.CLOUDINARY_CLOUD_NAME;
-  const key = process.env.CLOUDINARY_API_KEY;
-  const secret = process.env.CLOUDINARY_API_SECRET;
+  const name = getEnvVal('CLOUDINARY_CLOUD_NAME');
+  const key = getEnvVal('CLOUDINARY_API_KEY');
+  const secret = getEnvVal('CLOUDINARY_API_SECRET');
 
   if (!name || !key || !secret) return false;
   if (name.includes('your_cloudinary') || key.includes('your_cloudinary') || secret.includes('your_cloudinary')) {
@@ -18,9 +32,9 @@ export const isCloudinaryConfigured = (): boolean => {
 // Configure Cloudinary if env vars exist
 if (isCloudinaryConfigured()) {
   cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
+    cloud_name: getEnvVal('CLOUDINARY_CLOUD_NAME'),
+    api_key: getEnvVal('CLOUDINARY_API_KEY'),
+    api_secret: getEnvVal('CLOUDINARY_API_SECRET'),
     secure: true
   });
 }

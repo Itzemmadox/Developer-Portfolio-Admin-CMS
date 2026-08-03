@@ -1,4 +1,6 @@
 import mongoose from 'mongoose';
+import fs from 'fs';
+import path from 'path';
 import {
   AdminModel,
   SettingsModel,
@@ -15,9 +17,24 @@ import {
 let isConnected = false;
 let connectionError: string | null = null;
 
+export function getEffectiveMongoUri(): string {
+  if (process.env.MONGODB_URI) return process.env.MONGODB_URI;
+  try {
+    const configPath = path.join(process.cwd(), 'data', 'env.json');
+    if (fs.existsSync(configPath)) {
+      const data = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+      if (data.MONGODB_URI) return data.MONGODB_URI;
+    }
+  } catch (e) {
+    // ignore
+  }
+  return '';
+}
+
 export const getMongoStatus = () => {
+  const uri = getEffectiveMongoUri();
   return {
-    configured: Boolean(process.env.MONGODB_URI),
+    configured: Boolean(uri),
     connected: isConnected,
     connectionState: mongoose.connection.readyState, // 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
     error: connectionError
@@ -25,19 +42,20 @@ export const getMongoStatus = () => {
 };
 
 export async function connectMongoDB(): Promise<boolean> {
-  const uri = process.env.MONGODB_URI;
+  const uri = getEffectiveMongoUri();
   if (!uri) {
     console.log('ℹ️ MONGODB_URI not provided. Running on local storage engine.');
     return false;
   }
 
-  // Filter out dummy placeholder connection strings
+  // Filter out dummy placeholder connection strings or unreplaced angle brackets
   if (
     uri.includes('username:password') ||
     uri.includes('<username>') ||
-    uri.includes('your_mongodb_uri')
+    uri.includes('your_mongodb_uri') ||
+    (uri.includes('<') && uri.includes('>'))
   ) {
-    connectionError = 'MONGODB_URI is set to default placeholder. Please set your actual MongoDB Atlas URI in environment variables.';
+    connectionError = 'MONGODB_URI contains angle brackets `<` or `>`. Please remove `<` and `>` from around your password in MONGODB_URI (e.g., change `:<password>@` to `:yourpassword@`).';
     console.log('ℹ️ ' + connectionError + ' Falling back to local storage engine.');
     return false;
   }
@@ -63,6 +81,8 @@ export async function connectMongoDB(): Promise<boolean> {
 
     if (rawError.includes('whitelisted') || rawError.includes('IP') || rawError.includes('selection timed out') || rawError.includes('connect ECONNREFUSED')) {
       connectionError = 'MongoDB Atlas IP Whitelist Error: Your MongoDB Atlas cluster is blocking connections from external IPs. To fix this, go to MongoDB Atlas -> Security -> Network Access -> Add IP Address -> Add 0.0.0.0/0 (Allow access from anywhere).';
+    } else if (rawError.includes('bad auth') || rawError.includes('authentication failed') || rawError.includes('AuthenticationFailed')) {
+      connectionError = 'MongoDB Authentication Failed ("bad auth"): MongoDB Atlas rejected the username or password. To resolve: (1) Open MongoDB Atlas (cloud.mongodb.com) -> Security -> Database Access, (2) Edit user "kehindeoluwaseunemmanuel_db_user" and click "Edit Password" to assign a new password, (3) Ensure Built-in Role is set to "Read and write to any database", (4) Update MONGODB_URI in your Environment Variables or Settings with the new password.';
     } else {
       connectionError = rawError;
     }
