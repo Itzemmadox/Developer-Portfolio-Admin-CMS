@@ -133,3 +133,14 @@ export async function uploadMediaFile(
     folder: 'uploads'
   };
 }
+
+export async function deleteCloudinaryAsset(publicId: string): Promise<boolean> {
+  if (!publicId || !isCloudinaryConfigured()) return false;
+  try {
+    await cloudinary.uploader.destroy(publicId);
+    return true;
+  } catch (err) {
+    console.error('Failed to delete Cloudinary asset:', err);
+    return false;
+  }
+}

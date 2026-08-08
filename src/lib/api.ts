@@ -6,6 +6,7 @@ import {
   Education,
   Testimonial,
   Certification,
+  Certificate,
   CachedArticle,
   ContactMessage,
   VisitorStats
@@ -409,6 +410,43 @@ export const api = {
   deleteCertification: (id: string) =>
     request<{ success: boolean }>(`/api/certifications/${id}`, {
       method: 'DELETE'
+    }),
+
+  // Certificates (Verified Credentials)
+  getCertificates: async (): Promise<Certificate[]> => {
+    try {
+      const certs = await request<Certificate[]>('/api/certificates');
+      if (Array.isArray(certs)) {
+        api.setLocalCache('certificates', certs);
+        return certs;
+      }
+      return api.getLocalCache<Certificate[]>('certificates') || [];
+    } catch {
+      return api.getLocalCache<Certificate[]>('certificates') || [];
+    }
+  },
+  createCertificate: (data: Partial<Certificate> | FormData) => {
+    const isFormData = data instanceof FormData;
+    return request<Certificate>('/api/certificates', {
+      method: 'POST',
+      body: isFormData ? data : JSON.stringify(data)
+    });
+  },
+  updateCertificate: (id: string, data: Partial<Certificate> | FormData) => {
+    const isFormData = data instanceof FormData;
+    return request<Certificate>(`/api/certificates/${id}`, {
+      method: 'PUT',
+      body: isFormData ? data : JSON.stringify(data)
+    });
+  },
+  deleteCertificate: (id: string) =>
+    request<{ success: boolean }>(`/api/certificates/${id}`, {
+      method: 'DELETE'
+    }),
+  reorderCertificates: (orders: { id: string; order: number }[]) =>
+    request<{ success: boolean; certificates: Certificate[] }>('/api/certificates/reorder', {
+      method: 'PATCH',
+      body: JSON.stringify({ orders })
     }),
 
   // News

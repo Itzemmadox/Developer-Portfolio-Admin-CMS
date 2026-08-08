@@ -113,6 +113,19 @@ const CertificationSchema = new Schema({
   order: { type: Number, default: 0 }
 }, { timestamps: true });
 
+// Certificate Schema (New verified credentials data model)
+const CertificateSchema = new Schema({
+  id: { type: String, required: true, unique: true },
+  title: { type: String, required: true },
+  issuer: { type: String, required: true },
+  category: { type: String, required: true },
+  imageUrl: { type: String, required: true },
+  imagePublicId: { type: String, default: '' },
+  credentialUrl: { type: String, default: '' },
+  issueDate: { type: String, default: '' },
+  order: { type: Number, default: 0 }
+}, { timestamps: true });
+
 // Testimonial Schema
 const TestimonialSchema = new Schema({
   id: { type: String, required: true, unique: true },
@@ -163,6 +176,7 @@ export const ExperienceModel = mongoose.models.Experience || mongoose.model('Exp
 export const EducationModel = mongoose.models.Education || mongoose.model('Education', EducationSchema);
 export const SkillModel = mongoose.models.Skill || mongoose.model('Skill', SkillSchema);
 export const CertificationModel = mongoose.models.Certification || mongoose.model('Certification', CertificationSchema);
+export const CertificateModel = mongoose.models.Certificate || mongoose.model('Certificate', CertificateSchema);
 export const TestimonialModel = mongoose.models.Testimonial || mongoose.model('Testimonial', TestimonialSchema);
 export const ContactMessageModel = mongoose.models.ContactMessage || mongoose.model('ContactMessage', ContactMessageSchema);
 export const VisitorAnalyticsModel = mongoose.models.VisitorAnalytics || mongoose.model('VisitorAnalytics', VisitorAnalyticsSchema);

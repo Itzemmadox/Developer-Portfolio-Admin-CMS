@@ -9,6 +9,7 @@ import {
   EducationModel,
   SkillModel,
   CertificationModel,
+  CertificateModel,
   TestimonialModel,
   ContactMessageModel
 } from './models.js';
@@ -247,6 +248,31 @@ const initialCertifications = [
   }
 ];
 
+const initialCertificates = [
+  {
+    id: 'vcert-1',
+    title: 'Software Development - 6-Month Professional Training Programme',
+    issuer: 'TS Academy',
+    category: 'WEB DEVELOPMENT',
+    imageUrl: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80',
+    imagePublicId: '',
+    credentialUrl: '',
+    issueDate: 'Jan 01, 2026',
+    order: 1
+  },
+  {
+    id: 'vcert-2',
+    title: 'Diploma in Web Design (DWD) - Distinction',
+    issuer: 'HiiT Plc, Ikeja, Lagos',
+    category: 'WEB DEVELOPMENT',
+    imageUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80',
+    imagePublicId: '',
+    credentialUrl: '',
+    issueDate: 'Jan 01, 2022',
+    order: 2
+  }
+];
+
 export const db = {
   getAdmin: () => readJSON('admin.json', initialAdmin),
   setAdmin: (data: any) => {
@@ -334,6 +360,17 @@ export const db = {
     if (getMongoStatus().connected) {
       CertificationModel.deleteMany({}).then(() => CertificationModel.insertMany(data)).catch((err) =>
         console.warn('Mongo async write error for certifications:', err)
+      );
+    }
+    return data;
+  },
+
+  getCertificates: () => readJSON('certificates.json', initialCertificates),
+  setCertificates: (data: any[]) => {
+    writeJSON('certificates.json', data);
+    if (getMongoStatus().connected) {
+      CertificateModel.deleteMany({}).then(() => CertificateModel.insertMany(data)).catch((err) =>
+        console.warn('Mongo async write error for certificates:', err)
       );
     }
     return data;

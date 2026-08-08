@@ -7,6 +7,7 @@ import {
   Education,
   Testimonial,
   Certification,
+  Certificate,
   CachedArticle,
   ContactMessage
 } from './types';
@@ -17,11 +18,11 @@ import { Navbar } from './components/public/Navbar';
 import { Hero } from './components/public/Hero';
 import { About } from './components/public/About';
 import { Skills } from './components/public/Skills';
+import { CertificatesListModal } from './components/public/CertificatesListModal';
 import { Experience as ExperienceSection } from './components/public/Experience';
 import { Education as EducationSection } from './components/public/Education';
 import { Projects } from './components/public/Projects';
 import { Testimonials } from './components/public/Testimonials';
-import { Certifications } from './components/public/Certifications';
 import { NewsSection } from './components/public/NewsSection';
 import { ContactSection } from './components/public/ContactSection';
 import { Footer } from './components/public/Footer';
@@ -35,7 +36,7 @@ import { SkillsManager } from './components/admin/SkillsManager';
 import { ExperienceManager } from './components/admin/ExperienceManager';
 import { EducationManager } from './components/admin/EducationManager';
 import { TestimonialsManager } from './components/admin/TestimonialsManager';
-import { CertificationsManager } from './components/admin/CertificationsManager';
+import { CertificatesManager } from './components/admin/CertificatesManager';
 import { SettingsManager } from './components/admin/SettingsManager';
 import { MessagesManager } from './components/admin/MessagesManager';
 
@@ -69,12 +70,16 @@ export default function App() {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [skills, setSkills] = useState<Skill[]>([]);
+  const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [experience, setExperience] = useState<Experience[]>([]);
   const [education, setEducation] = useState<Education[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [certifications, setCertifications] = useState<Certification[]>([]);
   const [news, setNews] = useState<CachedArticle[]>([]);
   const [messages, setMessages] = useState<ContactMessage[]>([]);
+
+  // Modals
+  const [showCertificatesModal, setShowCertificatesModal] = useState(false);
 
   // Admin View State
   const [isAdminView, setIsAdminView] = useState(false);
@@ -94,6 +99,7 @@ export default function App() {
         settingsRes,
         projectsRes,
         skillsRes,
+        certificatesRes,
         expRes,
         eduRes,
         testRes,
@@ -103,6 +109,7 @@ export default function App() {
         api.getSettings().catch(() => null),
         api.getProjects().catch(() => []),
         api.getSkills().catch(() => []),
+        api.getCertificates().catch(() => []),
         api.getExperience().catch(() => []),
         api.getEducation().catch(() => []),
         api.getTestimonials().catch(() => []),
@@ -113,6 +120,7 @@ export default function App() {
       if (settingsRes) setSettings(settingsRes);
       if (projectsRes) setProjects(projectsRes);
       if (skillsRes) setSkills(skillsRes);
+      if (certificatesRes) setCertificates(certificatesRes);
       if (expRes) setExperience(expRes);
       if (eduRes) setEducation(eduRes);
       if (testRes) setTestimonials(testRes);
@@ -271,8 +279,8 @@ export default function App() {
         {adminTab === 'testimonials' && (
           <TestimonialsManager testimonials={testimonials} onRefresh={loadPublicData} />
         )}
-        {adminTab === 'certifications' && (
-          <CertificationsManager certifications={certifications} onRefresh={loadPublicData} />
+        {adminTab === 'certificates' && (
+          <CertificatesManager certificates={certificates} onUpdate={loadPublicData} />
         )}
         {adminTab === 'settings' && (
           <SettingsManager settings={defaultSettings} onRefresh={loadPublicData} />
@@ -292,17 +300,28 @@ export default function App() {
       <main className="max-w-full overflow-x-clip">
         <Hero settings={defaultSettings} />
         <About settings={defaultSettings} />
-        <Skills skills={skills} />
+        <Skills
+          skills={skills}
+          certificatesCount={certificates.length}
+          onOpenCertificates={() => setShowCertificatesModal(true)}
+        />
         <ExperienceSection experience={experience} />
         <EducationSection education={education} />
         <Projects projects={projects} />
         <Testimonials testimonials={testimonials} />
-        <Certifications certifications={certifications} />
         <NewsSection articles={news} onRefreshSuccess={setNews} />
         <ContactSection settings={defaultSettings} />
       </main>
 
       <Footer settings={defaultSettings} onOpenAdmin={handleOpenAdmin} darkMode={darkMode} onToggleDarkMode={toggleDarkMode} />
+
+      {/* Certificates List & Search Modal */}
+      {showCertificatesModal && (
+        <CertificatesListModal
+          certificates={certificates}
+          onClose={() => setShowCertificatesModal(false)}
+        />
+      )}
 
       {/* Admin Login Modal */}
       {showLoginModal && (

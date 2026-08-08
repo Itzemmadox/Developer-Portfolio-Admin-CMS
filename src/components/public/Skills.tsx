@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import { Skill } from '../../types';
 import { Cpu, Layers } from 'lucide-react';
 import { RevealOnScroll } from './RevealOnScroll';
+import { CertificatesTrigger } from './CertificatesTrigger';
 
 interface SkillsProps {
   skills: Skill[];
+  certificatesCount?: number;
+  onOpenCertificates?: () => void;
 }
 
-export const Skills: React.FC<SkillsProps> = ({ skills }) => {
+export const Skills: React.FC<SkillsProps> = ({ skills, certificatesCount = 0, onOpenCertificates }) => {
   const [activeCategory, setActiveCategory] = useState<string>('All');
 
   const categories = ['All', 'Frontend', 'Backend', 'Cloud & DevOps', 'Database', 'Tools & Other'];
@@ -20,15 +23,23 @@ export const Skills: React.FC<SkillsProps> = ({ skills }) => {
     <section id="skills" className="py-24 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 relative transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <RevealOnScroll>
-          {/* Section Header */}
-          <div className="flex items-center gap-3 mb-8">
-            <div className="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-900/50 text-indigo-600 dark:text-indigo-400">
-              <Cpu className="w-5 h-5" />
+          {/* Section Header with Certificate Trigger */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-900/50 text-indigo-600 dark:text-indigo-400">
+                <Cpu className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Technical Skills & Expertise</h2>
+                <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Languages, Frameworks, Cloud Infrastructure & Dev Tools</p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Technical Skills & Expertise</h2>
-              <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Languages, Frameworks, Cloud Infrastructure & Dev Tools</p>
-            </div>
+
+            {onOpenCertificates && certificatesCount > 0 && (
+              <div className="flex-shrink-0">
+                <CertificatesTrigger count={certificatesCount} onClick={onOpenCertificates} />
+              </div>
+            )}
           </div>
 
           {/* Category Filters */}

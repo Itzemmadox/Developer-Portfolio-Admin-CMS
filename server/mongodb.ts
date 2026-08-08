@@ -9,6 +9,7 @@ import {
   EducationModel,
   SkillModel,
   CertificationModel,
+  CertificateModel,
   TestimonialModel,
   ContactMessageModel,
   VisitorAnalyticsModel
@@ -182,6 +183,15 @@ export async function seedMongoFromLocalData(localDb: any) {
           badgeImage: c.badgeImage || c.badgeImageUrl || ''
         }));
         await CertificationModel.insertMany(normalizedCerts);
+      }
+    }
+
+    // Certificates (Verified Credentials)
+    const certificateCount = await CertificateModel.countDocuments();
+    if (certificateCount === 0) {
+      const localCertificates = localDb.getCertificates ? localDb.getCertificates() : [];
+      if (localCertificates && localCertificates.length > 0) {
+        await CertificateModel.insertMany(localCertificates);
       }
     }
 

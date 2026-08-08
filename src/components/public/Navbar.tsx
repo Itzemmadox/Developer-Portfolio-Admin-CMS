@@ -23,11 +23,10 @@ export const Navbar: React.FC<NavbarProps> = ({ settings, onOpenAdmin, darkMode,
 
   const navLinks = [
     { name: 'About', href: '#about' },
-    { name: 'Skills', href: '#skills' },
+    { name: 'Skills & Certs', href: '#skills' },
     { name: 'Experience', href: '#experience' },
     { name: 'Projects', href: '#projects' },
     { name: 'Testimonials', href: '#testimonials' },
-    { name: 'Certifications', href: '#certifications' },
     { name: 'Latest News', href: '#news' },
     { name: 'Contact', href: '#contact' },
   ];

@@ -28,7 +28,7 @@ import { db } from './server/db.js';
 import { authMiddleware, generateToken, AuthenticatedRequest } from './server/auth.js';
 import { fetchDevToArticles, initNewsCron } from './server/newsCron.js';
 import { connectMongoDB, getMongoStatus, seedMongoFromLocalData } from './server/mongodb.js';
-import { uploadMediaFile, isCloudinaryConfigured } from './server/cloudinary.js';
+import { uploadMediaFile, isCloudinaryConfigured, deleteCloudinaryAsset } from './server/cloudinary.js';
 
 const app = express();
 const PORT = 3000;
@@ -579,6 +579,119 @@ app.delete('/api/certifications/:id', authMiddleware, (req: Request, res: Respon
   items = items.filter((c: any) => c.id !== req.params.id);
   db.setCertifications(items);
   res.json({ success: true, message: 'Certification deleted' });
+});
+
+// CERTIFICATES (VERIFIED CREDENTIALS)
+app.get('/api/certificates', (req: Request, res: Response) => {
+  const items = db.getCertificates ? db.getCertificates() : [];
+  items.sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
+  res.json(items);
+});
+
+app.post('/api/certificates', authMiddleware, upload.single('image'), async (req: Request, res: Response) => {
+  try {
+    const items = db.getCertificates ? db.getCertificates() : [];
+    let imageUrl = req.body.imageUrl || '';
+    let imagePublicId = req.body.imagePublicId || '';
+
+    if (req.file) {
+      const uploadRes = await uploadMediaFile(req.file);
+      imageUrl = uploadRes.url;
+      imagePublicId = uploadRes.publicId || '';
+    }
+
+    const newItem = {
+      id: `vcert-${Date.now()}`,
+      title: req.body.title || 'Untitled Certificate',
+      issuer: req.body.issuer || 'Issuer',
+      category: req.body.category || 'GENERAL',
+      imageUrl,
+      imagePublicId,
+      credentialUrl: req.body.credentialUrl || '',
+      issueDate: req.body.issueDate || '',
+      order: req.body.order !== undefined ? Number(req.body.order) : items.length + 1,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    items.push(newItem);
+    db.setCertificates(items);
+    res.status(201).json(newItem);
+  } catch (err: any) {
+    console.error('Error creating certificate:', err);
+    res.status(500).json({ error: err.message || 'Failed to create certificate' });
+  }
+});
+
+app.put('/api/certificates/:id', authMiddleware, upload.single('image'), async (req: Request, res: Response) => {
+  try {
+    const items = db.getCertificates ? db.getCertificates() : [];
+    const index = items.findIndex((c: any) => c.id === req.params.id);
+    if (index === -1) {
+      res.status(404).json({ error: 'Certificate not found' });
+      return;
+    }
+
+    const existing = items[index];
+    let imageUrl = req.body.imageUrl !== undefined ? req.body.imageUrl : existing.imageUrl;
+    let imagePublicId = req.body.imagePublicId !== undefined ? req.body.imagePublicId : existing.imagePublicId;
+
+    if (req.file) {
+      if (existing.imagePublicId) {
+        await deleteCloudinaryAsset(existing.imagePublicId);
+      }
+      const uploadRes = await uploadMediaFile(req.file);
+      imageUrl = uploadRes.url;
+      imagePublicId = uploadRes.publicId || '';
+    }
+
+    items[index] = {
+      ...existing,
+      ...req.body,
+      imageUrl,
+      imagePublicId,
+      order: req.body.order !== undefined ? Number(req.body.order) : existing.order,
+      updatedAt: new Date().toISOString()
+    };
+
+    db.setCertificates(items);
+    res.json(items[index]);
+  } catch (err: any) {
+    console.error('Error updating certificate:', err);
+    res.status(500).json({ error: err.message || 'Failed to update certificate' });
+  }
+});
+
+app.delete('/api/certificates/:id', authMiddleware, async (req: Request, res: Response) => {
+  try {
+    let items = db.getCertificates ? db.getCertificates() : [];
+    const found = items.find((c: any) => c.id === req.params.id);
+    if (found && found.imagePublicId) {
+      await deleteCloudinaryAsset(found.imagePublicId);
+    }
+    items = items.filter((c: any) => c.id !== req.params.id);
+    db.setCertificates(items);
+    res.json({ success: true, message: 'Certificate deleted successfully' });
+  } catch (err: any) {
+    console.error('Error deleting certificate:', err);
+    res.status(500).json({ error: err.message || 'Failed to delete certificate' });
+  }
+});
+
+app.patch('/api/certificates/reorder', authMiddleware, (req: Request, res: Response) => {
+  const orders = req.body.orders || req.body;
+  if (!Array.isArray(orders)) {
+    res.status(400).json({ error: 'Invalid orders array' });
+    return;
+  }
+  const items = db.getCertificates ? db.getCertificates() : [];
+  orders.forEach(({ id, order }: { id: string; order: number }) => {
+    const item = items.find((c: any) => c.id === id);
+    if (item) item.order = Number(order);
+  });
+  items.sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
+  db.setCertificates(items);
+  res.json({ success: true, certificates: items });
 });
 
 // NEWS (DEV.TO CACHE)

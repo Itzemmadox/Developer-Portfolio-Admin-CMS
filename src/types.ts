@@ -66,6 +66,20 @@ export interface Certification {
   order: number;
 }
 
+export interface Certificate {
+  id: string;
+  title: string;
+  issuer: string;
+  category: string;
+  imageUrl: string;
+  imagePublicId?: string;
+  credentialUrl?: string;
+  issueDate?: string;
+  order: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface SocialLinks {
   github?: string;
   linkedin?: string;

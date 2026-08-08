@@ -24,7 +24,7 @@ export type AdminTab =
   | 'experience'
   | 'education'
   | 'testimonials'
-  | 'certifications'
+  | 'certificates'
   | 'settings'
   | 'messages';
 
@@ -54,7 +54,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
     { id: 'experience', label: 'Experience', icon: Briefcase },
     { id: 'education', label: 'Education', icon: GraduationCap },
     { id: 'testimonials', label: 'Testimonials', icon: MessageSquare },
-    { id: 'certifications', label: 'Certifications', icon: Award },
+    { id: 'certificates', label: 'Certificates & Credentials', icon: Award },
     { id: 'messages', label: 'Contact Messages', icon: Mail, badge: unreadCount },
     { id: 'settings', label: 'Site Settings', icon: Settings }
   ];

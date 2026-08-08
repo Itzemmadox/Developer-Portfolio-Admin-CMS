@@ -1,0 +1,24 @@
+[
+  {
+    "id": "vcert-1",
+    "title": "Software Development - 6-Month Professional Training Programme",
+    "issuer": "TS Academy",
+    "category": "WEB DEVELOPMENT",
+    "imageUrl": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80",
+    "imagePublicId": "",
+    "credentialUrl": "",
+    "issueDate": "Jan 01, 2026",
+    "order": 1
+  },
+  {
+    "id": "vcert-2",
+    "title": "Diploma in Web Design (DWD) - Distinction",
+    "issuer": "HiiT Plc, Ikeja, Lagos",
+    "category": "WEB DEVELOPMENT",
+    "imageUrl": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80",
+    "imagePublicId": "",
+    "credentialUrl": "",
+    "issueDate": "Jan 01, 2022",
+    "order": 2
+  }
+]
