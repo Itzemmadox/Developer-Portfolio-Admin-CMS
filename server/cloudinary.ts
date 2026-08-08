@@ -3,16 +3,18 @@ import fs from 'fs';
 import path from 'path';
 
 function getEnvVal(key: string): string {
-  if (process.env[key]) return process.env[key] as string;
   try {
     const configPath = path.join(process.cwd(), 'data', 'env.json');
     if (fs.existsSync(configPath)) {
       const data = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-      if (data[key]) return data[key];
+      if (data[key] && typeof data[key] === 'string' && data[key].trim() !== '') {
+        return data[key];
+      }
     }
   } catch (e) {
     // ignore
   }
+  if (process.env[key]) return process.env[key] as string;
   return '';
 }
 
@@ -51,7 +53,7 @@ export interface UploadResult {
  * and environment variable / custom parameter settings.
  */
 export function getTargetCloudinaryFolder(file: Express.Multer.File, customFolder?: string): string {
-  const rootFolder = customFolder || process.env.CLOUDINARY_FOLDER || 'portfolio_uploads';
+  const rootFolder = customFolder || getEnvVal('CLOUDINARY_FOLDER') || 'portfolio_uploads';
   const cleanRoot = rootFolder.trim().replace(/\/+$/, '');
 
   const mime = file.mimetype ? file.mimetype.toLowerCase() : '';
@@ -95,20 +97,21 @@ export async function uploadMediaFile(
       return new Promise<UploadResult>((resolve) => {
         const mime = file.mimetype ? file.mimetype.toLowerCase() : '';
         const ext = path.extname(file.originalname || '').toLowerCase();
-        const isPdfOrDoc =
-          mime.includes('pdf') ||
-          mime.includes('document') ||
+        const isPdf = mime.includes('pdf') || ext === '.pdf';
+        const isRawDoc =
           mime.includes('word') ||
           mime.includes('sheet') ||
           mime.includes('excel') ||
           mime.includes('zip') ||
           mime.includes('octet-stream') ||
-          ext === '.pdf' ||
           ext === '.doc' ||
           ext === '.docx' ||
           ext === '.zip';
 
-        const resourceType = isPdfOrDoc ? 'raw' : 'auto';
+        // For PDFs and images, Cloudinary supports 'auto' or 'image' which enables
+        // format detection ('pdf'), page 1 thumbnail generation, and previews in Cloudinary console.
+        // Only raw unparsed binary archives (zip/doc) use 'raw' if auto doesn't handle them.
+        const resourceType = isPdf ? 'image' : (isRawDoc ? 'raw' : 'auto');
 
         const uploadStream = cloudinary.uploader.upload_stream(
           {
@@ -159,5 +162,64 @@ export async function deleteCloudinaryAsset(publicId: string): Promise<boolean> 
   } catch (err) {
     console.error('Failed to delete Cloudinary asset:', err);
     return false;
+  }
+}
+
+export function parseCloudinaryUrl(urlStr: string) {
+  try {
+    const url = new URL(urlStr);
+    const parts = url.pathname.split('/').filter(Boolean);
+    const uploadIndex = parts.indexOf('upload');
+    if (uploadIndex === -1) return null;
+
+    const resourceType = parts[uploadIndex - 1] || 'image';
+    const pathAfterUpload = parts.slice(uploadIndex + 1);
+
+    let versionIndex = -1;
+    for (let i = 0; i < pathAfterUpload.length; i++) {
+      if (/^v\d+$/.test(pathAfterUpload[i])) {
+        versionIndex = i;
+        break;
+      }
+    }
+
+    let publicIdParts: string[];
+    if (versionIndex !== -1) {
+      publicIdParts = pathAfterUpload.slice(versionIndex + 1);
+    } else {
+      publicIdParts = pathAfterUpload.filter(p => !p.includes(',') && !/^[a-z]_[a-z0-9]/i.test(p));
+    }
+
+    const fullPath = publicIdParts.join('/');
+    let format = '';
+    let publicId = fullPath;
+
+    if (resourceType === 'image') {
+      const lastDot = fullPath.lastIndexOf('.');
+      if (lastDot !== -1) {
+        publicId = fullPath.substring(0, lastDot);
+        format = fullPath.substring(lastDot + 1);
+      }
+    }
+
+    return { resourceType, publicId, format };
+  } catch (e) {
+    return null;
+  }
+}
+
+export function getSignedDownloadUrl(urlStr: string): string | null {
+  if (!isCloudinaryConfigured()) return null;
+  const parsed = parseCloudinaryUrl(urlStr);
+  if (!parsed) return null;
+
+  try {
+    return cloudinary.utils.private_download_url(parsed.publicId, parsed.format, {
+      resource_type: parsed.resourceType as any,
+      type: 'upload'
+    });
+  } catch (err) {
+    console.error('Failed to generate private_download_url:', err);
+    return null;
   }
 }

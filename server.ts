@@ -11,7 +11,7 @@ try {
     const envData = JSON.parse(fs.readFileSync(envJsonPath, 'utf8'));
     for (const [k, v] of Object.entries(envData)) {
       if (typeof v === 'string' && v.trim() !== '') {
-        process.env[k] = process.env[k] || v;
+        process.env[k] = v;
       }
     }
   }
@@ -28,7 +28,7 @@ import { db } from './server/db.js';
 import { authMiddleware, generateToken, AuthenticatedRequest } from './server/auth.js';
 import { fetchDevToArticles, initNewsCron } from './server/newsCron.js';
 import { connectMongoDB, getMongoStatus, seedMongoFromLocalData } from './server/mongodb.js';
-import { uploadMediaFile, isCloudinaryConfigured, deleteCloudinaryAsset } from './server/cloudinary.js';
+import { uploadMediaFile, isCloudinaryConfigured, deleteCloudinaryAsset, getSignedDownloadUrl } from './server/cloudinary.js';
 
 const app = express();
 const PORT = 3000;
@@ -241,6 +241,17 @@ app.get('/api/document/proxy', async (req: Request, res: Response) => {
       const rawResp = await fetch(rawUrl);
       if (rawResp.ok) {
         response = rawResp;
+      }
+    }
+
+    // If still failed and it's a Cloudinary URL, use signed private_download_url
+    if (!response.ok && (cleanUrl.includes('cloudinary.com') || fileUrl.includes('cloudinary.com'))) {
+      const signedUrl = getSignedDownloadUrl(cleanUrl) || getSignedDownloadUrl(fileUrl);
+      if (signedUrl) {
+        const signedResp = await fetch(signedUrl);
+        if (signedResp.ok) {
+          response = signedResp;
+        }
       }
     }
 
