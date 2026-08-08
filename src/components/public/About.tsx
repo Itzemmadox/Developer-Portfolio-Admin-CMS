@@ -1,5 +1,6 @@
 import React from 'react';
 import { SiteSettings } from '../../types';
+import { getSafeDocumentUrl } from '../../lib/api';
 import { User, Download, Award, Briefcase, Code, CheckCircle2 } from 'lucide-react';
 import { RevealOnScroll } from './RevealOnScroll';
 import { GitHubCalendar } from './GitHubCalendar';
@@ -81,14 +82,13 @@ export const About: React.FC<AboutProps> = ({ settings }) => {
 
             {/* Action Buttons */}
             {settings.resumeUrl && (
-              <div className="pt-2">
+              <div className="pt-2 flex flex-wrap items-center gap-3">
                 <a
-                  href={settings.resumeUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-slate-900 dark:bg-indigo-600 hover:bg-slate-800 dark:hover:bg-indigo-500 text-white text-sm font-semibold transition-all shadow-xs"
+                  href={getSafeDocumentUrl(settings.resumeUrl, 'download')}
+                  download="Oluwaseun_Emmanuel_Kehinde_CV.pdf"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white text-sm font-semibold transition-all shadow-xs"
                 >
-                  <Download className="w-4 h-4 text-indigo-300" />
+                  <Download className="w-4 h-4 text-slate-300" />
                   <span>Download Curriculum Vitae</span>
                 </a>
               </div>

@@ -197,6 +197,72 @@ app.post('/api/upload', authMiddleware, (req: Request, res: Response) => {
   });
 });
 
+// DOCUMENT / RESUME PROXY ENDPOINT
+app.get('/api/document/proxy', async (req: Request, res: Response) => {
+  const fileUrl = req.query.url as string;
+  const isDownload = req.query.download === '1' || req.query.mode === 'download';
+
+  if (!fileUrl) {
+    res.status(400).send('Missing url parameter');
+    return;
+  }
+
+  const filename = isDownload ? 'Oluwaseun_Emmanuel_Kehinde_CV.pdf' : 'Oluwaseun_Emmanuel_Kehinde_Resume.pdf';
+  const disposition = isDownload ? `attachment; filename="${filename}"` : `inline; filename="${filename}"`;
+
+  try {
+    // If local path: e.g. /uploads/sample_resume.pdf
+    if (fileUrl.startsWith('/uploads/') || fileUrl.startsWith('uploads/')) {
+      const relativePath = fileUrl.startsWith('/') ? fileUrl.slice(1) : fileUrl;
+      const filePath = path.join(process.cwd(), relativePath);
+      if (fs.existsSync(filePath)) {
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', disposition);
+        fs.createReadStream(filePath).pipe(res);
+        return;
+      }
+    }
+
+    // Remote URL (Cloudinary or external)
+    // Clean URL so it doesn't have fl_attachment when viewing inline
+    let cleanUrl = fileUrl.replace(/fl_attachment[,/]?/g, '').replace(/\/+/g, '/').replace(':/', '://');
+    let fetchUrl = isDownload ? cleanUrl.replace('/image/upload/', '/image/upload/fl_attachment/') : cleanUrl;
+
+    let response = await fetch(fetchUrl);
+
+    // If fetch failed, try direct clean URL
+    if (!response.ok && fetchUrl !== cleanUrl) {
+      response = await fetch(cleanUrl);
+    }
+
+    // If still failed, try raw URL format in Cloudinary
+    if (!response.ok && cleanUrl.includes('res.cloudinary.com') && cleanUrl.includes('/image/upload/')) {
+      const rawUrl = cleanUrl.replace('/image/upload/', '/raw/upload/');
+      const rawResp = await fetch(rawUrl);
+      if (rawResp.ok) {
+        response = rawResp;
+      }
+    }
+
+    if (!response.ok) {
+      res.status(404).send('Document could not be retrieved from storage.');
+      return;
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const contentType = response.headers.get('content-type') || 'application/pdf';
+
+    res.setHeader('Content-Type', contentType.includes('pdf') || fileUrl.toLowerCase().endsWith('.pdf') ? 'application/pdf' : contentType);
+    res.setHeader('Content-Disposition', disposition);
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.send(buffer);
+  } catch (error: any) {
+    console.error('Document proxy error:', error);
+    res.status(500).send('Failed to fetch document: ' + (error.message || 'Unknown error'));
+  }
+});
+
 // SITE SETTINGS
 app.get('/api/settings', (req: Request, res: Response) => {
   res.json(db.getSettings());

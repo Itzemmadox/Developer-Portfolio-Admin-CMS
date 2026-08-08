@@ -510,3 +510,17 @@ export const api = {
       isFallback?: boolean;
     }>(`/api/github/contributions${username ? `?username=${encodeURIComponent(username)}` : ''}`)
 };
+
+export function getSafeDocumentUrl(url?: string, mode: 'view' | 'download' = 'view'): string {
+  if (!url || !url.trim()) return '';
+  const trimmed = url.trim();
+  const downloadParam = mode === 'download' ? '&download=1' : '';
+  if (trimmed.startsWith('/api/document/proxy')) {
+    if (mode === 'download' && !trimmed.includes('download=1')) {
+      return `${trimmed}${trimmed.includes('?') ? '&' : '?'}download=1`;
+    }
+    return trimmed;
+  }
+  return `/api/document/proxy?url=${encodeURIComponent(trimmed)}${downloadParam}`;
+}
+

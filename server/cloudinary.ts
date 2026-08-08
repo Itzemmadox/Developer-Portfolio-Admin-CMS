@@ -93,10 +93,27 @@ export async function uploadMediaFile(
   if (isCloudinaryConfigured()) {
     try {
       return new Promise<UploadResult>((resolve) => {
+        const mime = file.mimetype ? file.mimetype.toLowerCase() : '';
+        const ext = path.extname(file.originalname || '').toLowerCase();
+        const isPdfOrDoc =
+          mime.includes('pdf') ||
+          mime.includes('document') ||
+          mime.includes('word') ||
+          mime.includes('sheet') ||
+          mime.includes('excel') ||
+          mime.includes('zip') ||
+          mime.includes('octet-stream') ||
+          ext === '.pdf' ||
+          ext === '.doc' ||
+          ext === '.docx' ||
+          ext === '.zip';
+
+        const resourceType = isPdfOrDoc ? 'raw' : 'auto';
+
         const uploadStream = cloudinary.uploader.upload_stream(
           {
             folder: targetFolder,
-            resource_type: 'auto',
+            resource_type: resourceType,
             use_filename: true,
             unique_filename: true
           },

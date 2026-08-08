@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { HeroBackground } from '../three/HeroBackground';
 import { SiteSettings } from '../../types';
-import { Github, Linkedin, Twitter, Mail, ArrowDownRight, FileText, Sparkles, Code2 } from 'lucide-react';
+import { getSafeDocumentUrl } from '../../lib/api';
+import { Github, Linkedin, Twitter, Mail, ArrowDownRight, Eye, Sparkles, Code2 } from 'lucide-react';
 
 interface HeroProps {
   settings: SiteSettings;
@@ -107,15 +108,18 @@ export const Hero: React.FC<HeroProps> = ({ settings }) => {
           </a>
 
           {settings.resumeUrl && (
-            <a
-              href={settings.resumeUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-5 py-3 rounded-full bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-semibold text-sm transition-all border border-transparent dark:border-indigo-900/50"
-            >
-              <FileText className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-              <span>Resume</span>
-            </a>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <a
+                href={getSafeDocumentUrl(settings.resumeUrl, 'view')}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-5 py-3 rounded-full bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-semibold text-sm transition-all border border-transparent dark:border-indigo-900/50"
+                title="View Resume in browser"
+              >
+                <Eye className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                <span>View Resume</span>
+              </a>
+            </div>
           )}
         </div>
 

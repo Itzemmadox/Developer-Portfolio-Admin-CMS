@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SiteSettings } from '../../types';
 import { Save, Upload, Plus, X, Lock, CheckCircle2, ShieldCheck, User, Globe, FileText, Database, HardDrive, Cloud, Server, Sparkles } from 'lucide-react';
-import { api } from '../../lib/api';
+import { api, getSafeDocumentUrl } from '../../lib/api';
 
 interface SettingsManagerProps {
   settings: SiteSettings;
@@ -324,7 +324,7 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({ settings, onRe
               {formData.resumeUrl && (
                 <div className="mt-2 flex items-center gap-2">
                   <a
-                    href={formData.resumeUrl}
+                    href={getSafeDocumentUrl(formData.resumeUrl)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[11px] font-mono text-indigo-400 hover:underline flex items-center gap-1"
