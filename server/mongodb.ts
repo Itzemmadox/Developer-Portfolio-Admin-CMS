@@ -13,22 +13,25 @@ import {
   TestimonialModel,
   ContactMessageModel,
   VisitorAnalyticsModel
-} from './models';
+} from './models.js';
+import { writeJSON } from './db.js';
 
 let isConnected = false;
 let connectionError: string | null = null;
 
 export function getEffectiveMongoUri(): string {
-  if (process.env.MONGODB_URI) return process.env.MONGODB_URI;
   try {
     const configPath = path.join(process.cwd(), 'data', 'env.json');
     if (fs.existsSync(configPath)) {
       const data = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-      if (data.MONGODB_URI) return data.MONGODB_URI;
+      if (data.MONGODB_URI && typeof data.MONGODB_URI === 'string' && data.MONGODB_URI.trim()) {
+        return data.MONGODB_URI.trim();
+      }
     }
   } catch (e) {
     // ignore
   }
+  if (process.env.MONGODB_URI) return process.env.MONGODB_URI.trim();
   return '';
 }
 
@@ -69,7 +72,7 @@ export async function connectMongoDB(): Promise<boolean> {
 
     console.log('⏳ Connecting to MongoDB Atlas / Database...');
     await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 3500 // 3.5 seconds connection timeout
+      serverSelectionTimeoutMS: 4000 // 4 seconds connection timeout
     });
 
     isConnected = true;
@@ -95,70 +98,33 @@ export async function connectMongoDB(): Promise<boolean> {
 }
 
 /**
- * Seed MongoDB with initial data from local JSON storage if MongoDB collections are currently empty.
+ * Synchronize MongoDB and local storage bidirectionally:
+ * - If MongoDB already has data (e.g. after container redeploy), pull and sync MongoDB data to local storage.
+ * - If MongoDB is empty for any collection, seed it with the default local data.
  */
-export async function seedMongoFromLocalData(localDb: any) {
+export async function syncMongoWithLocalData(localDb: any) {
   if (!isConnected) return;
 
   try {
-    // Admin
-    const adminCount = await AdminModel.countDocuments();
-    if (adminCount === 0) {
-      const localAdmin = localDb.getAdmin();
-      if (localAdmin) {
-        await AdminModel.create(localAdmin);
-      }
-    }
-
-    // Settings
-    const settingsCount = await SettingsModel.countDocuments();
-    if (settingsCount === 0) {
-      const localSettings = localDb.getSettings();
-      if (localSettings) {
-        await SettingsModel.create(localSettings);
-      }
-    }
-
-    // Projects
-    const projectCount = await ProjectModel.countDocuments();
-    if (projectCount === 0) {
-      const localProjects = localDb.getProjects();
-      if (localProjects && localProjects.length > 0) {
-        await ProjectModel.insertMany(localProjects);
-      }
-    }
-
-    // Experience
-    const expCount = await ExperienceModel.countDocuments();
-    if (expCount === 0) {
-      const getExpFn = localDb.getExperience || localDb.getExperiences;
-      const localExps = getExpFn ? getExpFn.call(localDb) : [];
-      if (localExps && localExps.length > 0) {
-        const normalizedExps = localExps.map((e: any) => ({
-          ...e,
-          period: e.period || (e.startDate ? `${e.startDate} - ${e.endDate || 'Present'}` : '2021 - Present')
-        }));
-        await ExperienceModel.insertMany(normalizedExps);
-      }
-    }
-
-    // Education
-    const eduCount = await EducationModel.countDocuments();
-    if (eduCount === 0) {
-      const localEdus = localDb.getEducation();
-      if (localEdus && localEdus.length > 0) {
-        const normalizedEdus = localEdus.map((e: any) => ({
-          ...e,
-          period: e.period || (e.startDate ? `${e.startDate} - ${e.endDate || 'Present'}` : '2015 - 2019'),
-          field: e.field || e.fieldOfStudy || ''
-        }));
-        await EducationModel.insertMany(normalizedEdus);
-      }
-    }
-
-    // Skills
-    const skillCount = await SkillModel.countDocuments();
-    if (skillCount === 0) {
+    // 1. SKILLS
+    const mongoSkills = await SkillModel.find().lean();
+    if (mongoSkills && mongoSkills.length > 0) {
+      const cleanSkills = mongoSkills.map((s: any) => ({
+        id: s.id,
+        name: s.name,
+        category: s.category || 'Frontend',
+        level: s.level ?? s.proficiency ?? 85,
+        proficiency: s.proficiency ?? s.level ?? 85,
+        yearsExperience: s.yearsExperience ?? s.years ?? 2,
+        years: s.years ?? s.yearsExperience ?? 2,
+        iconUrl: s.iconUrl || '',
+        iconName: s.iconName || '',
+        order: s.order !== undefined ? Number(s.order) : 0,
+        featured: Boolean(s.featured)
+      })).sort((a, b) => (a.order || 0) - (b.order || 0));
+      writeJSON('skills.json', cleanSkills);
+      console.log(`📥 Loaded ${cleanSkills.length} skills from MongoDB into active memory & local storage`);
+    } else {
       const localSkills = localDb.getSkills();
       if (localSkills && localSkills.length > 0) {
         const normalizedSkills = localSkills.map((s: any) => ({
@@ -167,61 +133,237 @@ export async function seedMongoFromLocalData(localDb: any) {
           years: s.years ?? s.yearsExperience ?? 3
         }));
         await SkillModel.insertMany(normalizedSkills);
+        console.log(`📤 Seeded ${normalizedSkills.length} local skills into MongoDB`);
       }
     }
 
-    // Certifications
-    const certCount = await CertificationModel.countDocuments();
-    if (certCount === 0) {
-      const localCerts = localDb.getCertifications();
-      if (localCerts && localCerts.length > 0) {
-        const normalizedCerts = localCerts.map((c: any) => ({
-          ...c,
-          name: c.name || c.title || 'Certification',
-          issuer: c.issuer || c.issuingOrg || 'Organization',
-          url: c.url || c.credentialUrl || '',
-          badgeImage: c.badgeImage || c.badgeImageUrl || ''
-        }));
-        await CertificationModel.insertMany(normalizedCerts);
+    // 2. PROJECTS
+    const mongoProjects = await ProjectModel.find().lean();
+    if (mongoProjects && mongoProjects.length > 0) {
+      const cleanProjects = mongoProjects.map((p: any) => ({
+        id: p.id,
+        slug: p.slug,
+        title: p.title,
+        tagline: p.tagline || '',
+        description: p.description || '',
+        fullDescription: p.fullDescription || '',
+        category: p.category || 'Full-Stack',
+        tags: Array.isArray(p.tags) ? p.tags : [],
+        image: p.image || '',
+        images: Array.isArray(p.images) ? p.images : [],
+        liveUrl: p.liveUrl || '',
+        githubUrl: p.githubUrl || '',
+        featured: Boolean(p.featured),
+        order: p.order !== undefined ? Number(p.order) : 0,
+        metrics: p.metrics || { stars: 0, forks: 0 }
+      })).sort((a, b) => (a.order || 0) - (b.order || 0));
+      writeJSON('projects.json', cleanProjects);
+      console.log(`📥 Loaded ${cleanProjects.length} projects from MongoDB`);
+    } else {
+      const localProjects = localDb.getProjects();
+      if (localProjects && localProjects.length > 0) {
+        await ProjectModel.insertMany(localProjects);
       }
     }
 
-    // Certificates (Verified Credentials)
-    const certificateCount = await CertificateModel.countDocuments();
-    if (certificateCount === 0) {
+    // 3. SETTINGS
+    const mongoSettings = await SettingsModel.findOne().lean();
+    if (mongoSettings) {
+      const { _id, __v, createdAt, updatedAt, ...cleanSettings } = mongoSettings as any;
+      writeJSON('settings.json', cleanSettings);
+      console.log('📥 Loaded site settings from MongoDB');
+    } else {
+      const localSettings = localDb.getSettings();
+      if (localSettings) {
+        await SettingsModel.create(localSettings);
+      }
+    }
+
+    // 4. CERTIFICATES (Verified Credentials)
+    const mongoCertificates = await CertificateModel.find().lean();
+    if (mongoCertificates && mongoCertificates.length > 0) {
+      const cleanCertificates = mongoCertificates.map((c: any) => ({
+        id: c.id,
+        title: c.title,
+        issuer: c.issuer,
+        category: c.category || 'Engineering',
+        imageUrl: c.imageUrl || '',
+        imagePublicId: c.imagePublicId || '',
+        credentialUrl: c.credentialUrl || '',
+        issueDate: c.issueDate || '',
+        order: c.order !== undefined ? Number(c.order) : 0
+      })).sort((a, b) => (a.order || 0) - (b.order || 0));
+      writeJSON('certificates.json', cleanCertificates);
+      console.log(`📥 Loaded ${cleanCertificates.length} certificates from MongoDB`);
+    } else {
       const localCertificates = localDb.getCertificates ? localDb.getCertificates() : [];
       if (localCertificates && localCertificates.length > 0) {
         await CertificateModel.insertMany(localCertificates);
       }
     }
 
-    // Testimonials
-    const testCount = await TestimonialModel.countDocuments();
-    if (testCount === 0) {
+    // 5. CERTIFICATIONS
+    const mongoCerts = await CertificationModel.find().lean();
+    if (mongoCerts && mongoCerts.length > 0) {
+      const cleanCerts = mongoCerts.map((c: any) => ({
+        id: c.id,
+        name: c.name || c.title || 'Certification',
+        issuer: c.issuer || c.issuingOrg || '',
+        issueDate: c.issueDate || '',
+        credentialId: c.credentialId || '',
+        credentialUrl: c.credentialUrl || c.url || '',
+        url: c.url || c.credentialUrl || '',
+        badgeImage: c.badgeImage || c.badgeImageUrl || '',
+        order: c.order !== undefined ? Number(c.order) : 0
+      })).sort((a, b) => (a.order || 0) - (b.order || 0));
+      writeJSON('certifications.json', cleanCerts);
+    } else {
+      const localCerts = localDb.getCertifications();
+      if (localCerts && localCerts.length > 0) {
+        await CertificationModel.insertMany(localCerts);
+      }
+    }
+
+    // 6. EXPERIENCE
+    const mongoExp = await ExperienceModel.find().lean();
+    if (mongoExp && mongoExp.length > 0) {
+      const cleanExp = mongoExp.map((e: any) => ({
+        id: e.id,
+        role: e.role,
+        company: e.company,
+        companyUrl: e.companyUrl || '',
+        companyLogoUrl: e.companyLogoUrl || '',
+        location: e.location || '',
+        period: e.period || (e.startDate ? `${e.startDate} - ${e.endDate || 'Present'}` : ''),
+        startDate: e.startDate || '',
+        endDate: e.endDate || '',
+        description: e.description || '',
+        achievements: Array.isArray(e.achievements) ? e.achievements : [],
+        technologies: Array.isArray(e.technologies) ? e.technologies : [],
+        current: Boolean(e.current),
+        order: e.order !== undefined ? Number(e.order) : 0
+      })).sort((a, b) => (a.order || 0) - (b.order || 0));
+      writeJSON('experience.json', cleanExp);
+    } else {
+      const getExpFn = localDb.getExperience || localDb.getExperiences;
+      const localExps = getExpFn ? getExpFn.call(localDb) : [];
+      if (localExps && localExps.length > 0) {
+        await ExperienceModel.insertMany(localExps);
+      }
+    }
+
+    // 7. EDUCATION
+    const mongoEdu = await EducationModel.find().lean();
+    if (mongoEdu && mongoEdu.length > 0) {
+      const cleanEdu = mongoEdu.map((e: any) => ({
+        id: e.id,
+        degree: e.degree,
+        field: e.field || e.fieldOfStudy || '',
+        institution: e.institution,
+        location: e.location || '',
+        period: e.period || '',
+        startDate: e.startDate || '',
+        endDate: e.endDate || '',
+        grade: e.grade || '',
+        description: e.description || '',
+        achievements: Array.isArray(e.achievements) ? e.achievements : [],
+        order: e.order !== undefined ? Number(e.order) : 0
+      })).sort((a, b) => (a.order || 0) - (b.order || 0));
+      writeJSON('education.json', cleanEdu);
+    } else {
+      const localEdus = localDb.getEducation();
+      if (localEdus && localEdus.length > 0) {
+        await EducationModel.insertMany(localEdus);
+      }
+    }
+
+    // 8. TESTIMONIALS
+    const mongoTests = await TestimonialModel.find().lean();
+    if (mongoTests && mongoTests.length > 0) {
+      const cleanTests = mongoTests.map((t: any) => {
+        const authorName = t.authorName || t.name || 'Client';
+        const authorRole = t.authorRole || t.role || '';
+        const quote = t.quote || t.content || '';
+        const authorPhotoUrl = t.authorPhotoUrl || t.avatar || '';
+        return {
+          id: t.id,
+          name: authorName,
+          authorName: authorName,
+          role: authorRole,
+          authorRole: authorRole,
+          company: t.company || '',
+          content: quote,
+          quote: quote,
+          avatar: authorPhotoUrl,
+          authorPhotoUrl: authorPhotoUrl,
+          rating: t.rating || 5,
+          order: t.order !== undefined ? Number(t.order) : 0
+        };
+      }).sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
+      writeJSON('testimonials.json', cleanTests);
+    } else {
       const localTests = localDb.getTestimonials();
       if (localTests && localTests.length > 0) {
-        const normalizedTests = localTests.map((t: any) => ({
-          ...t,
-          name: t.name || t.authorName || 'Client',
-          role: t.role || t.authorRole || '',
-          content: t.content || t.quote || '',
-          avatar: t.avatar || t.authorPhotoUrl || ''
-        }));
+        const normalizedTests = localTests.map((t: any) => {
+          const authorName = t.authorName || t.name || 'Client';
+          const authorRole = t.authorRole || t.role || '';
+          const quote = t.quote || t.content || '';
+          const authorPhotoUrl = t.authorPhotoUrl || t.avatar || '';
+          return {
+            id: t.id,
+            name: authorName,
+            authorName: authorName,
+            role: authorRole,
+            authorRole: authorRole,
+            company: t.company || '',
+            content: quote,
+            quote: quote,
+            avatar: authorPhotoUrl,
+            authorPhotoUrl: authorPhotoUrl,
+            rating: t.rating || 5,
+            order: t.order !== undefined ? Number(t.order) : 0
+          };
+        });
         await TestimonialModel.insertMany(normalizedTests);
       }
     }
 
-    // Messages
-    const msgCount = await ContactMessageModel.countDocuments();
-    if (msgCount === 0) {
+    // 9. ADMIN
+    const mongoAdmin = await AdminModel.findOne().lean();
+    if (mongoAdmin) {
+      writeJSON('admin.json', { email: mongoAdmin.email, passwordHash: mongoAdmin.passwordHash });
+    } else {
+      const localAdmin = localDb.getAdmin();
+      if (localAdmin) {
+        await AdminModel.create(localAdmin);
+      }
+    }
+
+    // 10. CONTACT MESSAGES
+    const mongoMsgs = await ContactMessageModel.find().lean();
+    if (mongoMsgs && mongoMsgs.length > 0) {
+      const cleanMsgs = mongoMsgs.map((m: any) => ({
+        id: m.id,
+        name: m.name,
+        email: m.email,
+        subject: m.subject || '',
+        message: m.message,
+        read: Boolean(m.read),
+        timestamp: m.timestamp || new Date().toISOString()
+      }));
+      writeJSON('messages.json', cleanMsgs);
+    } else {
       const localMsgs = localDb.getMessages();
       if (localMsgs && localMsgs.length > 0) {
         await ContactMessageModel.insertMany(localMsgs);
       }
     }
 
-    console.log('✅ MongoDB database verified and synchronized!');
+    console.log('✅ MongoDB database verified and full two-way synchronization complete!');
   } catch (err) {
-    console.error('Error seeding MongoDB from local JSON data:', err);
+    console.error('Error synchronizing MongoDB with local data:', err);
   }
 }
+
+// Alias for backward compatibility
+export const seedMongoFromLocalData = syncMongoWithLocalData;

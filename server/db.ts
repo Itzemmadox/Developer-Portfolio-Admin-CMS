@@ -21,11 +21,11 @@ if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 }
 
-function getFilePath(filename: string): string {
+export function getFilePath(filename: string): string {
   return path.join(DATA_DIR, filename);
 }
 
-function readJSON<T>(filename: string, defaultValue: T): T {
+export function readJSON<T>(filename: string, defaultValue: T): T {
   const filePath = getFilePath(filename);
   if (!fs.existsSync(filePath)) {
     writeJSON(filename, defaultValue);
@@ -40,7 +40,7 @@ function readJSON<T>(filename: string, defaultValue: T): T {
   }
 }
 
-function writeJSON<T>(filename: string, data: T): void {
+export function writeJSON<T>(filename: string, data: T): void {
   const filePath = getFilePath(filename);
   try {
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
@@ -211,18 +211,30 @@ const initialEducation = [
 const initialTestimonials = [
   {
     id: 'test-1',
-    quote: 'Oluwaseun is a dedicated and highly disciplined full-stack developer with strong technical skills in web development, problem solving, and software engineering principles.',
+    name: 'Mr. Anthony A. Oyegunle',
     authorName: 'Mr. Anthony A. Oyegunle',
+    role: 'Professional Reference | +2348033165488',
     authorRole: 'Professional Reference | +2348033165488',
+    company: '',
+    content: 'Oluwaseun is a dedicated and highly disciplined full-stack developer with strong technical skills in web development, problem solving, and software engineering principles.',
+    quote: 'Oluwaseun is a dedicated and highly disciplined full-stack developer with strong technical skills in web development, problem solving, and software engineering principles.',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
     authorPhotoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
+    rating: 5,
     order: 1
   },
   {
     id: 'test-2',
-    quote: 'Oluwaseun displays exceptional initiative, attention to detail, and passion for web development, clean coding practices, and technology innovation.',
+    name: 'Mr. Michael O. Kehinde',
     authorName: 'Mr. Michael O. Kehinde',
+    role: 'Professional Reference | +2347030090866',
     authorRole: 'Professional Reference | +2347030090866',
+    company: '',
+    content: 'Oluwaseun displays exceptional initiative, attention to detail, and passion for web development, clean coding practices, and technology innovation.',
+    quote: 'Oluwaseun displays exceptional initiative, attention to detail, and passion for web development, clean coding practices, and technology innovation.',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80',
     authorPhotoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80',
+    rating: 5,
     order: 2
   }
 ];
@@ -313,9 +325,25 @@ export const db = {
   setSkills: (data: any[]) => {
     writeJSON('skills.json', data);
     if (getMongoStatus().connected) {
-      SkillModel.deleteMany({}).then(() => SkillModel.insertMany(data)).catch((err) =>
-        console.warn('Mongo async write error for skills:', err)
-      );
+      SkillModel.deleteMany({})
+        .then(() =>
+          SkillModel.insertMany(
+            data.map((s: any) => ({
+              id: s.id,
+              name: s.name,
+              category: s.category || 'Frontend',
+              proficiency: s.level ?? s.proficiency ?? 85,
+              level: s.level ?? s.proficiency ?? 85,
+              years: s.yearsExperience ?? s.years ?? 2,
+              yearsExperience: s.yearsExperience ?? s.years ?? 2,
+              iconUrl: s.iconUrl || '',
+              iconName: s.iconName || '',
+              order: s.order !== undefined ? Number(s.order) : 0,
+              featured: Boolean(s.featured)
+            })) as any
+          )
+        )
+        .catch((err) => console.warn('Mongo async write error for skills:', err));
     }
     return data;
   },

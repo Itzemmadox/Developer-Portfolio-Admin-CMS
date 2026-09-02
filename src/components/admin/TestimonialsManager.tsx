@@ -25,7 +25,18 @@ export const TestimonialsManager: React.FC<TestimonialsManagerProps> = ({ testim
   };
 
   const handleOpenEdit = (t: Testimonial) => {
-    setEditingItem({ ...t });
+    setEditingItem({
+      id: t.id,
+      quote: t.quote || t.content || '',
+      content: t.content || t.quote || '',
+      authorName: t.authorName || t.name || '',
+      name: t.name || t.authorName || '',
+      authorRole: t.authorRole || t.role || '',
+      role: t.role || t.authorRole || '',
+      authorPhotoUrl: t.authorPhotoUrl || t.avatar || '',
+      avatar: t.avatar || t.authorPhotoUrl || '',
+      order: t.order
+    });
     setIsNew(false);
   };
 
@@ -41,14 +52,28 @@ export const TestimonialsManager: React.FC<TestimonialsManagerProps> = ({ testim
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingItem?.quote || !editingItem?.authorName) return;
+    const quote = editingItem?.quote || editingItem?.content || '';
+    const authorName = editingItem?.authorName || editingItem?.name || '';
+    if (!quote || !authorName) return;
 
     setSaving(true);
     try {
+      const payload = {
+        ...editingItem,
+        quote,
+        content: quote,
+        authorName,
+        name: authorName,
+        authorRole: editingItem?.authorRole || editingItem?.role || '',
+        role: editingItem?.role || editingItem?.authorRole || '',
+        authorPhotoUrl: editingItem?.authorPhotoUrl || editingItem?.avatar || '',
+        avatar: editingItem?.avatar || editingItem?.authorPhotoUrl || ''
+      };
+
       if (isNew) {
-        await api.createTestimonial(editingItem);
-      } else if (editingItem.id) {
-        await api.updateTestimonial(editingItem.id, editingItem);
+        await api.createTestimonial(payload);
+      } else if (editingItem?.id) {
+        await api.updateTestimonial(editingItem.id, payload);
       }
       setEditingItem(null);
       onRefresh();
@@ -79,37 +104,43 @@ export const TestimonialsManager: React.FC<TestimonialsManagerProps> = ({ testim
       </div>
 
       <div className="space-y-4">
-        {testimonials.map((t) => (
-          <div
-            key={t.id}
-            className="p-5 rounded-2xl bg-slate-900/40 border border-slate-800 flex items-start justify-between gap-4"
-          >
-            <div className="flex items-start gap-3">
-              <Quote className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-xs italic text-slate-300">"{t.quote}"</p>
-                <p className="text-xs font-bold text-slate-100 font-mono mt-2">
-                  — {t.authorName} <span className="text-slate-400 font-normal">({t.authorRole})</span>
-                </p>
+        {testimonials.map((t) => {
+          const author = t.authorName || t.name || 'Anonymous';
+          const role = t.authorRole || t.role || '';
+          const quote = t.quote || t.content || '';
+
+          return (
+            <div
+              key={t.id}
+              className="p-5 rounded-2xl bg-slate-900/40 border border-slate-800 flex items-start justify-between gap-4"
+            >
+              <div className="flex items-start gap-3">
+                <Quote className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-xs italic text-slate-300">"{quote}"</p>
+                  <p className="text-xs font-bold text-slate-100 font-mono mt-2">
+                    — {author} {role && <span className="text-slate-400 font-normal">({role})</span>}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleOpenEdit(t)}
+                  className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+                >
+                  <Edit2 className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => handleDelete(t.id)}
+                  className="p-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => handleOpenEdit(t)}
-                className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
-              >
-                <Edit2 className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={() => handleDelete(t.id)}
-                className="p-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 transition-colors"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Edit Modal */}

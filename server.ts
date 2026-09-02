@@ -27,7 +27,7 @@ import { createServer as createViteServer } from 'vite';
 import { db } from './server/db.js';
 import { authMiddleware, generateToken, AuthenticatedRequest } from './server/auth.js';
 import { fetchDevToArticles, initNewsCron } from './server/newsCron.js';
-import { connectMongoDB, getMongoStatus, seedMongoFromLocalData } from './server/mongodb.js';
+import { connectMongoDB, getMongoStatus, syncMongoWithLocalData, seedMongoFromLocalData } from './server/mongodb.js';
 import { uploadMediaFile, isCloudinaryConfigured, deleteCloudinaryAsset, getSignedDownloadUrl } from './server/cloudinary.js';
 
 const app = express();

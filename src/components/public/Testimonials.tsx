@@ -26,43 +26,56 @@ export const Testimonials: React.FC<TestimonialsProps> = ({ testimonials }) => {
 
         <RevealOnScroll delay={100}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {testimonials.map((t) => (
-              <div
-                key={t.id}
-                className="p-8 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between space-y-6 relative group"
-              >
-                <Quote className="absolute top-6 right-6 w-8 h-8 text-slate-200 dark:text-slate-800 group-hover:text-indigo-100 dark:group-hover:text-indigo-900/50 transition-colors" />
+            {testimonials.map((t) => {
+              const author = t.authorName || t.name || 'Anonymous';
+              const role = t.authorRole || t.role || 'Collaborator';
+              const quoteText = t.quote || t.content || '';
+              const photo = t.authorPhotoUrl || t.avatar || '';
+              const initial = author.trim() ? author.trim().charAt(0).toUpperCase() : 'A';
+              const ratingCount = typeof t.rating === 'number' ? Math.max(1, Math.min(5, t.rating)) : 5;
 
-                <div className="space-y-4">
-                  <div className="flex items-center gap-1 text-amber-400">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                    ))}
-                  </div>
-                  <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed italic">
-                    "{t.quote}"
-                  </p>
-                </div>
+              return (
+                <div
+                  key={t.id}
+                  className="p-8 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between space-y-6 relative group"
+                >
+                  <Quote className="absolute top-6 right-6 w-8 h-8 text-slate-200 dark:text-slate-800 group-hover:text-indigo-100 dark:group-hover:text-indigo-900/50 transition-colors" />
 
-                <div className="flex items-center gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
-                  {t.authorPhotoUrl ? (
-                    <img
-                      src={t.authorPhotoUrl}
-                      alt={t.authorName}
-                      className="w-12 h-12 rounded-full object-cover border border-slate-200 dark:border-slate-800"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 rounded-full bg-indigo-50 dark:bg-indigo-950/60 flex items-center justify-center font-bold text-indigo-600 dark:text-indigo-400">
-                      {t.authorName.charAt(0)}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-1 text-amber-400">
+                      {[...Array(ratingCount)].map((_, i) => (
+                        <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                      ))}
                     </div>
-                  )}
-                  <div>
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">{t.authorName}</h3>
-                    <p className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold">{t.authorRole}</p>
+                    <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed italic">
+                      "{quoteText}"
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    {photo ? (
+                      <img
+                        src={photo}
+                        alt={author}
+                        className="w-12 h-12 rounded-full object-cover border border-slate-200 dark:border-slate-800"
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          (e.target as HTMLElement).style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-indigo-50 dark:bg-indigo-950/60 flex items-center justify-center font-bold text-indigo-600 dark:text-indigo-400">
+                        {initial}
+                      </div>
+                    )}
+                    <div>
+                      <h3 className="text-sm font-bold text-slate-900 dark:text-white">{author}</h3>
+                      <p className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold">{role}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </RevealOnScroll>
       </div>

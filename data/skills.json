@@ -2,73 +2,105 @@
   {
     "id": "sk-1",
     "name": "HTML5 & CSS3",
-    "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg",
-    "level": 95,
-    "yearsExperience": 3,
     "category": "Frontend",
-    "order": 1
+    "level": 95,
+    "proficiency": 90,
+    "yearsExperience": 3,
+    "years": 3,
+    "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg",
+    "iconName": "",
+    "order": 1,
+    "featured": false
   },
   {
     "id": "sk-2",
     "name": "JavaScript (ES6+)",
-    "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg",
-    "level": 90,
-    "yearsExperience": 3,
     "category": "Frontend",
-    "order": 2
+    "level": 90,
+    "proficiency": 90,
+    "yearsExperience": 3,
+    "years": 3,
+    "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg",
+    "iconName": "",
+    "order": 2,
+    "featured": false
   },
   {
     "id": "sk-3",
     "name": "TailwindCSS & Bootstrap",
-    "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg",
-    "level": 92,
-    "yearsExperience": 3,
     "category": "Frontend",
-    "order": 3
-  },
-  {
-    "id": "sk-4",
-    "name": "PHP & Laravel",
-    "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-original.svg",
-    "level": 85,
-    "yearsExperience": 2,
-    "category": "Backend",
-    "order": 4
-  },
-  {
-    "id": "sk-5",
-    "name": "Node.js & Express.js",
-    "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg",
-    "level": 85,
-    "yearsExperience": 2,
-    "category": "Backend",
-    "order": 5
-  },
-  {
-    "id": "sk-6",
-    "name": "MySQL & MongoDB",
-    "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg",
-    "level": 85,
-    "yearsExperience": 2,
-    "category": "Database",
-    "order": 6
-  },
-  {
-    "id": "sk-7",
-    "name": "Web3 & Crypto Fundamentals",
-    "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg",
-    "level": 80,
-    "yearsExperience": 2,
-    "category": "Blockchain",
-    "order": 7
+    "level": 92,
+    "proficiency": 90,
+    "yearsExperience": 3,
+    "years": 3,
+    "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg",
+    "iconName": "",
+    "order": 3,
+    "featured": false
   },
   {
     "id": "sk-8",
     "name": "Git, Figma, CorelDRAW & VS Code",
-    "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg",
-    "level": 90,
-    "yearsExperience": 3,
     "category": "Tools & Other",
-    "order": 8
+    "level": 90,
+    "proficiency": 90,
+    "yearsExperience": 3,
+    "years": 3,
+    "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg",
+    "iconName": "",
+    "order": 4,
+    "featured": false
+  },
+  {
+    "id": "sk-5",
+    "name": "Node.js & Express.js",
+    "category": "Backend",
+    "level": 85,
+    "proficiency": 90,
+    "yearsExperience": 2,
+    "years": 3,
+    "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg",
+    "iconName": "",
+    "order": 5,
+    "featured": false
+  },
+  {
+    "id": "sk-4",
+    "name": "PHP & Laravel",
+    "category": "Backend",
+    "level": 85,
+    "proficiency": 90,
+    "yearsExperience": 2,
+    "years": 3,
+    "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-original.svg",
+    "iconName": "",
+    "order": 6,
+    "featured": false
+  },
+  {
+    "id": "sk-6",
+    "name": "MySQL & MongoDB",
+    "category": "Database",
+    "level": 85,
+    "proficiency": 90,
+    "yearsExperience": 2,
+    "years": 3,
+    "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg",
+    "iconName": "",
+    "order": 7,
+    "featured": false
+  },
+  {
+    "id": "sk-7",
+    "name": "Web3 & Crypto Fundamentals",
+    "category": "Blockchain",
+    "level": 80,
+    "proficiency": 90,
+    "yearsExperience": 2,
+    "years": 3,
+    "iconUrl": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg",
+    "iconName": "",
+    "order": 8,
+    "featured": false
   }
 ]

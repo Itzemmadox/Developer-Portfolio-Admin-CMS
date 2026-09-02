@@ -4,10 +4,10 @@
     "title": "Software Development - 6-Month Professional Training Programme",
     "issuer": "TS Academy",
     "category": "WEB DEVELOPMENT",
-    "imageUrl": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80",
-    "imagePublicId": "",
-    "credentialUrl": "",
-    "issueDate": "Jan 01, 2026",
+    "imageUrl": "https://res.cloudinary.com/dokol65cu/image/upload/v1788349340/portfolio_uploads/images/file_cpkchz.png",
+    "imagePublicId": "portfolio_uploads/images/file_cpkchz",
+    "credentialUrl": "https://certificates.tsacademyonline.com/verify",
+    "issueDate": "July 04, 2026",
     "order": 1
   },
   {
@@ -15,10 +15,10 @@
     "title": "Diploma in Web Design (DWD) - Distinction",
     "issuer": "HiiT Plc, Ikeja, Lagos",
     "category": "WEB DEVELOPMENT",
-    "imageUrl": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80",
-    "imagePublicId": "",
+    "imageUrl": "https://res.cloudinary.com/dokol65cu/image/upload/v1788349094/portfolio_uploads/images/file_qbrdbr.jpg",
+    "imagePublicId": "portfolio_uploads/images/file_qbrdbr",
     "credentialUrl": "",
-    "issueDate": "Jan 01, 2022",
+    "issueDate": "July 21, 2022",
     "order": 2
   }
 ]

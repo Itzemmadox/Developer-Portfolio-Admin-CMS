@@ -1,22 +1,16 @@
 [
   {
     "id": "edu-1",
-    "institution": "Ambrose Alli University, Ekpoma - Edo State, Nigeria",
-    "degree": "BSc Computer Science",
-    "fieldOfStudy": "Computer Science",
-    "startDate": "2018-01-01",
-    "endDate": "2023-12-31",
-    "description": "Graduated with Bachelor of Science in Computer Science. Specialized in software development, algorithms, web technologies, and systems engineering.",
+    "degree": "Bachelor of Science (B.S.)",
+    "field": "Computer Science & Software Engineering",
+    "institution": "University of Technology & Science",
+    "location": "",
+    "period": "2015-09-01 - 2019-05-30",
+    "startDate": "2015-09-01",
+    "endDate": "2019-05-30",
+    "grade": "",
+    "description": "Graduated First Class Honors. Specialization in Distributed Systems, Data Structures, and Computer Graphics.",
+    "achievements": [],
     "order": 1
-  },
-  {
-    "id": "edu-2",
-    "institution": "Ositelu Memorial College, Ogere Remo, Ogun State",
-    "degree": "Secondary Education",
-    "fieldOfStudy": "Science & Mathematics",
-    "startDate": "2012-09-01",
-    "endDate": "2018-07-01",
-    "description": "Senior Secondary School Certificate Examination (SSCE) with distinction in science and mathematics.",
-    "order": 2
   }
 ]

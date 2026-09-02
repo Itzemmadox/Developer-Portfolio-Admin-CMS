@@ -49,10 +49,16 @@ export interface Education {
 
 export interface Testimonial {
   id: string;
-  quote: string;
-  authorName: string;
-  authorRole: string;
+  quote?: string;
+  content?: string;
+  authorName?: string;
+  name?: string;
+  authorRole?: string;
+  role?: string;
+  company?: string;
   authorPhotoUrl?: string;
+  avatar?: string;
+  rating?: number;
   order: number;
 }
 

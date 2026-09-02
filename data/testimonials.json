@@ -1,18 +1,30 @@
 [
   {
     "id": "test-1",
-    "quote": "Oluwaseun is a dedicated and highly disciplined full-stack developer with strong technical skills in web development, problem solving, and software engineering principles.",
-    "authorName": "Mr. Anthony A. Oyegunle",
-    "authorRole": "Professional Reference | +2348033165488",
-    "authorPhotoUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80",
+    "name": "Sarah Jenkins",
+    "authorName": "Sarah Jenkins",
+    "role": "VP of Engineering at Apex Cloud",
+    "authorRole": "VP of Engineering at Apex Cloud",
+    "company": "",
+    "content": "Emmanuel is an exceptional software engineer. His ability to take complex backend architectures and pair them with fluid, intuitive frontends transformed our product cycle speed.",
+    "quote": "Emmanuel is an exceptional software engineer. His ability to take complex backend architectures and pair them with fluid, intuitive frontends transformed our product cycle speed.",
+    "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80",
+    "authorPhotoUrl": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80",
+    "rating": 5,
     "order": 1
   },
   {
     "id": "test-2",
-    "quote": "Oluwaseun displays exceptional initiative, attention to detail, and passion for web development, clean coding practices, and technology innovation.",
-    "authorName": "Mr. Michael O. Kehinde",
-    "authorRole": "Professional Reference | +2347030090866",
+    "name": "David Vance",
+    "authorName": "David Vance",
+    "role": "Chief Product Officer at Vivid Studio",
+    "authorRole": "Chief Product Officer at Vivid Studio",
+    "company": "",
+    "content": "Rarely do you find an engineer who excels at system performance, 3D graphics, and user experience simultaneously. Emmanuel delivered our core WebGL platform well ahead of schedule.",
+    "quote": "Rarely do you find an engineer who excels at system performance, 3D graphics, and user experience simultaneously. Emmanuel delivered our core WebGL platform well ahead of schedule.",
+    "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80",
     "authorPhotoUrl": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80",
+    "rating": 5,
     "order": 2
   }
 ]
