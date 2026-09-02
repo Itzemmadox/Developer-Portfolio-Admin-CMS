@@ -299,6 +299,11 @@ export const api = {
     request<{ success: boolean }>(`/api/skills/${id}`, {
       method: 'DELETE'
     }),
+  reorderSkills: (orders: { id: string; order: number }[]) =>
+    request<{ success: boolean; skills: Skill[] }>('/api/skills/reorder', {
+      method: 'PATCH',
+      body: JSON.stringify({ orders })
+    }),
 
   // Experience
   getExperience: async (): Promise<Experience[]> => {

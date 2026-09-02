@@ -506,6 +506,22 @@ app.delete('/api/skills/:id', authMiddleware, (req: Request, res: Response) => {
   res.json({ success: true, message: 'Skill deleted' });
 });
 
+app.patch('/api/skills/reorder', authMiddleware, (req: Request, res: Response) => {
+  const orders = req.body.orders || req.body;
+  if (!Array.isArray(orders)) {
+    res.status(400).json({ error: 'Invalid orders array' });
+    return;
+  }
+  const skills = db.getSkills();
+  orders.forEach(({ id, order }: { id: string; order: number }) => {
+    const item = skills.find((s: any) => s.id === id);
+    if (item) item.order = Number(order);
+  });
+  skills.sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
+  db.setSkills(skills);
+  res.json({ success: true, skills });
+});
+
 // EXPERIENCE
 app.get('/api/experience', (req: Request, res: Response) => {
   const exp = db.getExperience();
