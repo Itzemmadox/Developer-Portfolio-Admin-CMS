@@ -62,16 +62,6 @@ export interface Testimonial {
   order: number;
 }
 
-export interface Certification {
-  id: string;
-  title: string;
-  issuingOrg: string;
-  issueDate: string;
-  credentialUrl?: string;
-  badgeImageUrl?: string;
-  order: number;
-}
-
 export interface Certificate {
   id: string;
   title: string;
@@ -105,11 +95,15 @@ export interface SiteSettings {
   heroTaglines: string[];
   aboutContent: string;
   bio: string;
-  profilePictureUrl: string;
+  profilePictureUrl?: string;
+  avatarUrl?: string;
+  avatar?: string;
   resumeUrl: string;
   socialLinks: SocialLinks;
-  seo: SEOConfig;
-  updatedAt: string;
+  seo?: SEOConfig;
+  location?: string;
+  statusText?: string;
+  updatedAt?: string;
 }
 
 export interface CachedArticle {

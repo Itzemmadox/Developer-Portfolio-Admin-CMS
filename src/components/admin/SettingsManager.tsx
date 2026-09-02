@@ -63,7 +63,8 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({ settings, onRe
       const res = await api.uploadFiles(e.target.files);
       const updatedFormData = {
         ...formData,
-        [field]: res.url
+        [field]: res.url,
+        ...(field === 'profilePictureUrl' ? { avatarUrl: res.url, profilePictureUrl: res.url } : {})
       };
       const saved = await api.updateSettings(updatedFormData);
       setFormData(saved);
@@ -270,9 +271,16 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({ settings, onRe
               <div className="flex gap-2">
                 <input
                   type="text"
-                  value={formData.profilePictureUrl || ''}
-                  onChange={(e) => setFormData({ ...formData, profilePictureUrl: e.target.value })}
+                  value={formData.profilePictureUrl || formData.avatarUrl || ''}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      profilePictureUrl: e.target.value,
+                      avatarUrl: e.target.value
+                    })
+                  }
                   className="flex-1 px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono"
+                  placeholder="https://images.unsplash.com/... or upload"
                 />
                 <label className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-mono text-cyan-400 cursor-pointer border border-slate-700 flex items-center gap-1">
                   <Upload className="w-3.5 h-3.5" />
@@ -285,11 +293,12 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({ settings, onRe
                   />
                 </label>
               </div>
-              {formData.profilePictureUrl && (
+              {(formData.profilePictureUrl || formData.avatarUrl) && (
                 <div className="mt-2 flex items-center gap-3 p-2 rounded-xl bg-slate-950/80 border border-slate-800">
                   <img
-                    src={formData.profilePictureUrl}
+                    src={formData.profilePictureUrl || formData.avatarUrl}
                     alt="Preview"
+                    referrerPolicy="no-referrer"
                     className="w-12 h-12 rounded-lg object-cover border border-slate-800"
                     onError={(e) => {
                       (e.target as HTMLElement).style.display = 'none';

@@ -48,16 +48,29 @@ export const Hero: React.FC<HeroProps> = ({ settings }) => {
         </div>
 
         {/* Profile Image Avatar */}
-        {settings.profilePictureUrl && (
-          <div className="relative mb-6 group">
-            <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-600 blur opacity-30 group-hover:opacity-60 transition duration-500" />
-            <img
-              src={settings.profilePictureUrl}
-              alt={settings.name}
-              className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover border-2 border-white dark:border-slate-800 shadow-lg"
-            />
-          </div>
-        )}
+        {(() => {
+          const profilePhoto =
+            settings.profilePictureUrl ||
+            settings.avatarUrl ||
+            (settings as any).avatar ||
+            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80';
+
+          return (
+            <div className="relative mb-6 group">
+              <div className="absolute -inset-1.5 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 blur opacity-40 group-hover:opacity-75 transition duration-500 animate-pulse" />
+              <img
+                src={profilePhoto}
+                alt={settings.name || 'Developer Avatar'}
+                referrerPolicy="no-referrer"
+                className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover border-2 border-white dark:border-slate-800 shadow-xl"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src =
+                    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80';
+                }}
+              />
+            </div>
+          );
+        })()}
 
         {/* Name */}
         <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-4 leading-tight">

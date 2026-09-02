@@ -1,5 +1,5 @@
 {
-  "totalVisits": 198,
+  "totalVisits": 212,
   "uniqueVisitorIds": [
     "vis-1",
     "vis-2",
@@ -12,9 +12,107 @@
   ],
   "todayVisits": {
     "2026-08-08": 40,
-    "2026-09-02": 16
+    "2026-09-02": 30
   },
   "recentVisits": [
+    {
+      "id": "v-1788357954012-jr9f",
+      "timestamp": "2026-09-02T14:05:54.012Z",
+      "path": "/",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
+      "device": "Windows PC"
+    },
+    {
+      "id": "v-1788357953996-iv7u",
+      "timestamp": "2026-09-02T14:05:53.996Z",
+      "path": "/",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
+      "device": "Windows PC"
+    },
+    {
+      "id": "v-1788357771361-4rb6",
+      "timestamp": "2026-09-02T14:02:51.361Z",
+      "path": "/",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
+      "device": "Windows PC"
+    },
+    {
+      "id": "v-1788357771355-pvaj",
+      "timestamp": "2026-09-02T14:02:51.355Z",
+      "path": "/",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
+      "device": "Windows PC"
+    },
+    {
+      "id": "v-1788357766468-ftif",
+      "timestamp": "2026-09-02T14:02:46.468Z",
+      "path": "/",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
+      "device": "Windows PC"
+    },
+    {
+      "id": "v-1788357766465-o1p0",
+      "timestamp": "2026-09-02T14:02:46.465Z",
+      "path": "/",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
+      "device": "Windows PC"
+    },
+    {
+      "id": "v-1788357745465-lk9o",
+      "timestamp": "2026-09-02T14:02:25.465Z",
+      "path": "/",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
+      "device": "Windows PC"
+    },
+    {
+      "id": "v-1788357745452-5a27",
+      "timestamp": "2026-09-02T14:02:25.452Z",
+      "path": "/",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
+      "device": "Windows PC"
+    },
+    {
+      "id": "v-1788357636914-hlmt",
+      "timestamp": "2026-09-02T14:00:36.914Z",
+      "path": "/",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
+      "device": "Windows PC"
+    },
+    {
+      "id": "v-1788357636903-s6ga",
+      "timestamp": "2026-09-02T14:00:36.903Z",
+      "path": "/",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
+      "device": "Windows PC"
+    },
+    {
+      "id": "v-1788356571727-fz77",
+      "timestamp": "2026-09-02T13:42:51.727Z",
+      "path": "/",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
+      "device": "Windows PC"
+    },
+    {
+      "id": "v-1788356571723-72pa",
+      "timestamp": "2026-09-02T13:42:51.723Z",
+      "path": "/",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
+      "device": "Windows PC"
+    },
+    {
+      "id": "v-1788356301544-2qdl",
+      "timestamp": "2026-09-02T13:38:21.544Z",
+      "path": "/",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
+      "device": "Windows PC"
+    },
+    {
+      "id": "v-1788356301540-x8ut",
+      "timestamp": "2026-09-02T13:38:21.540Z",
+      "path": "/",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
+      "device": "Windows PC"
+    },
     {
       "id": "v-1788354864438-hdrj",
       "timestamp": "2026-09-02T13:14:24.438Z",
@@ -266,104 +364,6 @@
       "path": "/",
       "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome",
       "device": "Mobile Device"
-    },
-    {
-      "id": "v-1786180494681-nq97",
-      "timestamp": "2026-08-08T09:14:54.681Z",
-      "path": "/",
-      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome",
-      "device": "Mobile Device"
-    },
-    {
-      "id": "v-1786180494644-ohk0",
-      "timestamp": "2026-08-08T09:14:54.644Z",
-      "path": "/",
-      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome",
-      "device": "Mobile Device"
-    },
-    {
-      "id": "v-1786180365888-8wgd",
-      "timestamp": "2026-08-08T09:12:45.888Z",
-      "path": "/",
-      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome",
-      "device": "Mobile Device"
-    },
-    {
-      "id": "v-1786180365843-ada1",
-      "timestamp": "2026-08-08T09:12:45.843Z",
-      "path": "/",
-      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome",
-      "device": "Mobile Device"
-    },
-    {
-      "id": "v-1786179116226-475m",
-      "timestamp": "2026-08-08T08:51:56.226Z",
-      "path": "/",
-      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome",
-      "device": "Mobile Device"
-    },
-    {
-      "id": "v-1786179116217-vlhu",
-      "timestamp": "2026-08-08T08:51:56.217Z",
-      "path": "/",
-      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome",
-      "device": "Mobile Device"
-    },
-    {
-      "id": "v-1786178785189-d3pl",
-      "timestamp": "2026-08-08T08:46:25.189Z",
-      "path": "/",
-      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome",
-      "device": "Mobile Device"
-    },
-    {
-      "id": "v-1786178785168-m0nq",
-      "timestamp": "2026-08-08T08:46:25.168Z",
-      "path": "/",
-      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome",
-      "device": "Mobile Device"
-    },
-    {
-      "id": "v-1786178175186-zut3",
-      "timestamp": "2026-08-08T08:36:15.186Z",
-      "path": "/",
-      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome",
-      "device": "Mobile Device"
-    },
-    {
-      "id": "v-1786178175179-m2t1",
-      "timestamp": "2026-08-08T08:36:15.179Z",
-      "path": "/",
-      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome",
-      "device": "Mobile Device"
-    },
-    {
-      "id": "v-1786177908607-odl7",
-      "timestamp": "2026-08-08T08:31:48.607Z",
-      "path": "/",
-      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome",
-      "device": "Mobile Device"
-    },
-    {
-      "id": "v-1786177908602-c1k5",
-      "timestamp": "2026-08-08T08:31:48.602Z",
-      "path": "/",
-      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome",
-      "device": "Mobile Device"
-    },
-    {
-      "id": "v-1786177354339-3fl8",
-      "timestamp": "2026-08-08T08:22:34.339Z",
-      "path": "/",
-      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome",
-      "device": "Mobile Device"
-    },
-    {
-      "id": "v-1786177354336-z8iy",
-      "timestamp": "2026-08-08T08:22:34.336Z",
-      "path": "/",
-      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome",
-      "device": "Mobile Device"
     }
   ],
   "activeSessions": {
@@ -371,6 +371,6 @@
     "sess-1786177185292-i1u1k": 1786178950197,
     "sess-1786179116060-heyxu": 1786182734973,
     "sess-1786183610126-imy5u": 1786185192876,
-    "sess-1788346656524-666dg": 1788356049411
+    "sess-1788346656524-666dg": 1788359709444
   }
 }

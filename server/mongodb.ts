@@ -8,7 +8,6 @@ import {
   ExperienceModel,
   EducationModel,
   SkillModel,
-  CertificationModel,
   CertificateModel,
   TestimonialModel,
   ContactMessageModel,
@@ -170,6 +169,13 @@ export async function syncMongoWithLocalData(localDb: any) {
     const mongoSettings = await SettingsModel.findOne().lean();
     if (mongoSettings) {
       const { _id, __v, createdAt, updatedAt, ...cleanSettings } = mongoSettings as any;
+      const photo =
+        cleanSettings.profilePictureUrl ||
+        cleanSettings.avatarUrl ||
+        cleanSettings.avatar ||
+        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80';
+      cleanSettings.profilePictureUrl = photo;
+      cleanSettings.avatarUrl = photo;
       writeJSON('settings.json', cleanSettings);
       console.log('📥 Loaded site settings from MongoDB');
     } else {
@@ -202,29 +208,7 @@ export async function syncMongoWithLocalData(localDb: any) {
       }
     }
 
-    // 5. CERTIFICATIONS
-    const mongoCerts = await CertificationModel.find().lean();
-    if (mongoCerts && mongoCerts.length > 0) {
-      const cleanCerts = mongoCerts.map((c: any) => ({
-        id: c.id,
-        name: c.name || c.title || 'Certification',
-        issuer: c.issuer || c.issuingOrg || '',
-        issueDate: c.issueDate || '',
-        credentialId: c.credentialId || '',
-        credentialUrl: c.credentialUrl || c.url || '',
-        url: c.url || c.credentialUrl || '',
-        badgeImage: c.badgeImage || c.badgeImageUrl || '',
-        order: c.order !== undefined ? Number(c.order) : 0
-      })).sort((a, b) => (a.order || 0) - (b.order || 0));
-      writeJSON('certifications.json', cleanCerts);
-    } else {
-      const localCerts = localDb.getCertifications();
-      if (localCerts && localCerts.length > 0) {
-        await CertificationModel.insertMany(localCerts);
-      }
-    }
-
-    // 6. EXPERIENCE
+    // 5. EXPERIENCE
     const mongoExp = await ExperienceModel.find().lean();
     if (mongoExp && mongoExp.length > 0) {
       const cleanExp = mongoExp.map((e: any) => ({

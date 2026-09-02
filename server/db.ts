@@ -8,7 +8,6 @@ import {
   ExperienceModel,
   EducationModel,
   SkillModel,
-  CertificationModel,
   CertificateModel,
   TestimonialModel,
   ContactMessageModel
@@ -78,6 +77,7 @@ Eager to contribute to collaborative development projects, improve user experien
 ✉️ Email: kehindeoluwaseunemmanuel@gmail.com
 ⚽ Hobbies & Interests: Coding, watching movies & anime, sports enthusiast (boxing, MMA, football - passionate Barcelona FC supporter), volleyball player, driving, cryptocurrency trading and Web3 exploration.`,
   profilePictureUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
+  avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
   resumeUrl: '/uploads/sample_resume.pdf',
   socialLinks: {
     github: 'https://github.com',
@@ -239,27 +239,6 @@ const initialTestimonials = [
   }
 ];
 
-const initialCertifications = [
-  {
-    id: 'cert-1',
-    title: 'Software Development - 6-Month Professional Training Programme',
-    issuingOrg: 'TS Academy',
-    issueDate: '2026-01-01',
-    credentialUrl: '',
-    badgeImageUrl: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=200&q=80',
-    order: 1
-  },
-  {
-    id: 'cert-2',
-    title: 'Diploma in Web Design (DWD) - Distinction',
-    issuingOrg: 'HiiT Plc, Ikeja, Lagos',
-    issueDate: '2022-01-01',
-    credentialUrl: '',
-    badgeImageUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=200&q=80',
-    order: 2
-  }
-];
-
 const initialCertificates = [
   {
     id: 'vcert-1',
@@ -286,136 +265,438 @@ const initialCertificates = [
 ];
 
 export const db = {
-  getAdmin: () => readJSON('admin.json', initialAdmin),
-  setAdmin: (data: any) => {
+  // ADMIN
+  getAdmin: async () => {
+    if (getMongoStatus().connected) {
+      try {
+        const adminDoc = await AdminModel.findOne().lean();
+        if (adminDoc) {
+          return {
+            email: adminDoc.email,
+            passwordHash: adminDoc.passwordHash
+          };
+        }
+      } catch (err) {
+        console.warn('MongoDB query notice for admin, falling back to local storage:', err);
+      }
+    }
+    return readJSON('admin.json', initialAdmin);
+  },
+
+  setAdmin: async (data: any) => {
     writeJSON('admin.json', data);
     if (getMongoStatus().connected) {
-      (AdminModel as any).findOneAndUpdate({}, data, { upsert: true }).catch((err: any) =>
-        console.warn('Mongo async write error for admin:', err)
-      );
+      try {
+        await (AdminModel as any).findOneAndUpdate({}, data, { upsert: true });
+      } catch (err) {
+        console.warn('MongoDB write error for admin:', err);
+      }
     }
     return data;
   },
 
-  getSettings: () => readJSON('settings.json', initialSettings),
-  setSettings: (data: any) => {
-    const current = readJSON('settings.json', initialSettings);
-    const updated = { ...current, ...data, updatedAt: new Date().toISOString() };
-    writeJSON('settings.json', updated);
+  // SETTINGS
+  getSettings: async () => {
+    let settingsData: any = null;
+
     if (getMongoStatus().connected) {
-      (SettingsModel as any).findOneAndUpdate({}, updated, { upsert: true }).catch((err: any) =>
-        console.warn('Mongo async write error for settings:', err)
-      );
+      try {
+        const mongoDoc = await SettingsModel.findOne().lean();
+        if (mongoDoc) {
+          settingsData = mongoDoc;
+        }
+      } catch (err) {
+        console.warn('MongoDB query notice for settings, falling back to local storage:', err);
+      }
     }
+
+    if (!settingsData) {
+      settingsData = readJSON('settings.json', initialSettings);
+    }
+
+    const photo =
+      settingsData.profilePictureUrl ||
+      settingsData.avatarUrl ||
+      settingsData.avatar ||
+      initialSettings.profilePictureUrl ||
+      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80';
+
+    return {
+      ...settingsData,
+      profilePictureUrl: photo,
+      avatarUrl: photo
+    };
+  },
+
+  setSettings: async (data: any) => {
+    let current: any = null;
+    if (getMongoStatus().connected) {
+      try {
+        current = await SettingsModel.findOne().lean();
+      } catch (e) {
+        // ignore
+      }
+    }
+    if (!current) {
+      current = readJSON('settings.json', initialSettings);
+    }
+
+    const photo =
+      data.profilePictureUrl ||
+      data.avatarUrl ||
+      data.avatar ||
+      current.profilePictureUrl ||
+      current.avatarUrl ||
+      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80';
+
+    const updated = {
+      ...current,
+      ...data,
+      profilePictureUrl: photo,
+      avatarUrl: photo,
+      updatedAt: new Date().toISOString()
+    };
+
+    writeJSON('settings.json', updated);
+
+    if (getMongoStatus().connected) {
+      try {
+        await (SettingsModel as any).findOneAndUpdate({}, updated, { upsert: true, new: true });
+      } catch (err) {
+        console.warn('MongoDB write error for settings:', err);
+      }
+    }
+
     return updated;
   },
 
-  getProjects: () => readJSON('projects.json', initialProjects),
-  setProjects: (data: any[]) => {
+  // PROJECTS
+  getProjects: async () => {
+    if (getMongoStatus().connected) {
+      try {
+        const docs = await ProjectModel.find().lean();
+        if (docs && docs.length > 0) {
+          const list = docs.map((p: any) => ({
+            id: p.id,
+            slug: p.slug,
+            title: p.title,
+            tagline: p.tagline || '',
+            description: p.description || '',
+            shortDescription: p.shortDescription || p.description || '',
+            fullDescription: p.fullDescription || '',
+            category: p.category || 'Full-Stack',
+            techStack: Array.isArray(p.techStack) ? p.techStack : (Array.isArray(p.tags) ? p.tags : []),
+            tags: Array.isArray(p.tags) ? p.tags : (Array.isArray(p.techStack) ? p.techStack : []),
+            thumbnailUrl: p.thumbnailUrl || p.image || '',
+            image: p.image || p.thumbnailUrl || '',
+            galleryUrls: Array.isArray(p.galleryUrls) ? p.galleryUrls : (Array.isArray(p.images) ? p.images : []),
+            images: Array.isArray(p.images) ? p.images : (Array.isArray(p.galleryUrls) ? p.galleryUrls : []),
+            liveUrl: p.liveUrl || '',
+            githubUrl: p.githubUrl || '',
+            featured: Boolean(p.featured),
+            order: p.order !== undefined ? Number(p.order) : 0,
+            createdAt: p.createdAt || new Date().toISOString(),
+            updatedAt: p.updatedAt || new Date().toISOString()
+          })).sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
+          return list;
+        }
+      } catch (err) {
+        console.warn('MongoDB query notice for projects, falling back to local storage:', err);
+      }
+    }
+    return readJSON('projects.json', initialProjects);
+  },
+
+  setProjects: async (data: any[]) => {
     writeJSON('projects.json', data);
     if (getMongoStatus().connected) {
-      ProjectModel.deleteMany({}).then(() => ProjectModel.insertMany(data)).catch((err) =>
-        console.warn('Mongo async write error for projects:', err)
-      );
+      try {
+        await ProjectModel.deleteMany({});
+        await ProjectModel.insertMany(data);
+      } catch (err) {
+        console.warn('MongoDB write error for projects:', err);
+      }
     }
     return data;
   },
 
-  getSkills: () => readJSON('skills.json', initialSkills),
-  setSkills: (data: any[]) => {
+  // SKILLS
+  getSkills: async () => {
+    if (getMongoStatus().connected) {
+      try {
+        const docs = await SkillModel.find().lean();
+        if (docs && docs.length > 0) {
+          const list = docs.map((s: any) => ({
+            id: s.id,
+            name: s.name,
+            category: s.category || 'Frontend',
+            level: s.level ?? s.proficiency ?? 85,
+            proficiency: s.proficiency ?? s.level ?? 85,
+            yearsExperience: s.yearsExperience ?? s.years ?? 2,
+            years: s.years ?? s.yearsExperience ?? 2,
+            iconUrl: s.iconUrl || '',
+            iconName: s.iconName || '',
+            order: s.order !== undefined ? Number(s.order) : 0,
+            featured: Boolean(s.featured)
+          })).sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
+          return list;
+        }
+      } catch (err) {
+        console.warn('MongoDB query notice for skills, falling back to local storage:', err);
+      }
+    }
+    return readJSON('skills.json', initialSkills);
+  },
+
+  setSkills: async (data: any[]) => {
     writeJSON('skills.json', data);
     if (getMongoStatus().connected) {
-      SkillModel.deleteMany({})
-        .then(() =>
-          SkillModel.insertMany(
-            data.map((s: any) => ({
-              id: s.id,
-              name: s.name,
-              category: s.category || 'Frontend',
-              proficiency: s.level ?? s.proficiency ?? 85,
-              level: s.level ?? s.proficiency ?? 85,
-              years: s.yearsExperience ?? s.years ?? 2,
-              yearsExperience: s.yearsExperience ?? s.years ?? 2,
-              iconUrl: s.iconUrl || '',
-              iconName: s.iconName || '',
-              order: s.order !== undefined ? Number(s.order) : 0,
-              featured: Boolean(s.featured)
-            })) as any
-          )
-        )
-        .catch((err) => console.warn('Mongo async write error for skills:', err));
+      try {
+        await SkillModel.deleteMany({});
+        await (SkillModel as any).insertMany(
+          data.map((s: any) => ({
+            id: s.id,
+            name: s.name,
+            category: s.category || 'Frontend',
+            proficiency: s.level ?? s.proficiency ?? 85,
+            level: s.level ?? s.proficiency ?? 85,
+            years: s.yearsExperience ?? s.years ?? 2,
+            yearsExperience: s.yearsExperience ?? s.years ?? 2,
+            iconUrl: s.iconUrl || '',
+            iconName: s.iconName || '',
+            order: s.order !== undefined ? Number(s.order) : 0,
+            featured: Boolean(s.featured)
+          }))
+        );
+      } catch (err) {
+        console.warn('MongoDB write error for skills:', err);
+      }
     }
     return data;
   },
 
-  getExperience: () => readJSON('experience.json', initialExperience),
-  getExperiences: () => readJSON('experience.json', initialExperience),
-  setExperience: (data: any[]) => {
+  // EXPERIENCE
+  getExperience: async () => {
+    if (getMongoStatus().connected) {
+      try {
+        const docs = await ExperienceModel.find().lean();
+        if (docs && docs.length > 0) {
+          const list = docs.map((e: any) => ({
+            id: e.id,
+            role: e.role,
+            company: e.company,
+            companyUrl: e.companyUrl || '',
+            companyLogoUrl: e.companyLogoUrl || '',
+            location: e.location || '',
+            period: e.period || (e.startDate ? `${e.startDate} - ${e.endDate || 'Present'}` : ''),
+            startDate: e.startDate || '',
+            endDate: e.endDate || '',
+            description: e.description || '',
+            achievements: Array.isArray(e.achievements) ? e.achievements : [],
+            technologies: Array.isArray(e.technologies) ? e.technologies : [],
+            current: Boolean(e.current),
+            order: e.order !== undefined ? Number(e.order) : 0
+          })).sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
+          return list;
+        }
+      } catch (err) {
+        console.warn('MongoDB query notice for experience, falling back to local storage:', err);
+      }
+    }
+    return readJSON('experience.json', initialExperience);
+  },
+
+  getExperiences: async () => {
+    return db.getExperience();
+  },
+
+  setExperience: async (data: any[]) => {
     writeJSON('experience.json', data);
     if (getMongoStatus().connected) {
-      ExperienceModel.deleteMany({}).then(() => ExperienceModel.insertMany(data)).catch((err) =>
-        console.warn('Mongo async write error for experience:', err)
-      );
+      try {
+        await ExperienceModel.deleteMany({});
+        await ExperienceModel.insertMany(data);
+      } catch (err) {
+        console.warn('MongoDB write error for experience:', err);
+      }
     }
     return data;
   },
 
-  getEducation: () => readJSON('education.json', initialEducation),
-  setEducation: (data: any[]) => {
+  // EDUCATION
+  getEducation: async () => {
+    if (getMongoStatus().connected) {
+      try {
+        const docs = await EducationModel.find().lean();
+        if (docs && docs.length > 0) {
+          const list = docs.map((ed: any) => ({
+            id: ed.id,
+            institution: ed.institution,
+            degree: ed.degree,
+            fieldOfStudy: ed.fieldOfStudy || ed.field || '',
+            field: ed.field || ed.fieldOfStudy || '',
+            location: ed.location || '',
+            period: ed.period || (ed.startDate ? `${ed.startDate} - ${ed.endDate || 'Present'}` : ''),
+            startDate: ed.startDate || '',
+            endDate: ed.endDate || '',
+            grade: ed.grade || '',
+            description: ed.description || '',
+            achievements: Array.isArray(ed.achievements) ? ed.achievements : [],
+            order: ed.order !== undefined ? Number(ed.order) : 0
+          })).sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
+          return list;
+        }
+      } catch (err) {
+        console.warn('MongoDB query notice for education, falling back to local storage:', err);
+      }
+    }
+    return readJSON('education.json', initialEducation);
+  },
+
+  setEducation: async (data: any[]) => {
     writeJSON('education.json', data);
     if (getMongoStatus().connected) {
-      EducationModel.deleteMany({}).then(() => EducationModel.insertMany(data)).catch((err) =>
-        console.warn('Mongo async write error for education:', err)
-      );
+      try {
+        await EducationModel.deleteMany({});
+        await EducationModel.insertMany(data);
+      } catch (err) {
+        console.warn('MongoDB write error for education:', err);
+      }
     }
     return data;
   },
 
-  getTestimonials: () => readJSON('testimonials.json', initialTestimonials),
-  setTestimonials: (data: any[]) => {
+  // TESTIMONIALS
+  getTestimonials: async () => {
+    if (getMongoStatus().connected) {
+      try {
+        const docs = await TestimonialModel.find().lean();
+        if (docs && docs.length > 0) {
+          const list = docs.map((t: any) => {
+            const authorName = t.authorName || t.name || 'Client';
+            const authorRole = t.authorRole || t.role || '';
+            const quote = t.quote || t.content || '';
+            const authorPhotoUrl = t.authorPhotoUrl || t.avatar || '';
+            return {
+              id: t.id,
+              name: authorName,
+              authorName,
+              role: authorRole,
+              authorRole,
+              company: t.company || '',
+              content: quote,
+              quote,
+              avatar: authorPhotoUrl,
+              authorPhotoUrl,
+              rating: t.rating || 5,
+              order: t.order !== undefined ? Number(t.order) : 0
+            };
+          }).sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
+          return list;
+        }
+      } catch (err) {
+        console.warn('MongoDB query notice for testimonials, falling back to local storage:', err);
+      }
+    }
+    return readJSON('testimonials.json', initialTestimonials);
+  },
+
+  setTestimonials: async (data: any[]) => {
     writeJSON('testimonials.json', data);
     if (getMongoStatus().connected) {
-      TestimonialModel.deleteMany({}).then(() => TestimonialModel.insertMany(data)).catch((err) =>
-        console.warn('Mongo async write error for testimonials:', err)
-      );
+      try {
+        await TestimonialModel.deleteMany({});
+        await TestimonialModel.insertMany(data);
+      } catch (err) {
+        console.warn('MongoDB write error for testimonials:', err);
+      }
     }
     return data;
   },
 
-  getCertifications: () => readJSON('certifications.json', initialCertifications),
-  setCertifications: (data: any[]) => {
-    writeJSON('certifications.json', data);
+  // CERTIFICATES (Verified Credentials)
+  getCertificates: async () => {
     if (getMongoStatus().connected) {
-      CertificationModel.deleteMany({}).then(() => CertificationModel.insertMany(data)).catch((err) =>
-        console.warn('Mongo async write error for certifications:', err)
-      );
+      try {
+        const docs = await CertificateModel.find().lean();
+        if (docs && docs.length > 0) {
+          const list = docs.map((c: any) => ({
+            id: c.id,
+            title: c.title,
+            issuer: c.issuer,
+            category: c.category || 'WEB DEVELOPMENT',
+            imageUrl: c.imageUrl || '',
+            imagePublicId: c.imagePublicId || '',
+            credentialUrl: c.credentialUrl || '',
+            issueDate: c.issueDate || '',
+            order: c.order !== undefined ? Number(c.order) : 0
+          })).sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
+          return list;
+        }
+      } catch (err) {
+        console.warn('MongoDB query notice for certificates, falling back to local storage:', err);
+      }
     }
-    return data;
+    return readJSON('certificates.json', initialCertificates);
   },
 
-  getCertificates: () => readJSON('certificates.json', initialCertificates),
-  setCertificates: (data: any[]) => {
+  setCertificates: async (data: any[]) => {
     writeJSON('certificates.json', data);
     if (getMongoStatus().connected) {
-      CertificateModel.deleteMany({}).then(() => CertificateModel.insertMany(data)).catch((err) =>
-        console.warn('Mongo async write error for certificates:', err)
-      );
+      try {
+        await CertificateModel.deleteMany({});
+        await CertificateModel.insertMany(data);
+      } catch (err) {
+        console.warn('MongoDB write error for certificates:', err);
+      }
     }
     return data;
   },
 
+  // DEV.TO ARTICLES CACHE
   getCachedArticles: () => readJSON('articles.json', []),
   setCachedArticles: (data: any[]) => {
     writeJSON('articles.json', data);
     return data;
   },
 
-  getMessages: () => readJSON('messages.json', []),
-  setMessages: (data: any[]) => {
+  // MESSAGES
+  getMessages: async () => {
+    if (getMongoStatus().connected) {
+      try {
+        const docs = await ContactMessageModel.find().lean();
+        if (docs && docs.length > 0) {
+          return docs.map((m: any) => ({
+            id: m.id,
+            name: m.name,
+            email: m.email,
+            subject: m.subject || '',
+            message: m.message,
+            read: Boolean(m.read),
+            createdAt: m.timestamp || (m as any).createdAt || new Date().toISOString()
+          })).sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        }
+      } catch (err) {
+        console.warn('MongoDB query notice for contact messages, falling back to local storage:', err);
+      }
+    }
+    return readJSON('messages.json', []);
+  },
+
+  setMessages: async (data: any[]) => {
     writeJSON('messages.json', data);
+    if (getMongoStatus().connected) {
+      try {
+        await ContactMessageModel.deleteMany({});
+        await ContactMessageModel.insertMany(data);
+      } catch (err) {
+        console.warn('MongoDB write error for messages:', err);
+      }
+    }
     return data;
   },
 
+  // VISITOR STATS
   getVisitorStats: () => {
     const defaultData = {
       totalVisits: 142,

@@ -14,6 +14,7 @@ const SettingsSchema = new Schema({
   bio: { type: String },
   aboutContent: { type: String },
   avatarUrl: { type: String, default: '' },
+  profilePictureUrl: { type: String, default: '' },
   resumeUrl: { type: String, default: '' },
   location: { type: String, default: 'London, UK / Remote' },
   statusText: { type: String, default: 'Available for high-impact projects' },
@@ -97,23 +98,7 @@ const SkillSchema = new Schema({
   order: { type: Number, default: 0 }
 }, { timestamps: true });
 
-// Certification Schema
-const CertificationSchema = new Schema({
-  id: { type: String, required: true, unique: true },
-  name: { type: String, default: '' },
-  title: { type: String, default: '' },
-  issuer: { type: String, default: '' },
-  issuingOrg: { type: String, default: '' },
-  issueDate: { type: String, default: '' },
-  credentialId: { type: String, default: '' },
-  credentialUrl: { type: String, default: '' },
-  url: { type: String, default: '' },
-  badgeImage: { type: String, default: '' },
-  badgeImageUrl: { type: String, default: '' },
-  order: { type: Number, default: 0 }
-}, { timestamps: true });
-
-// Certificate Schema (New verified credentials data model)
+// Certificate Schema (Verified credentials data model)
 const CertificateSchema = new Schema({
   id: { type: String, required: true, unique: true },
   title: { type: String, required: true },
@@ -175,7 +160,6 @@ export const ProjectModel = mongoose.models.Project || mongoose.model('Project',
 export const ExperienceModel = mongoose.models.Experience || mongoose.model('Experience', ExperienceSchema);
 export const EducationModel = mongoose.models.Education || mongoose.model('Education', EducationSchema);
 export const SkillModel = mongoose.models.Skill || mongoose.model('Skill', SkillSchema);
-export const CertificationModel = mongoose.models.Certification || mongoose.model('Certification', CertificationSchema);
 export const CertificateModel = mongoose.models.Certificate || mongoose.model('Certificate', CertificateSchema);
 export const TestimonialModel = mongoose.models.Testimonial || mongoose.model('Testimonial', TestimonialSchema);
 export const ContactMessageModel = mongoose.models.ContactMessage || mongoose.model('ContactMessage', ContactMessageSchema);

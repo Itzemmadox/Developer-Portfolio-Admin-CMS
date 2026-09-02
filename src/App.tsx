@@ -6,7 +6,6 @@ import {
   Experience,
   Education,
   Testimonial,
-  Certification,
   Certificate,
   CachedArticle,
   ContactMessage
@@ -74,7 +73,6 @@ export default function App() {
   const [experience, setExperience] = useState<Experience[]>([]);
   const [education, setEducation] = useState<Education[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-  const [certifications, setCertifications] = useState<Certification[]>([]);
   const [news, setNews] = useState<CachedArticle[]>([]);
   const [messages, setMessages] = useState<ContactMessage[]>([]);
 
@@ -103,7 +101,6 @@ export default function App() {
         expRes,
         eduRes,
         testRes,
-        certRes,
         newsRes
       ] = await Promise.all([
         api.getSettings().catch(() => null),
@@ -113,7 +110,6 @@ export default function App() {
         api.getExperience().catch(() => []),
         api.getEducation().catch(() => []),
         api.getTestimonials().catch(() => []),
-        api.getCertifications().catch(() => []),
         api.getNews().catch(() => [])
       ]);
 
@@ -124,7 +120,6 @@ export default function App() {
       if (expRes) setExperience(expRes);
       if (eduRes) setEducation(eduRes);
       if (testRes) setTestimonials(testRes);
-      if (certRes) setCertifications(certRes);
       if (newsRes) setNews(newsRes);
 
       // Update browser head title
@@ -226,17 +221,35 @@ export default function App() {
     );
   }
 
-  const defaultSettings: SiteSettings = settings || {
-    name: 'Emmanuel Oluwaseun',
-    role: 'Senior Full-Stack Engineer',
-    heroTaglines: ['Building Scalable Systems', 'Crafting Intuitive UI'],
-    bio: 'Passionate Senior Full-Stack Engineer with 6+ years of experience.',
-    aboutContent: 'Senior Full-Stack Engineer specializing in scalable web systems.',
-    profilePictureUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
-    resumeUrl: '',
-    socialLinks: { email: 'emmanuel@portfolio.dev' },
-    seo: { siteTitle: 'Emmanuel Oluwaseun | Senior Software Engineer', metaDescription: '' },
-    updatedAt: new Date().toISOString()
+  const defaultSettings: SiteSettings = {
+    name: settings?.name || 'Oluwaseun Emmanuel Kehinde',
+    role: settings?.role || 'Junior Full-Stack Developer',
+    heroTaglines: settings?.heroTaglines?.length
+      ? settings.heroTaglines
+      : ['Junior Full-Stack Developer', 'Building Responsive Web Applications', 'Web3 & Blockchain Technology'],
+    bio:
+      settings?.bio ||
+      'Motivated and detail-oriented Junior Full-Stack Developer with hands-on experience in front-end development and a strong foundation in modern web technologies.',
+    aboutContent: settings?.aboutContent || 'Motivated Junior Full-Stack Developer.',
+    profilePictureUrl:
+      settings?.profilePictureUrl ||
+      settings?.avatarUrl ||
+      (settings as any)?.avatar ||
+      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
+    avatarUrl:
+      settings?.avatarUrl ||
+      settings?.profilePictureUrl ||
+      (settings as any)?.avatar ||
+      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
+    resumeUrl: settings?.resumeUrl || '',
+    socialLinks: settings?.socialLinks || { email: 'kehindeoluwaseunemmanuel@gmail.com' },
+    seo: settings?.seo || {
+      siteTitle: 'Oluwaseun Emmanuel Kehinde | Junior Full-Stack Developer',
+      metaDescription: ''
+    },
+    location: settings?.location || 'London, UK / Remote',
+    statusText: settings?.statusText || 'Available for high-impact projects',
+    updatedAt: settings?.updatedAt || new Date().toISOString()
   };
 
   // Render Admin CMS View if active

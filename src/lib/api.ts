@@ -5,7 +5,6 @@ import {
   Experience,
   Education,
   Testimonial,
-  Certification,
   Certificate,
   CachedArticle,
   ContactMessage,
@@ -386,34 +385,6 @@ export const api = {
     }),
   deleteTestimonial: (id: string) =>
     request<{ success: boolean }>(`/api/testimonials/${id}`, {
-      method: 'DELETE'
-    }),
-
-  // Certifications
-  getCertifications: async (): Promise<Certification[]> => {
-    try {
-      const certs = await request<Certification[]>('/api/certifications');
-      if (Array.isArray(certs)) {
-        api.setLocalCache('certifications', certs);
-        return certs;
-      }
-      return api.getLocalCache<Certification[]>('certifications') || [];
-    } catch {
-      return api.getLocalCache<Certification[]>('certifications') || [];
-    }
-  },
-  createCertification: (data: Partial<Certification>) =>
-    request<Certification>('/api/certifications', {
-      method: 'POST',
-      body: JSON.stringify(data)
-    }),
-  updateCertification: (id: string, data: Partial<Certification>) =>
-    request<Certification>(`/api/certifications/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data)
-    }),
-  deleteCertification: (id: string) =>
-    request<{ success: boolean }>(`/api/certifications/${id}`, {
       method: 'DELETE'
     }),
 

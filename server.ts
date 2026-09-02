@@ -81,14 +81,14 @@ app.get('/api/health', (req: Request, res: Response) => {
 });
 
 // AUTH ENDPOINTS
-app.post('/api/auth/login', (req: Request, res: Response) => {
+app.post('/api/auth/login', async (req: Request, res: Response) => {
   const { email, password } = req.body;
   if (!email || !password) {
     res.status(400).json({ error: 'Email and password are required' });
     return;
   }
 
-  const admin = db.getAdmin();
+  const admin = await db.getAdmin();
   if (email !== admin.email || !bcrypt.compareSync(password, admin.passwordHash)) {
     res.status(401).json({ error: 'Invalid credentials' });
     return;
@@ -113,9 +113,9 @@ app.get('/api/auth/me', authMiddleware, (req: AuthenticatedRequest, res: Respons
   res.json({ user: req.user });
 });
 
-app.put('/api/auth/update-password', authMiddleware, (req: AuthenticatedRequest, res: Response) => {
+app.put('/api/auth/update-password', authMiddleware, async (req: AuthenticatedRequest, res: Response) => {
   const { currentPassword, newPassword, newEmail } = req.body;
-  const admin = db.getAdmin();
+  const admin = await db.getAdmin();
 
   if (!bcrypt.compareSync(currentPassword, admin.passwordHash)) {
     res.status(400).json({ error: 'Current password is incorrect' });
@@ -127,7 +127,7 @@ app.put('/api/auth/update-password', authMiddleware, (req: AuthenticatedRequest,
     passwordHash: newPassword ? bcrypt.hashSync(newPassword, 10) : admin.passwordHash
   };
 
-  db.setAdmin(updatedAdmin);
+  await db.setAdmin(updatedAdmin);
   res.json({ success: true, message: 'Admin details updated successfully', user: { email: updatedAdmin.email } });
 });
 
@@ -275,12 +275,13 @@ app.get('/api/document/proxy', async (req: Request, res: Response) => {
 });
 
 // SITE SETTINGS
-app.get('/api/settings', (req: Request, res: Response) => {
-  res.json(db.getSettings());
+app.get('/api/settings', async (req: Request, res: Response) => {
+  const settings = await db.getSettings();
+  res.json(settings);
 });
 
-const handleSettingsUpdate = (req: Request, res: Response) => {
-  const updated = db.setSettings(req.body);
+const handleSettingsUpdate = async (req: Request, res: Response) => {
+  const updated = await db.setSettings(req.body);
   res.json(updated);
 };
 
@@ -293,7 +294,7 @@ app.get('/api/github/contributions', async (req: Request, res: Response) => {
   const rawUsername = (req.query.username as string) || '';
   let username = rawUsername.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, '').replace(/^@/, '').split('/')[0];
   if (!username) {
-    const settings = db.getSettings();
+    const settings = await db.getSettings();
     const githubLink = settings.socialLinks?.github || '';
     username = githubLink.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, '').replace(/^@/, '').split('/')[0] || 'octocat';
   }
@@ -399,14 +400,14 @@ app.get('/api/github/contributions', async (req: Request, res: Response) => {
 });
 
 // PROJECTS
-app.get('/api/projects', (req: Request, res: Response) => {
-  const projects = db.getProjects();
+app.get('/api/projects', async (req: Request, res: Response) => {
+  const projects = await db.getProjects();
   projects.sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
   res.json(projects);
 });
 
-app.get('/api/projects/:slug', (req: Request, res: Response) => {
-  const projects = db.getProjects();
+app.get('/api/projects/:slug', async (req: Request, res: Response) => {
+  const projects = await db.getProjects();
   const found = projects.find((p: any) => p.slug === req.params.slug || p.id === req.params.slug);
   if (!found) {
     res.status(404).json({ error: 'Project not found' });
@@ -415,8 +416,8 @@ app.get('/api/projects/:slug', (req: Request, res: Response) => {
   res.json(found);
 });
 
-app.post('/api/projects', authMiddleware, (req: Request, res: Response) => {
-  const projects = db.getProjects();
+app.post('/api/projects', authMiddleware, async (req: Request, res: Response) => {
+  const projects = await db.getProjects();
   const newProject = {
     ...req.body,
     id: `proj-${Date.now()}`,
@@ -426,12 +427,12 @@ app.post('/api/projects', authMiddleware, (req: Request, res: Response) => {
     updatedAt: new Date().toISOString()
   };
   projects.push(newProject);
-  db.setProjects(projects);
+  await db.setProjects(projects);
   res.status(201).json(newProject);
 });
 
-app.put('/api/projects/:id', authMiddleware, (req: Request, res: Response) => {
-  const projects = db.getProjects();
+app.put('/api/projects/:id', authMiddleware, async (req: Request, res: Response) => {
+  const projects = await db.getProjects();
   const index = projects.findIndex((p: any) => p.id === req.params.id);
   if (index === -1) {
     res.status(404).json({ error: 'Project not found' });
@@ -442,248 +443,210 @@ app.put('/api/projects/:id', authMiddleware, (req: Request, res: Response) => {
     ...req.body,
     updatedAt: new Date().toISOString()
   };
-  db.setProjects(projects);
+  await db.setProjects(projects);
   res.json(projects[index]);
 });
 
-app.delete('/api/projects/:id', authMiddleware, (req: Request, res: Response) => {
-  let projects = db.getProjects();
+app.delete('/api/projects/:id', authMiddleware, async (req: Request, res: Response) => {
+  let projects = await db.getProjects();
   projects = projects.filter((p: any) => p.id !== req.params.id);
-  db.setProjects(projects);
+  await db.setProjects(projects);
   res.json({ success: true, message: 'Project deleted' });
 });
 
-app.patch('/api/projects/reorder', authMiddleware, (req: Request, res: Response) => {
+app.patch('/api/projects/reorder', authMiddleware, async (req: Request, res: Response) => {
   const { orders } = req.body; // Array of { id: string, order: number }
   if (!Array.isArray(orders)) {
     res.status(400).json({ error: 'Invalid orders array' });
     return;
   }
-  const projects = db.getProjects();
+  const projects = await db.getProjects();
   orders.forEach(({ id, order }) => {
     const item = projects.find((p: any) => p.id === id);
     if (item) item.order = order;
   });
-  db.setProjects(projects);
+  await db.setProjects(projects);
   res.json({ success: true, projects });
 });
 
 // SKILLS
-app.get('/api/skills', (req: Request, res: Response) => {
-  const skills = db.getSkills();
+app.get('/api/skills', async (req: Request, res: Response) => {
+  const skills = await db.getSkills();
   skills.sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
   res.json(skills);
 });
 
-app.post('/api/skills', authMiddleware, (req: Request, res: Response) => {
-  const skills = db.getSkills();
+app.post('/api/skills', authMiddleware, async (req: Request, res: Response) => {
+  const skills = await db.getSkills();
   const newSkill = {
     ...req.body,
     id: `sk-${Date.now()}`,
     order: req.body.order ?? skills.length + 1
   };
   skills.push(newSkill);
-  db.setSkills(skills);
+  await db.setSkills(skills);
   res.status(201).json(newSkill);
 });
 
-app.put('/api/skills/:id', authMiddleware, (req: Request, res: Response) => {
-  const skills = db.getSkills();
+app.put('/api/skills/:id', authMiddleware, async (req: Request, res: Response) => {
+  const skills = await db.getSkills();
   const index = skills.findIndex((s: any) => s.id === req.params.id);
   if (index === -1) {
     res.status(404).json({ error: 'Skill not found' });
     return;
   }
   skills[index] = { ...skills[index], ...req.body };
-  db.setSkills(skills);
+  await db.setSkills(skills);
   res.json(skills[index]);
 });
 
-app.delete('/api/skills/:id', authMiddleware, (req: Request, res: Response) => {
-  let skills = db.getSkills();
+app.delete('/api/skills/:id', authMiddleware, async (req: Request, res: Response) => {
+  let skills = await db.getSkills();
   skills = skills.filter((s: any) => s.id !== req.params.id);
-  db.setSkills(skills);
+  await db.setSkills(skills);
   res.json({ success: true, message: 'Skill deleted' });
 });
 
-app.patch('/api/skills/reorder', authMiddleware, (req: Request, res: Response) => {
+app.patch('/api/skills/reorder', authMiddleware, async (req: Request, res: Response) => {
   const orders = req.body.orders || req.body;
   if (!Array.isArray(orders)) {
     res.status(400).json({ error: 'Invalid orders array' });
     return;
   }
-  const skills = db.getSkills();
+  const skills = await db.getSkills();
   orders.forEach(({ id, order }: { id: string; order: number }) => {
     const item = skills.find((s: any) => s.id === id);
     if (item) item.order = Number(order);
   });
   skills.sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
-  db.setSkills(skills);
+  await db.setSkills(skills);
   res.json({ success: true, skills });
 });
 
 // EXPERIENCE
-app.get('/api/experience', (req: Request, res: Response) => {
-  const exp = db.getExperience();
+app.get('/api/experience', async (req: Request, res: Response) => {
+  const exp = await db.getExperience();
   exp.sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
   res.json(exp);
 });
 
-app.post('/api/experience', authMiddleware, (req: Request, res: Response) => {
-  const exp = db.getExperience();
+app.post('/api/experience', authMiddleware, async (req: Request, res: Response) => {
+  const exp = await db.getExperience();
   const newExp = {
     ...req.body,
     id: `exp-${Date.now()}`,
     order: req.body.order ?? exp.length + 1
   };
   exp.push(newExp);
-  db.setExperience(exp);
+  await db.setExperience(exp);
   res.status(201).json(newExp);
 });
 
-app.put('/api/experience/:id', authMiddleware, (req: Request, res: Response) => {
-  const exp = db.getExperience();
+app.put('/api/experience/:id', authMiddleware, async (req: Request, res: Response) => {
+  const exp = await db.getExperience();
   const index = exp.findIndex((e: any) => e.id === req.params.id);
   if (index === -1) {
     res.status(404).json({ error: 'Experience entry not found' });
     return;
   }
   exp[index] = { ...exp[index], ...req.body };
-  db.setExperience(exp);
+  await db.setExperience(exp);
   res.json(exp[index]);
 });
 
-app.delete('/api/experience/:id', authMiddleware, (req: Request, res: Response) => {
-  let exp = db.getExperience();
+app.delete('/api/experience/:id', authMiddleware, async (req: Request, res: Response) => {
+  let exp = await db.getExperience();
   exp = exp.filter((e: any) => e.id !== req.params.id);
-  db.setExperience(exp);
+  await db.setExperience(exp);
   res.json({ success: true, message: 'Experience deleted' });
 });
 
 // EDUCATION
-app.get('/api/education', (req: Request, res: Response) => {
-  const edu = db.getEducation();
+app.get('/api/education', async (req: Request, res: Response) => {
+  const edu = await db.getEducation();
   edu.sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
   res.json(edu);
 });
 
-app.post('/api/education', authMiddleware, (req: Request, res: Response) => {
-  const edu = db.getEducation();
+app.post('/api/education', authMiddleware, async (req: Request, res: Response) => {
+  const edu = await db.getEducation();
   const newEdu = {
     ...req.body,
     id: `edu-${Date.now()}`,
     order: req.body.order ?? edu.length + 1
   };
   edu.push(newEdu);
-  db.setEducation(edu);
+  await db.setEducation(edu);
   res.status(201).json(newEdu);
 });
 
-app.put('/api/education/:id', authMiddleware, (req: Request, res: Response) => {
-  const edu = db.getEducation();
+app.put('/api/education/:id', authMiddleware, async (req: Request, res: Response) => {
+  const edu = await db.getEducation();
   const index = edu.findIndex((e: any) => e.id === req.params.id);
   if (index === -1) {
     res.status(404).json({ error: 'Education entry not found' });
     return;
   }
   edu[index] = { ...edu[index], ...req.body };
-  db.setEducation(edu);
+  await db.setEducation(edu);
   res.json(edu[index]);
 });
 
-app.delete('/api/education/:id', authMiddleware, (req: Request, res: Response) => {
-  let edu = db.getEducation();
+app.delete('/api/education/:id', authMiddleware, async (req: Request, res: Response) => {
+  let edu = await db.getEducation();
   edu = edu.filter((e: any) => e.id !== req.params.id);
-  db.setEducation(edu);
+  await db.setEducation(edu);
   res.json({ success: true, message: 'Education deleted' });
 });
 
 // TESTIMONIALS
-app.get('/api/testimonials', (req: Request, res: Response) => {
-  const items = db.getTestimonials();
+app.get('/api/testimonials', async (req: Request, res: Response) => {
+  const items = await db.getTestimonials();
   items.sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
   res.json(items);
 });
 
-app.post('/api/testimonials', authMiddleware, (req: Request, res: Response) => {
-  const items = db.getTestimonials();
+app.post('/api/testimonials', authMiddleware, async (req: Request, res: Response) => {
+  const items = await db.getTestimonials();
   const newItem = {
     ...req.body,
     id: `test-${Date.now()}`,
     order: req.body.order ?? items.length + 1
   };
   items.push(newItem);
-  db.setTestimonials(items);
+  await db.setTestimonials(items);
   res.status(201).json(newItem);
 });
 
-app.put('/api/testimonials/:id', authMiddleware, (req: Request, res: Response) => {
-  const items = db.getTestimonials();
+app.put('/api/testimonials/:id', authMiddleware, async (req: Request, res: Response) => {
+  const items = await db.getTestimonials();
   const index = items.findIndex((t: any) => t.id === req.params.id);
   if (index === -1) {
     res.status(404).json({ error: 'Testimonial not found' });
     return;
   }
   items[index] = { ...items[index], ...req.body };
-  db.setTestimonials(items);
+  await db.setTestimonials(items);
   res.json(items[index]);
 });
 
-app.delete('/api/testimonials/:id', authMiddleware, (req: Request, res: Response) => {
-  let items = db.getTestimonials();
+app.delete('/api/testimonials/:id', authMiddleware, async (req: Request, res: Response) => {
+  let items = await db.getTestimonials();
   items = items.filter((t: any) => t.id !== req.params.id);
-  db.setTestimonials(items);
+  await db.setTestimonials(items);
   res.json({ success: true, message: 'Testimonial deleted' });
 });
 
-// CERTIFICATIONS
-app.get('/api/certifications', (req: Request, res: Response) => {
-  const items = db.getCertifications();
-  items.sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
-  res.json(items);
-});
-
-app.post('/api/certifications', authMiddleware, (req: Request, res: Response) => {
-  const items = db.getCertifications();
-  const newItem = {
-    ...req.body,
-    id: `cert-${Date.now()}`,
-    order: req.body.order ?? items.length + 1
-  };
-  items.push(newItem);
-  db.setCertifications(items);
-  res.status(201).json(newItem);
-});
-
-app.put('/api/certifications/:id', authMiddleware, (req: Request, res: Response) => {
-  const items = db.getCertifications();
-  const index = items.findIndex((c: any) => c.id === req.params.id);
-  if (index === -1) {
-    res.status(404).json({ error: 'Certification not found' });
-    return;
-  }
-  items[index] = { ...items[index], ...req.body };
-  db.setCertifications(items);
-  res.json(items[index]);
-});
-
-app.delete('/api/certifications/:id', authMiddleware, (req: Request, res: Response) => {
-  let items = db.getCertifications();
-  items = items.filter((c: any) => c.id !== req.params.id);
-  db.setCertifications(items);
-  res.json({ success: true, message: 'Certification deleted' });
-});
-
 // CERTIFICATES (VERIFIED CREDENTIALS)
-app.get('/api/certificates', (req: Request, res: Response) => {
-  const items = db.getCertificates ? db.getCertificates() : [];
+app.get('/api/certificates', async (req: Request, res: Response) => {
+  const items = await db.getCertificates();
   items.sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
   res.json(items);
 });
 
 app.post('/api/certificates', authMiddleware, upload.single('image'), async (req: Request, res: Response) => {
   try {
-    const items = db.getCertificates ? db.getCertificates() : [];
+    const items = await db.getCertificates();
     let imageUrl = req.body.imageUrl || '';
     let imagePublicId = req.body.imagePublicId || '';
 
@@ -708,7 +671,7 @@ app.post('/api/certificates', authMiddleware, upload.single('image'), async (req
     };
 
     items.push(newItem);
-    db.setCertificates(items);
+    await db.setCertificates(items);
     res.status(201).json(newItem);
   } catch (err: any) {
     console.error('Error creating certificate:', err);
@@ -718,7 +681,7 @@ app.post('/api/certificates', authMiddleware, upload.single('image'), async (req
 
 app.put('/api/certificates/:id', authMiddleware, upload.single('image'), async (req: Request, res: Response) => {
   try {
-    const items = db.getCertificates ? db.getCertificates() : [];
+    const items = await db.getCertificates();
     const index = items.findIndex((c: any) => c.id === req.params.id);
     if (index === -1) {
       res.status(404).json({ error: 'Certificate not found' });
@@ -747,7 +710,7 @@ app.put('/api/certificates/:id', authMiddleware, upload.single('image'), async (
       updatedAt: new Date().toISOString()
     };
 
-    db.setCertificates(items);
+    await db.setCertificates(items);
     res.json(items[index]);
   } catch (err: any) {
     console.error('Error updating certificate:', err);
@@ -757,13 +720,13 @@ app.put('/api/certificates/:id', authMiddleware, upload.single('image'), async (
 
 app.delete('/api/certificates/:id', authMiddleware, async (req: Request, res: Response) => {
   try {
-    let items = db.getCertificates ? db.getCertificates() : [];
+    let items = await db.getCertificates();
     const found = items.find((c: any) => c.id === req.params.id);
     if (found && found.imagePublicId) {
       await deleteCloudinaryAsset(found.imagePublicId);
     }
     items = items.filter((c: any) => c.id !== req.params.id);
-    db.setCertificates(items);
+    await db.setCertificates(items);
     res.json({ success: true, message: 'Certificate deleted successfully' });
   } catch (err: any) {
     console.error('Error deleting certificate:', err);
@@ -771,25 +734,25 @@ app.delete('/api/certificates/:id', authMiddleware, async (req: Request, res: Re
   }
 });
 
-app.patch('/api/certificates/reorder', authMiddleware, (req: Request, res: Response) => {
+app.patch('/api/certificates/reorder', authMiddleware, async (req: Request, res: Response) => {
   const orders = req.body.orders || req.body;
   if (!Array.isArray(orders)) {
     res.status(400).json({ error: 'Invalid orders array' });
     return;
   }
-  const items = db.getCertificates ? db.getCertificates() : [];
+  const items = await db.getCertificates();
   orders.forEach(({ id, order }: { id: string; order: number }) => {
     const item = items.find((c: any) => c.id === id);
     if (item) item.order = Number(order);
   });
   items.sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
-  db.setCertificates(items);
+  await db.setCertificates(items);
   res.json({ success: true, certificates: items });
 });
 
 // NEWS (DEV.TO CACHE)
-app.get('/api/news', (req: Request, res: Response) => {
-  const articles = db.getCachedArticles();
+app.get('/api/news', async (req: Request, res: Response) => {
+  const articles = await db.getCachedArticles();
   res.json(articles);
 });
 
@@ -803,14 +766,14 @@ app.post('/api/news/refresh', async (req: Request, res: Response) => {
 });
 
 // CONTACT MESSAGES
-app.post('/api/contact', (req: Request, res: Response) => {
+app.post('/api/contact', async (req: Request, res: Response) => {
   const { name, email, message } = req.body;
   if (!name || !email || !message) {
     res.status(400).json({ error: 'Name, email, and message are required' });
     return;
   }
 
-  const messages = db.getMessages();
+  const messages = await db.getMessages();
   const newMessage = {
     id: `msg-${Date.now()}`,
     name: name.trim(),
@@ -821,52 +784,52 @@ app.post('/api/contact', (req: Request, res: Response) => {
   };
 
   messages.unshift(newMessage);
-  db.setMessages(messages);
+  await db.setMessages(messages);
   res.status(201).json({ success: true, message: 'Thank you for your message! I will respond shortly.' });
 });
 
-app.get('/api/contact', authMiddleware, (req: Request, res: Response) => {
-  const messages = db.getMessages();
+app.get('/api/contact', authMiddleware, async (req: Request, res: Response) => {
+  const messages = await db.getMessages();
   res.json(messages);
 });
 
-app.patch('/api/contact/:id/read', authMiddleware, (req: Request, res: Response) => {
-  const messages = db.getMessages();
+app.patch('/api/contact/:id/read', authMiddleware, async (req: Request, res: Response) => {
+  const messages = await db.getMessages();
   const msg = messages.find((m: any) => m.id === req.params.id);
   if (msg) {
     msg.read = true;
-    db.setMessages(messages);
+    await db.setMessages(messages);
   }
   res.json({ success: true });
 });
 
-app.delete('/api/contact/:id', authMiddleware, (req: Request, res: Response) => {
-  let messages = db.getMessages();
+app.delete('/api/contact/:id', authMiddleware, async (req: Request, res: Response) => {
+  let messages = await db.getMessages();
   messages = messages.filter((m: any) => m.id !== req.params.id);
-  db.setMessages(messages);
+  await db.setMessages(messages);
   res.json({ success: true });
 });
 
 // ANALYTICS & VISITOR TRACKING ENDPOINTS
-app.get('/api/analytics/stats', (req: Request, res: Response) => {
-  const stats = db.getVisitorStats();
+app.get('/api/analytics/stats', async (req: Request, res: Response) => {
+  const stats = await db.getVisitorStats();
   res.json(stats);
 });
 
-app.post('/api/analytics/visit', (req: Request, res: Response) => {
+app.post('/api/analytics/visit', async (req: Request, res: Response) => {
   const { sessionId, path: visitPath, userAgent } = req.body || {};
   const sid = sessionId || `anon-${req.ip || 'session'}`;
   const ua = userAgent || req.headers['user-agent'] || 'Web Browser';
-  const stats = db.recordVisit(sid, visitPath || '/', ua);
+  const stats = await db.recordVisit(sid, visitPath || '/', ua);
   res.json({ success: true, stats });
 });
 
-app.post('/api/analytics/heartbeat', (req: Request, res: Response) => {
+app.post('/api/analytics/heartbeat', async (req: Request, res: Response) => {
   const { sessionId } = req.body || {};
   if (sessionId) {
-    db.recordHeartbeat(sessionId);
+    await db.recordHeartbeat(sessionId);
   }
-  const stats = db.getVisitorStats();
+  const stats = await db.getVisitorStats();
   res.json({ success: true, activeNow: stats.activeNow });
 });
 
