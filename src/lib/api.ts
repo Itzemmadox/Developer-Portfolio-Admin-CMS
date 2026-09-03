@@ -156,33 +156,11 @@ export const api = {
   getSettings: async (): Promise<SiteSettings> => {
     try {
       const serverData = await request<SiteSettings>('/api/settings');
-      const cached = api.getLocalCache<SiteSettings>('settings');
-
-      // If server returned data, compare with local cache
-      if (serverData) {
-        // If cached exists and has user modifications that server lost (e.g. server restarted)
-        if (
-          cached &&
-          cached.updatedAt &&
-          serverData.updatedAt &&
-          new Date(cached.updatedAt).getTime() > new Date(serverData.updatedAt).getTime() + 1000
-        ) {
-          console.log('🔄 Restoring user custom settings from persistent local cache...');
-          try {
-            const restored = await request<SiteSettings>('/api/settings', {
-              method: 'PUT',
-              body: JSON.stringify(cached)
-            });
-            api.setLocalCache('settings', restored);
-            return restored;
-          } catch {
-            return cached;
-          }
-        }
+      if (serverData && typeof serverData === 'object') {
         api.setLocalCache('settings', serverData);
         return serverData;
       }
-      return cached || serverData;
+      return api.getLocalCache<SiteSettings>('settings') || serverData;
     } catch (err) {
       console.warn('Error fetching settings, using cache:', err);
       const cached = api.getLocalCache<SiteSettings>('settings');

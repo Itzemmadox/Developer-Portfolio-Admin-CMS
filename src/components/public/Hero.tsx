@@ -53,21 +53,35 @@ export const Hero: React.FC<HeroProps> = ({ settings }) => {
             settings.profilePictureUrl ||
             settings.avatarUrl ||
             (settings as any).avatar ||
-            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80';
+            '';
+
+          const initials = (settings.name || 'EK')
+            .split(' ')
+            .filter(Boolean)
+            .map((w: string) => w[0])
+            .join('')
+            .slice(0, 2)
+            .toUpperCase();
 
           return (
             <div className="relative mb-6 group">
               <div className="absolute -inset-1.5 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 blur opacity-40 group-hover:opacity-75 transition duration-500 animate-pulse" />
-              <img
-                src={profilePhoto}
-                alt={settings.name || 'Developer Avatar'}
-                referrerPolicy="no-referrer"
-                className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover border-2 border-white dark:border-slate-800 shadow-xl"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src =
-                    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80';
-                }}
-              />
+              {profilePhoto ? (
+                <img
+                  src={profilePhoto}
+                  alt={settings.name || 'Developer Avatar'}
+                  referrerPolicy="no-referrer"
+                  className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover border-2 border-white dark:border-slate-800 shadow-xl"
+                  onError={(e) => {
+                    // If image fails to load, gracefully hide it so parent initials monogram can render
+                    (e.target as HTMLElement).style.display = 'none';
+                  }}
+                />
+              ) : (
+                <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-800 border-2 border-white dark:border-slate-800 shadow-xl flex items-center justify-center text-white font-bold text-2xl sm:text-3xl tracking-wider select-none">
+                  {initials}
+                </div>
+              )}
             </div>
           );
         })()}

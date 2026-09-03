@@ -235,12 +235,12 @@ export default function App() {
       settings?.profilePictureUrl ||
       settings?.avatarUrl ||
       (settings as any)?.avatar ||
-      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
+      '',
     avatarUrl:
       settings?.avatarUrl ||
       settings?.profilePictureUrl ||
       (settings as any)?.avatar ||
-      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
+      '',
     resumeUrl: settings?.resumeUrl || '',
     socialLinks: settings?.socialLinks || { email: 'kehindeoluwaseunemmanuel@gmail.com' },
     seo: settings?.seo || {

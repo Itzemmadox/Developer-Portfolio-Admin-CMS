@@ -76,8 +76,8 @@ Eager to contribute to collaborative development projects, improve user experien
 📞 Phone: +2349037286083
 ✉️ Email: kehindeoluwaseunemmanuel@gmail.com
 ⚽ Hobbies & Interests: Coding, watching movies & anime, sports enthusiast (boxing, MMA, football - passionate Barcelona FC supporter), volleyball player, driving, cryptocurrency trading and Web3 exploration.`,
-  profilePictureUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
-  avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
+  profilePictureUrl: '',
+  avatarUrl: '',
   resumeUrl: '/uploads/sample_resume.pdf',
   socialLinks: {
     github: 'https://github.com',
@@ -318,8 +318,7 @@ export const db = {
       settingsData.profilePictureUrl ||
       settingsData.avatarUrl ||
       settingsData.avatar ||
-      initialSettings.profilePictureUrl ||
-      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80';
+      '';
 
     return {
       ...settingsData,
@@ -342,12 +341,10 @@ export const db = {
     }
 
     const photo =
-      data.profilePictureUrl ||
-      data.avatarUrl ||
-      data.avatar ||
-      current.profilePictureUrl ||
-      current.avatarUrl ||
-      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80';
+      data.profilePictureUrl !== undefined ? data.profilePictureUrl :
+      data.avatarUrl !== undefined ? data.avatarUrl :
+      data.avatar !== undefined ? data.avatar :
+      (current.profilePictureUrl || current.avatarUrl || '');
 
     const updated = {
       ...current,

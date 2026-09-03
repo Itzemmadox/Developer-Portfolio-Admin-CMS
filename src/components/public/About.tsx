@@ -37,22 +37,46 @@ export const About: React.FC<AboutProps> = ({ settings }) => {
           {/* Profile Photo & Stats Column */}
           <RevealOnScroll className="lg:col-span-5 space-y-6" delay={100}>
             <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-2 group shadow-sm">
-              <img
-                src={
+              {(() => {
+                const photo =
                   settings.profilePictureUrl ||
                   settings.avatarUrl ||
                   (settings as any).avatar ||
-                  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80'
+                  '';
+
+                const initials = (settings.name || 'EK')
+                  .split(' ')
+                  .filter(Boolean)
+                  .map((w: string) => w[0])
+                  .join('')
+                  .slice(0, 2)
+                  .toUpperCase();
+
+                if (photo) {
+                  return (
+                    <img
+                      src={photo}
+                      alt={settings.name || 'About Developer'}
+                      referrerPolicy="no-referrer"
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = 'none';
+                      }}
+                      className="w-full h-80 sm:h-96 object-cover rounded-xl group-hover:scale-102 transition-transform duration-500"
+                    />
+                  );
                 }
-                alt={settings.name || 'About Developer'}
-                referrerPolicy="no-referrer"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src =
-                    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80';
-                }}
-                className="w-full h-80 sm:h-96 object-cover rounded-xl group-hover:scale-102 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent" />
+
+                return (
+                  <div className="w-full h-80 sm:h-96 rounded-xl bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-950 flex flex-col items-center justify-center p-6 text-center select-none">
+                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-3xl shadow-lg border border-indigo-400/30 mb-4">
+                      {initials}
+                    </div>
+                    <p className="text-base font-bold text-white mb-1">{settings.name}</p>
+                    <p className="text-xs font-mono text-indigo-400">{settings.role}</p>
+                  </div>
+                );
+              })()}
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent pointer-events-none" />
               <div className="absolute bottom-6 left-6 right-6 p-4 rounded-xl bg-white/95 dark:bg-slate-900/95 border border-slate-200/90 dark:border-slate-800 backdrop-blur-md shadow-md">
                 <p className="text-sm font-bold text-slate-900 dark:text-white">{settings.name}</p>
                 <p className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">{settings.role}</p>

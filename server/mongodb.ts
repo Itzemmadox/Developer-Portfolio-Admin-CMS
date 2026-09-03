@@ -173,7 +173,7 @@ export async function syncMongoWithLocalData(localDb: any) {
         cleanSettings.profilePictureUrl ||
         cleanSettings.avatarUrl ||
         cleanSettings.avatar ||
-        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80';
+        '';
       cleanSettings.profilePictureUrl = photo;
       cleanSettings.avatarUrl = photo;
       writeJSON('settings.json', cleanSettings);
