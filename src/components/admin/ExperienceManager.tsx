@@ -12,6 +12,7 @@ export const ExperienceManager: React.FC<ExperienceManagerProps> = ({ experience
   const [editingExp, setEditingExp] = useState<Partial<Experience> | null>(null);
   const [isNew, setIsNew] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
 
   const handleOpenAdd = () => {
     setEditingExp({
@@ -32,9 +33,9 @@ export const ExperienceManager: React.FC<ExperienceManagerProps> = ({ experience
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this experience entry?')) return;
     try {
       await api.deleteExperience(id);
+      setConfirmingDeleteId(null);
       onRefresh();
     } catch (err: any) {
       alert('Failed to delete experience');
@@ -103,15 +104,34 @@ export const ExperienceManager: React.FC<ExperienceManagerProps> = ({ experience
               <button
                 onClick={() => handleOpenEdit(e)}
                 className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+                title="Edit experience"
               >
                 <Edit2 className="w-3.5 h-3.5" />
               </button>
-              <button
-                onClick={() => handleDelete(e.id)}
-                className="p-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 transition-colors"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
+              {confirmingDeleteId === e.id ? (
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => handleDelete(e.id)}
+                    className="px-2.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-[11px] font-mono font-bold transition-colors shadow-sm"
+                  >
+                    Confirm
+                  </button>
+                  <button
+                    onClick={() => setConfirmingDeleteId(null)}
+                    className="px-2 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-mono transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setConfirmingDeleteId(e.id)}
+                  className="p-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 transition-colors"
+                  title="Delete experience"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
           </div>
         ))}

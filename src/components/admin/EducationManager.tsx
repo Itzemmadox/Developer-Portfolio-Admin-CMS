@@ -12,6 +12,7 @@ export const EducationManager: React.FC<EducationManagerProps> = ({ education, o
   const [editingEdu, setEditingEdu] = useState<Partial<Education> | null>(null);
   const [isNew, setIsNew] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
 
   const handleOpenAdd = () => {
     setEditingEdu({
@@ -32,9 +33,9 @@ export const EducationManager: React.FC<EducationManagerProps> = ({ education, o
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this education entry?')) return;
     try {
       await api.deleteEducation(id);
+      setConfirmingDeleteId(null);
       onRefresh();
     } catch (err: any) {
       alert('Failed to delete education');
@@ -105,15 +106,34 @@ export const EducationManager: React.FC<EducationManagerProps> = ({ education, o
               <button
                 onClick={() => handleOpenEdit(edu)}
                 className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+                title="Edit education"
               >
                 <Edit2 className="w-3.5 h-3.5" />
               </button>
-              <button
-                onClick={() => handleDelete(edu.id)}
-                className="p-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 transition-colors"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
+              {confirmingDeleteId === edu.id ? (
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => handleDelete(edu.id)}
+                    className="px-2.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-[11px] font-mono font-bold transition-colors shadow-sm"
+                  >
+                    Confirm
+                  </button>
+                  <button
+                    onClick={() => setConfirmingDeleteId(null)}
+                    className="px-2 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-mono transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setConfirmingDeleteId(edu.id)}
+                  className="p-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 transition-colors"
+                  title="Delete education"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
           </div>
         ))}

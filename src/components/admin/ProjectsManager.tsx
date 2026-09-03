@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Project } from '../../types';
-import { Plus, Edit2, Trash2, Upload, Sparkles, ExternalLink, Github, X, Save, ArrowUp, ArrowDown } from 'lucide-react';
+import { Plus, Edit2, Trash2, Upload, Sparkles, ExternalLink, Github, X, Save, ArrowUp, ArrowDown, AlertTriangle, Check } from 'lucide-react';
 import { api } from '../../lib/api';
 
 interface ProjectsManagerProps {
@@ -14,6 +14,9 @@ export const ProjectsManager: React.FC<ProjectsManagerProps> = ({ projects, onRe
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [tagInput, setTagInput] = useState('');
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [actionStatus, setActionStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const handleOpenAdd = () => {
     setEditingProject({
@@ -37,13 +40,29 @@ export const ProjectsManager: React.FC<ProjectsManagerProps> = ({ projects, onRe
     setIsNew(false);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this project?')) return;
+  const handleConfirmDelete = async () => {
+    if (!projectToDelete) return;
+    setIsDeleting(true);
+    setActionStatus(null);
     try {
-      await api.deleteProject(id);
+      await api.deleteProject(projectToDelete.id);
+      setActionStatus({
+        type: 'success',
+        message: `Project "${projectToDelete.title}" deleted successfully.`
+      });
+      if (editingProject?.id === projectToDelete.id) {
+        setEditingProject(null);
+      }
+      setProjectToDelete(null);
       onRefresh();
     } catch (err: any) {
-      alert(err.message || 'Failed to delete project');
+      console.error('Delete project error:', err);
+      setActionStatus({
+        type: 'error',
+        message: err.message || 'Failed to delete project. Please try again.'
+      });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -148,6 +167,32 @@ export const ProjectsManager: React.FC<ProjectsManagerProps> = ({ projects, onRe
         </button>
       </div>
 
+      {/* Action Status Banner */}
+      {actionStatus && (
+        <div
+          className={`p-3.5 rounded-xl border text-xs font-mono flex items-center justify-between gap-3 ${
+            actionStatus.type === 'success'
+              ? 'bg-emerald-950/40 border-emerald-800/60 text-emerald-300'
+              : 'bg-rose-950/40 border-rose-800/60 text-rose-300'
+          }`}
+        >
+          <div className="flex items-center gap-2.5">
+            {actionStatus.type === 'success' ? (
+              <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+            ) : (
+              <AlertTriangle className="w-4 h-4 text-rose-400 flex-shrink-0" />
+            )}
+            <span>{actionStatus.message}</span>
+          </div>
+          <button
+            onClick={() => setActionStatus(null)}
+            className="p-1 rounded hover:bg-white/10 text-slate-400 hover:text-slate-200 transition-colors"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
       {/* Projects Table / List */}
       <div className="rounded-2xl bg-slate-900/40 border border-slate-800 overflow-hidden">
         <div className="overflow-x-auto">
@@ -226,9 +271,12 @@ export const ProjectsManager: React.FC<ProjectsManagerProps> = ({ projects, onRe
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
                       <button
-                        onClick={() => handleDelete(p.id)}
+                        onClick={() => {
+                          setActionStatus(null);
+                          setProjectToDelete(p);
+                        }}
                         className="p-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-colors"
-                        title="Delete Project"
+                        title={`Delete ${p.title}`}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -384,24 +432,117 @@ export const ProjectsManager: React.FC<ProjectsManagerProps> = ({ projects, onRe
                 </label>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => setEditingProject(null)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-mono"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={saving || uploading}
-                  className="px-5 py-2 rounded-xl bg-cyan-500 text-slate-950 font-mono font-bold text-xs flex items-center gap-1.5 shadow-md shadow-cyan-500/20 disabled:opacity-50"
-                >
-                  <Save className="w-4 h-4" />
-                  <span>{saving ? 'Saving...' : 'Save Changes'}</span>
-                </button>
+              <div className="flex items-center justify-between gap-2 pt-4 border-t border-slate-800">
+                {!isNew && editingProject?.id ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const fullProj = projects.find((p) => p.id === editingProject.id) || (editingProject as Project);
+                      setProjectToDelete(fullProj);
+                    }}
+                    className="px-3.5 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs font-mono flex items-center gap-1.5 transition-colors"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Delete Project</span>
+                  </button>
+                ) : (
+                  <div />
+                )}
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditingProject(null)}
+                    className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-mono hover:bg-slate-700 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={saving || uploading}
+                    className="px-5 py-2 rounded-xl bg-cyan-500 text-slate-950 font-mono font-bold text-xs flex items-center gap-1.5 shadow-md shadow-cyan-500/20 hover:bg-cyan-400 transition-all disabled:opacity-50"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>{saving ? 'Saving...' : 'Save Changes'}</span>
+                  </button>
+                </div>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {projectToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+          <div className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4 text-slate-100 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400">
+                  <AlertTriangle className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold font-mono text-slate-100">Delete Project</h3>
+                  <p className="text-[11px] text-slate-400 font-mono">Permanent database removal</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setProjectToDelete(null)}
+                disabled={isDeleting}
+                className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Project Preview Snippet */}
+            <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/80 flex items-center gap-3">
+              <img
+                src={projectToDelete.thumbnailUrl || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=200&q=80'}
+                alt={projectToDelete.title}
+                className="w-12 h-12 rounded-lg object-cover border border-slate-800 flex-shrink-0"
+              />
+              <div className="min-w-0 flex-1">
+                <p className="font-bold text-xs text-slate-100 truncate">{projectToDelete.title}</p>
+                <p className="text-[10px] text-slate-400 font-mono truncate">
+                  Order #{projectToDelete.order} {projectToDelete.techStack?.length ? `• ${projectToDelete.techStack.slice(0, 3).join(', ')}` : ''}
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-300 font-mono leading-relaxed">
+              Are you sure you want to delete <span className="text-rose-300 font-bold">"{projectToDelete.title}"</span>? This will permanently remove the case study from the public portfolio and database.
+            </p>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => setProjectToDelete(null)}
+                disabled={isDeleting}
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono text-xs transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-mono font-bold text-xs flex items-center gap-1.5 transition-all shadow-md shadow-rose-600/20 disabled:opacity-50"
+              >
+                {isDeleting ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Yes, Delete Project</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -448,10 +448,14 @@ app.put('/api/projects/:id', authMiddleware, async (req: Request, res: Response)
 });
 
 app.delete('/api/projects/:id', authMiddleware, async (req: Request, res: Response) => {
-  let projects = await db.getProjects();
-  projects = projects.filter((p: any) => p.id !== req.params.id);
-  await db.setProjects(projects);
-  res.json({ success: true, message: 'Project deleted' });
+  try {
+    const id = req.params.id;
+    const remaining = await db.deleteProject(id);
+    res.json({ success: true, message: 'Project deleted', remainingCount: remaining.length });
+  } catch (err: any) {
+    console.error('Error deleting project:', err);
+    res.status(500).json({ error: err.message || 'Failed to delete project' });
+  }
 });
 
 app.patch('/api/projects/reorder', authMiddleware, async (req: Request, res: Response) => {

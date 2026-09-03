@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ContactMessage } from '../../types';
 import { Trash2, CheckCircle2, Mail, Clock, Reply, Inbox } from 'lucide-react';
 import { api } from '../../lib/api';
@@ -9,6 +9,8 @@ interface MessagesManagerProps {
 }
 
 export const MessagesManager: React.FC<MessagesManagerProps> = ({ messages, onRefresh }) => {
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
+
   const handleMarkRead = async (id: string) => {
     try {
       await api.markContactRead(id);
@@ -19,9 +21,9 @@ export const MessagesManager: React.FC<MessagesManagerProps> = ({ messages, onRe
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this message?')) return;
     try {
       await api.deleteContactMessage(id);
+      setConfirmingDeleteId(null);
       onRefresh();
     } catch (err: any) {
       alert('Failed to delete message');
@@ -101,13 +103,30 @@ export const MessagesManager: React.FC<MessagesManagerProps> = ({ messages, onRe
                     </button>
                   )}
 
-                  <button
-                    onClick={() => handleDelete(msg.id)}
-                    className="p-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-colors"
-                    title="Delete Message"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                  {confirmingDeleteId === msg.id ? (
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => handleDelete(msg.id)}
+                        className="px-2.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-[11px] font-mono font-bold transition-colors shadow-sm"
+                      >
+                        Confirm
+                      </button>
+                      <button
+                        onClick={() => setConfirmingDeleteId(null)}
+                        className="px-2 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-mono transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmingDeleteId(msg.id)}
+                      className="p-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-colors"
+                      title="Delete Message"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

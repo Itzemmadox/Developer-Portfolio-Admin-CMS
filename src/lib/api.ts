@@ -182,29 +182,11 @@ export const api = {
   getProjects: async (): Promise<Project[]> => {
     try {
       const projects = await request<Project[]>('/api/projects');
-      const cached = api.getLocalCache<Project[]>('projects');
-
-      if (Array.isArray(projects) && projects.length > 0) {
-        // If cached has different length or modified items, keep cache synced
-        if (cached && cached.length > projects.length) {
-          console.log('🔄 Restoring user projects from persistent local cache...');
-          for (const proj of cached) {
-            const exists = projects.some((p) => p.id === proj.id);
-            if (!exists) {
-              await request<Project>('/api/projects', {
-                method: 'POST',
-                body: JSON.stringify(proj)
-              }).catch(() => {});
-            }
-          }
-          const resynced = await request<Project[]>('/api/projects');
-          api.setLocalCache('projects', resynced);
-          return resynced;
-        }
+      if (Array.isArray(projects)) {
         api.setLocalCache('projects', projects);
         return projects;
       }
-      return cached || projects;
+      return api.getLocalCache<Project[]>('projects') || [];
     } catch (err) {
       console.warn('Error fetching projects, using cache:', err);
       const cached = api.getLocalCache<Project[]>('projects');

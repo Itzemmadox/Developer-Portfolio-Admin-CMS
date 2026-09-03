@@ -439,6 +439,20 @@ export const db = {
     return data;
   },
 
+  deleteProject: async (id: string) => {
+    let projects = await db.getProjects();
+    projects = projects.filter((p: any) => p.id !== id);
+    writeJSON('projects.json', projects);
+    if (getMongoStatus().connected) {
+      try {
+        await ProjectModel.deleteOne({ id });
+      } catch (err) {
+        console.warn('MongoDB delete error for project:', err);
+      }
+    }
+    return projects;
+  },
+
   // SKILLS
   getSkills: async () => {
     if (getMongoStatus().connected) {
