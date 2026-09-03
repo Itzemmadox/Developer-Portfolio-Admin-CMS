@@ -79,6 +79,12 @@ Eager to contribute to collaborative development projects, improve user experien
   profilePictureUrl: '',
   avatarUrl: '',
   resumeUrl: '/uploads/sample_resume.pdf',
+  aboutStats: {
+    yearsExperience: '2+',
+    projectsDelivered: '20+',
+    certifications: 'auto',
+    clientRating: '100%'
+  },
   socialLinks: {
     github: 'https://github.com',
     linkedin: 'https://linkedin.com',
@@ -322,6 +328,13 @@ export const db = {
 
     return {
       ...settingsData,
+      aboutStats: {
+        yearsExperience: '2+',
+        projectsDelivered: '20+',
+        certifications: 'auto',
+        clientRating: '100%',
+        ...(settingsData.aboutStats || {})
+      },
       profilePictureUrl: photo,
       avatarUrl: photo
     };
@@ -349,6 +362,15 @@ export const db = {
     const updated = {
       ...current,
       ...data,
+      aboutStats: {
+        ...(current.aboutStats || {
+          yearsExperience: '2+',
+          projectsDelivered: '20+',
+          certifications: 'auto',
+          clientRating: '100%'
+        }),
+        ...(data.aboutStats || {})
+      },
       profilePictureUrl: photo,
       avatarUrl: photo,
       updatedAt: new Date().toISOString()

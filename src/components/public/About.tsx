@@ -7,14 +7,60 @@ import { GitHubCalendar } from './GitHubCalendar';
 
 interface AboutProps {
   settings: SiteSettings;
+  certificatesCount?: number;
+  onOpenCertificates?: () => void;
 }
 
-export const About: React.FC<AboutProps> = ({ settings }) => {
+export const About: React.FC<AboutProps> = ({ settings, certificatesCount = 0, onOpenCertificates }) => {
+  // Dynamic certificate count calculation based on user requirements:
+  // - If less than 5: exact number (e.g. 2, 1 -> "1", 0 -> "0")
+  // - If 5 to 9 (less than 10 and above or equal to 5): "5+"
+  // - If 10 or more: "10+"
+  // User can also override directly from the Admin CMS
+  const certOverride = settings.aboutStats?.certifications?.trim();
+  const count = typeof certificatesCount === 'number' ? certificatesCount : 0;
+
+  let certValue = '';
+  let certLabel = 'Certifications';
+
+  if (certOverride && certOverride.toLowerCase() !== 'auto') {
+    certValue = certOverride;
+  } else {
+    if (count < 5) {
+      certValue = String(count);
+      certLabel = count === 1 ? 'Certificate' : 'Certifications';
+    } else if (count < 10) {
+      certValue = '5+';
+      certLabel = 'Certifications';
+    } else {
+      certValue = '10+';
+      certLabel = 'Certifications';
+    }
+  }
+
   const stats = [
-    { label: 'Years Experience', value: '6+', icon: Briefcase },
-    { label: 'Projects Delivered', value: '25+', icon: Code },
-    { label: 'Certifications', value: '5+', icon: Award },
-    { label: 'Client Rating', value: '100%', icon: CheckCircle2 }
+    {
+      label: 'Years Experience',
+      value: settings.aboutStats?.yearsExperience || '2+',
+      icon: Briefcase
+    },
+    {
+      label: 'Projects Delivered',
+      value: settings.aboutStats?.projectsDelivered || '20+',
+      icon: Code
+    },
+    {
+      label: certLabel,
+      value: certValue,
+      icon: Award,
+      isCertificate: true,
+      onClick: onOpenCertificates
+    },
+    {
+      label: 'Client Rating',
+      value: settings.aboutStats?.clientRating || '100%',
+      icon: CheckCircle2
+    }
   ];
 
   return (
@@ -87,17 +133,34 @@ export const About: React.FC<AboutProps> = ({ settings }) => {
             <div className="grid grid-cols-2 gap-3">
               {stats.map((item) => {
                 const Icon = item.icon;
+                const isClickable = Boolean(item.onClick);
+                const Tag = isClickable ? 'button' : 'div';
                 return (
-                  <div
+                  <Tag
                     key={item.label}
-                    className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-2xs"
+                    type={isClickable ? 'button' : undefined}
+                    onClick={item.onClick}
+                    className={`p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 transition-all shadow-2xs text-left w-full ${
+                      isClickable
+                        ? 'cursor-pointer hover:border-indigo-400 dark:hover:border-indigo-600 hover:shadow-sm active:scale-98 group/stat focus:outline-none focus:ring-2 focus:ring-indigo-500/40'
+                        : 'hover:border-slate-300 dark:hover:border-slate-700'
+                    }`}
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400">{item.value}</span>
-                      <Icon className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                      <span className="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400 group-hover/stat:text-indigo-500 transition-colors">
+                        {item.value}
+                      </span>
+                      <Icon className="w-4 h-4 text-slate-400 dark:text-slate-500 group-hover/stat:text-indigo-500 transition-colors" />
                     </div>
-                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{item.label}</span>
-                  </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{item.label}</span>
+                      {isClickable && (
+                        <span className="text-[10px] font-semibold text-indigo-500 dark:text-indigo-400 opacity-0 group-hover/stat:opacity-100 transition-opacity">
+                          View &rarr;
+                        </span>
+                      )}
+                    </div>
+                  </Tag>
                 );
               })}
             </div>

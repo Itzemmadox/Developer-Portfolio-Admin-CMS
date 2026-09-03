@@ -231,6 +231,12 @@ export default function App() {
       settings?.bio ||
       'Motivated and detail-oriented Junior Full-Stack Developer with hands-on experience in front-end development and a strong foundation in modern web technologies.',
     aboutContent: settings?.aboutContent || 'Motivated Junior Full-Stack Developer.',
+    aboutStats: settings?.aboutStats || {
+      yearsExperience: '2+',
+      projectsDelivered: '20+',
+      certifications: 'auto',
+      clientRating: '100%'
+    },
     profilePictureUrl:
       settings?.profilePictureUrl ||
       settings?.avatarUrl ||
@@ -296,7 +302,11 @@ export default function App() {
           <CertificatesManager certificates={certificates} onUpdate={loadPublicData} />
         )}
         {adminTab === 'settings' && (
-          <SettingsManager settings={defaultSettings} onRefresh={loadPublicData} />
+          <SettingsManager
+            settings={defaultSettings}
+            onRefresh={loadPublicData}
+            certificatesCount={certificates.length}
+          />
         )}
         {adminTab === 'messages' && (
           <MessagesManager messages={messages} onRefresh={loadAdminMessages} />
@@ -312,7 +322,11 @@ export default function App() {
 
       <main className="max-w-full overflow-x-clip">
         <Hero settings={defaultSettings} />
-        <About settings={defaultSettings} />
+        <About
+          settings={defaultSettings}
+          certificatesCount={certificates.length}
+          onOpenCertificates={() => setShowCertificatesModal(true)}
+        />
         <Skills
           skills={skills}
           certificatesCount={certificates.length}

@@ -23,6 +23,12 @@ const SettingsSchema = new Schema({
     linkedin: { type: String, default: '' },
     twitter: { type: String, default: '' },
     email: { type: String, default: 'emmanuel@portfolio.dev' }
+  },
+  aboutStats: {
+    yearsExperience: { type: String, default: '2+' },
+    projectsDelivered: { type: String, default: '20+' },
+    certifications: { type: String, default: 'auto' },
+    clientRating: { type: String, default: '100%' }
   }
 }, { timestamps: true });
 

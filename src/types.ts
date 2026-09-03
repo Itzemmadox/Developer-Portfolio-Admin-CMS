@@ -89,12 +89,20 @@ export interface SEOConfig {
   faviconUrl?: string;
 }
 
+export interface AboutStats {
+  yearsExperience?: string;
+  projectsDelivered?: string;
+  certifications?: string;
+  clientRating?: string;
+}
+
 export interface SiteSettings {
   name: string;
   role: string;
   heroTaglines: string[];
   aboutContent: string;
   bio: string;
+  aboutStats?: AboutStats;
   profilePictureUrl?: string;
   avatarUrl?: string;
   avatar?: string;

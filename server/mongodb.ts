@@ -176,6 +176,13 @@ export async function syncMongoWithLocalData(localDb: any) {
         '';
       cleanSettings.profilePictureUrl = photo;
       cleanSettings.avatarUrl = photo;
+      cleanSettings.aboutStats = {
+        yearsExperience: '2+',
+        projectsDelivered: '20+',
+        certifications: 'auto',
+        clientRating: '100%',
+        ...(cleanSettings.aboutStats || {})
+      };
       writeJSON('settings.json', cleanSettings);
       console.log('📥 Loaded site settings from MongoDB');
     } else {
