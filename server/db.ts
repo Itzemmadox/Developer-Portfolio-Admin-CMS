@@ -83,7 +83,7 @@ Eager to contribute to collaborative development projects, improve user experien
     yearsExperience: '2+',
     projectsDelivered: '20+',
     certifications: 'auto',
-    clientRating: '100%'
+    clientRating: 'auto'
   },
   socialLinks: {
     github: 'https://github.com',
@@ -332,8 +332,10 @@ export const db = {
         yearsExperience: '2+',
         projectsDelivered: '20+',
         certifications: 'auto',
-        clientRating: '100%',
-        ...(settingsData.aboutStats || {})
+        ...(settingsData.aboutStats || {}),
+        clientRating: (!settingsData.aboutStats?.clientRating || settingsData.aboutStats.clientRating === '100%')
+          ? 'auto'
+          : settingsData.aboutStats.clientRating
       },
       profilePictureUrl: photo,
       avatarUrl: photo
@@ -367,7 +369,7 @@ export const db = {
           yearsExperience: '2+',
           projectsDelivered: '20+',
           certifications: 'auto',
-          clientRating: '100%'
+          clientRating: 'auto'
         }),
         ...(data.aboutStats || {})
       },

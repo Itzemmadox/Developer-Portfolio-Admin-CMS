@@ -1,6 +1,7 @@
 import React from 'react';
-import { SiteSettings } from '../../types';
+import { SiteSettings, Testimonial } from '../../types';
 import { getSafeDocumentUrl } from '../../lib/api';
+import { resolveClientRatingDisplay } from '../../lib/ratingUtils';
 import { User, Download, Award, Briefcase, Code, CheckCircle2 } from 'lucide-react';
 import { RevealOnScroll } from './RevealOnScroll';
 import { GitHubCalendar } from './GitHubCalendar';
@@ -9,9 +10,10 @@ interface AboutProps {
   settings: SiteSettings;
   certificatesCount?: number;
   onOpenCertificates?: () => void;
+  testimonials?: Testimonial[];
 }
 
-export const About: React.FC<AboutProps> = ({ settings, certificatesCount = 0, onOpenCertificates }) => {
+export const About: React.FC<AboutProps> = ({ settings, certificatesCount = 0, onOpenCertificates, testimonials = [] }) => {
   // Dynamic certificate count calculation based on user requirements:
   // - If less than 5: exact number (e.g. 2, 1 -> "1", 0 -> "0")
   // - If 5 to 9 (less than 10 and above or equal to 5): "5+"
@@ -38,6 +40,12 @@ export const About: React.FC<AboutProps> = ({ settings, certificatesCount = 0, o
     }
   }
 
+  // Dynamic Client Satisfaction Rating calculation based on live testimonials:
+  // - Accumulates all ratings: (Average Rating / 5) * 100 = Client Satisfaction Percentage
+  // - Supports 'auto' (% or stars) or manual override in Admin CMS
+  const { value: ratingValue, isAuto: isRatingAuto, satisfaction: ratingSatisfaction } =
+    resolveClientRatingDisplay(settings.aboutStats?.clientRating, testimonials);
+
   const stats = [
     {
       label: 'Years Experience',
@@ -58,8 +66,15 @@ export const About: React.FC<AboutProps> = ({ settings, certificatesCount = 0, o
     },
     {
       label: 'Client Rating',
-      value: settings.aboutStats?.clientRating || '100%',
-      icon: CheckCircle2
+      value: ratingValue,
+      icon: CheckCircle2,
+      sublabel: isRatingAuto && ratingSatisfaction.count > 0 ? `${ratingSatisfaction.starString} (${ratingSatisfaction.count} ${ratingSatisfaction.count === 1 ? 'review' : 'reviews'})` : undefined,
+      onClick: () => {
+        const el = document.getElementById('testimonials');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
     }
   ];
 
@@ -153,7 +168,12 @@ export const About: React.FC<AboutProps> = ({ settings, certificatesCount = 0, o
                       <Icon className="w-4 h-4 text-slate-400 dark:text-slate-500 group-hover/stat:text-indigo-500 transition-colors" />
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{item.label}</span>
+                      <div className="flex flex-col">
+                        <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{item.label}</span>
+                        {item.sublabel && (
+                          <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono mt-0.5">{item.sublabel}</span>
+                        )}
+                      </div>
                       {isClickable && (
                         <span className="text-[10px] font-semibold text-indigo-500 dark:text-indigo-400 opacity-0 group-hover/stat:opacity-100 transition-opacity">
                           View &rarr;

@@ -20,5 +20,16 @@
     "credentialUrl": "",
     "issueDate": "July 21, 2022",
     "order": 2
+  },
+  {
+    "id": "vcert-1788456915882",
+    "title": "Make dond",
+    "issuer": "Academy ",
+    "category": "AI / AGENTS",
+    "imageUrl": "https://res.cloudinary.com/dokol65cu/image/upload/v1788456914/portfolio_uploads/images/file_lczw6z.jpg",
+    "imagePublicId": "portfolio_uploads/images/file_lczw6z",
+    "credentialUrl": "https://www.ai.com",
+    "issueDate": "28 December ",
+    "order": 3
   }
 ]

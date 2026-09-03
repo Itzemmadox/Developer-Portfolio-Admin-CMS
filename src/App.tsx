@@ -306,6 +306,7 @@ export default function App() {
             settings={defaultSettings}
             onRefresh={loadPublicData}
             certificatesCount={certificates.length}
+            testimonials={testimonials}
           />
         )}
         {adminTab === 'messages' && (
@@ -326,6 +327,7 @@ export default function App() {
           settings={defaultSettings}
           certificatesCount={certificates.length}
           onOpenCertificates={() => setShowCertificatesModal(true)}
+          testimonials={testimonials}
         />
         <Skills
           skills={skills}

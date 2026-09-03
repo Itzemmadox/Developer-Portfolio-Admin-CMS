@@ -180,9 +180,14 @@ export async function syncMongoWithLocalData(localDb: any) {
         yearsExperience: '2+',
         projectsDelivered: '20+',
         certifications: 'auto',
-        clientRating: '100%',
-        ...(cleanSettings.aboutStats || {})
+        ...(cleanSettings.aboutStats || {}),
+        clientRating: (!cleanSettings.aboutStats?.clientRating || cleanSettings.aboutStats.clientRating === '100%')
+          ? 'auto'
+          : cleanSettings.aboutStats.clientRating
       };
+      if (mongoSettings.aboutStats?.clientRating === '100%') {
+        await SettingsModel.updateOne({}, { $set: { 'aboutStats.clientRating': 'auto' } }).catch(() => {});
+      }
       writeJSON('settings.json', cleanSettings);
       console.log('📥 Loaded site settings from MongoDB');
     } else {
