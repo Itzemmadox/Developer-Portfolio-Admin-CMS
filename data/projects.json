@@ -20,26 +20,6 @@
     }
   },
   {
-    "id": "proj-2",
-    "slug": "web3-crypto-analytics-portal",
-    "title": "Web3 Crypto Trading & Portfolio Analytics Portal",
-    "tagline": "",
-    "description": "",
-    "fullDescription": "A modern responsive Web3 crypto portfolio and market exploration portal designed for real-time tracking of crypto assets, Web3 wallet metrics, and decentralized protocol analytics.",
-    "category": "Full-Stack",
-    "tags": [],
-    "image": "",
-    "images": [],
-    "liveUrl": "https://github.com/kehindeoluwaseunemmanuel",
-    "githubUrl": "https://github.com/kehindeoluwaseunemmanuel",
-    "featured": true,
-    "order": 2,
-    "metrics": {
-      "stars": 0,
-      "forks": 0
-    }
-  },
-  {
     "id": "proj-3",
     "slug": "school-portal-management-system",
     "title": "Interactive Secondary School Learning & Portal System",

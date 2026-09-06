@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   Menu,
   X,
-  ShieldAlert,
   Sparkles,
   Terminal,
   Sun,
@@ -20,7 +19,7 @@ import { SiteSettings } from '../../types';
 
 interface NavbarProps {
   settings: SiteSettings;
-  onOpenAdmin: () => void;
+  onOpenAdmin?: () => void;
   darkMode?: boolean;
   onToggleDarkMode?: () => void;
 }
@@ -157,17 +156,6 @@ export const Navbar: React.FC<NavbarProps> = ({ settings, onOpenAdmin, darkMode,
             </button>
           )}
 
-          {/* CMS Admin Button */}
-          <button
-            id="desktop-cms-button"
-            onClick={onOpenAdmin}
-            className="flex items-center gap-1.5 px-2.5 lg:px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-800 shadow-2xs transition-all group shrink-0"
-            title="Access Admin CMS"
-          >
-            <ShieldAlert className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 group-hover:rotate-12 transition-transform shrink-0" />
-            <span className="hidden lg:inline">CMS Admin</span>
-          </button>
-
           {/* Hire Me CTA */}
           <a
             id="desktop-hire-me-button"
@@ -240,18 +228,6 @@ export const Navbar: React.FC<NavbarProps> = ({ settings, onOpenAdmin, darkMode,
           </div>
 
           <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex flex-col gap-2">
-            <button
-              id="mobile-cms-button"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onOpenAdmin();
-              }}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
-            >
-              <ShieldAlert className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-              <span>CMS Admin Panel</span>
-            </button>
-
             <a
               id="mobile-hire-me-button"
               href="#contact"
