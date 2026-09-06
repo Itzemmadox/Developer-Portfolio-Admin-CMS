@@ -505,9 +505,7 @@ app.put('/api/skills/:id', authMiddleware, async (req: Request, res: Response) =
 });
 
 app.delete('/api/skills/:id', authMiddleware, async (req: Request, res: Response) => {
-  let skills = await db.getSkills();
-  skills = skills.filter((s: any) => s.id !== req.params.id);
-  await db.setSkills(skills);
+  await db.deleteSkill(req.params.id);
   res.json({ success: true, message: 'Skill deleted' });
 });
 
@@ -559,9 +557,7 @@ app.put('/api/experience/:id', authMiddleware, async (req: Request, res: Respons
 });
 
 app.delete('/api/experience/:id', authMiddleware, async (req: Request, res: Response) => {
-  let exp = await db.getExperience();
-  exp = exp.filter((e: any) => e.id !== req.params.id);
-  await db.setExperience(exp);
+  await db.deleteExperience(req.params.id);
   res.json({ success: true, message: 'Experience deleted' });
 });
 
@@ -597,9 +593,7 @@ app.put('/api/education/:id', authMiddleware, async (req: Request, res: Response
 });
 
 app.delete('/api/education/:id', authMiddleware, async (req: Request, res: Response) => {
-  let edu = await db.getEducation();
-  edu = edu.filter((e: any) => e.id !== req.params.id);
-  await db.setEducation(edu);
+  await db.deleteEducation(req.params.id);
   res.json({ success: true, message: 'Education deleted' });
 });
 
@@ -635,9 +629,7 @@ app.put('/api/testimonials/:id', authMiddleware, async (req: Request, res: Respo
 });
 
 app.delete('/api/testimonials/:id', authMiddleware, async (req: Request, res: Response) => {
-  let items = await db.getTestimonials();
-  items = items.filter((t: any) => t.id !== req.params.id);
-  await db.setTestimonials(items);
+  await db.deleteTestimonial(req.params.id);
   res.json({ success: true, message: 'Testimonial deleted' });
 });
 
@@ -729,8 +721,7 @@ app.delete('/api/certificates/:id', authMiddleware, async (req: Request, res: Re
     if (found && found.imagePublicId) {
       await deleteCloudinaryAsset(found.imagePublicId);
     }
-    items = items.filter((c: any) => c.id !== req.params.id);
-    await db.setCertificates(items);
+    await db.deleteCertificate(req.params.id);
     res.json({ success: true, message: 'Certificate deleted successfully' });
   } catch (err: any) {
     console.error('Error deleting certificate:', err);
@@ -808,9 +799,7 @@ app.patch('/api/contact/:id/read', authMiddleware, async (req: Request, res: Res
 });
 
 app.delete('/api/contact/:id', authMiddleware, async (req: Request, res: Response) => {
-  let messages = await db.getMessages();
-  messages = messages.filter((m: any) => m.id !== req.params.id);
-  await db.setMessages(messages);
+  await db.deleteMessage(req.params.id);
   res.json({ success: true });
 });
 

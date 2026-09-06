@@ -396,7 +396,7 @@ export const db = {
     if (getMongoStatus().connected) {
       try {
         const docs = await ProjectModel.find().lean();
-        if (docs && docs.length > 0) {
+        if (Array.isArray(docs)) {
           const list = docs.map((p: any) => ({
             id: p.id,
             slug: p.slug,
@@ -425,7 +425,7 @@ export const db = {
         console.warn('MongoDB query notice for projects, falling back to local storage:', err);
       }
     }
-    return readJSON('projects.json', initialProjects);
+    return readJSON('projects.json', []);
   },
 
   setProjects: async (data: any[]) => {
@@ -433,7 +433,9 @@ export const db = {
     if (getMongoStatus().connected) {
       try {
         await ProjectModel.deleteMany({});
-        await ProjectModel.insertMany(data);
+        if (data && data.length > 0) {
+          await ProjectModel.insertMany(data);
+        }
       } catch (err) {
         console.warn('MongoDB write error for projects:', err);
       }
@@ -443,11 +445,17 @@ export const db = {
 
   deleteProject: async (id: string) => {
     let projects = await db.getProjects();
-    projects = projects.filter((p: any) => p.id !== id);
+    projects = projects.filter((p: any) => p.id !== id && p._id !== id);
     writeJSON('projects.json', projects);
     if (getMongoStatus().connected) {
       try {
-        await ProjectModel.deleteOne({ id });
+        await ProjectModel.deleteMany({
+          $or: [
+            { id: id },
+            { slug: id },
+            ...(typeof id === 'string' && id.match(/^[0-9a-fA-F]{24}$/) ? [{ _id: id }] : [])
+          ]
+        });
       } catch (err) {
         console.warn('MongoDB delete error for project:', err);
       }
@@ -460,7 +468,7 @@ export const db = {
     if (getMongoStatus().connected) {
       try {
         const docs = await SkillModel.find().lean();
-        if (docs && docs.length > 0) {
+        if (Array.isArray(docs)) {
           const list = docs.map((s: any) => ({
             id: s.id,
             name: s.name,
@@ -480,7 +488,7 @@ export const db = {
         console.warn('MongoDB query notice for skills, falling back to local storage:', err);
       }
     }
-    return readJSON('skills.json', initialSkills);
+    return readJSON('skills.json', []);
   },
 
   setSkills: async (data: any[]) => {
@@ -488,21 +496,23 @@ export const db = {
     if (getMongoStatus().connected) {
       try {
         await SkillModel.deleteMany({});
-        await (SkillModel as any).insertMany(
-          data.map((s: any) => ({
-            id: s.id,
-            name: s.name,
-            category: s.category || 'Frontend',
-            proficiency: s.level ?? s.proficiency ?? 85,
-            level: s.level ?? s.proficiency ?? 85,
-            years: s.yearsExperience ?? s.years ?? 2,
-            yearsExperience: s.yearsExperience ?? s.years ?? 2,
-            iconUrl: s.iconUrl || '',
-            iconName: s.iconName || '',
-            order: s.order !== undefined ? Number(s.order) : 0,
-            featured: Boolean(s.featured)
-          }))
-        );
+        if (data && data.length > 0) {
+          await (SkillModel as any).insertMany(
+            data.map((s: any) => ({
+              id: s.id,
+              name: s.name,
+              category: s.category || 'Frontend',
+              proficiency: s.level ?? s.proficiency ?? 85,
+              level: s.level ?? s.proficiency ?? 85,
+              years: s.yearsExperience ?? s.years ?? 2,
+              yearsExperience: s.yearsExperience ?? s.years ?? 2,
+              iconUrl: s.iconUrl || '',
+              iconName: s.iconName || '',
+              order: s.order !== undefined ? Number(s.order) : 0,
+              featured: Boolean(s.featured)
+            }))
+          );
+        }
       } catch (err) {
         console.warn('MongoDB write error for skills:', err);
       }
@@ -510,12 +520,31 @@ export const db = {
     return data;
   },
 
+  deleteSkill: async (id: string) => {
+    let skills = await db.getSkills();
+    skills = skills.filter((s: any) => s.id !== id && s._id !== id);
+    writeJSON('skills.json', skills);
+    if (getMongoStatus().connected) {
+      try {
+        await SkillModel.deleteMany({
+          $or: [
+            { id: id },
+            ...(typeof id === 'string' && id.match(/^[0-9a-fA-F]{24}$/) ? [{ _id: id }] : [])
+          ]
+        });
+      } catch (err) {
+        console.warn('MongoDB delete error for skill:', err);
+      }
+    }
+    return skills;
+  },
+
   // EXPERIENCE
   getExperience: async () => {
     if (getMongoStatus().connected) {
       try {
         const docs = await ExperienceModel.find().lean();
-        if (docs && docs.length > 0) {
+        if (Array.isArray(docs)) {
           const list = docs.map((e: any) => ({
             id: e.id,
             role: e.role,
@@ -538,7 +567,7 @@ export const db = {
         console.warn('MongoDB query notice for experience, falling back to local storage:', err);
       }
     }
-    return readJSON('experience.json', initialExperience);
+    return readJSON('experience.json', []);
   },
 
   getExperiences: async () => {
@@ -550,7 +579,9 @@ export const db = {
     if (getMongoStatus().connected) {
       try {
         await ExperienceModel.deleteMany({});
-        await ExperienceModel.insertMany(data);
+        if (data && data.length > 0) {
+          await ExperienceModel.insertMany(data);
+        }
       } catch (err) {
         console.warn('MongoDB write error for experience:', err);
       }
@@ -558,12 +589,31 @@ export const db = {
     return data;
   },
 
+  deleteExperience: async (id: string) => {
+    let exp = await db.getExperience();
+    exp = exp.filter((e: any) => e.id !== id && e._id !== id);
+    writeJSON('experience.json', exp);
+    if (getMongoStatus().connected) {
+      try {
+        await ExperienceModel.deleteMany({
+          $or: [
+            { id: id },
+            ...(typeof id === 'string' && id.match(/^[0-9a-fA-F]{24}$/) ? [{ _id: id }] : [])
+          ]
+        });
+      } catch (err) {
+        console.warn('MongoDB delete error for experience:', err);
+      }
+    }
+    return exp;
+  },
+
   // EDUCATION
   getEducation: async () => {
     if (getMongoStatus().connected) {
       try {
         const docs = await EducationModel.find().lean();
-        if (docs && docs.length > 0) {
+        if (Array.isArray(docs)) {
           const list = docs.map((ed: any) => ({
             id: ed.id,
             institution: ed.institution,
@@ -585,7 +635,7 @@ export const db = {
         console.warn('MongoDB query notice for education, falling back to local storage:', err);
       }
     }
-    return readJSON('education.json', initialEducation);
+    return readJSON('education.json', []);
   },
 
   setEducation: async (data: any[]) => {
@@ -593,7 +643,9 @@ export const db = {
     if (getMongoStatus().connected) {
       try {
         await EducationModel.deleteMany({});
-        await EducationModel.insertMany(data);
+        if (data && data.length > 0) {
+          await EducationModel.insertMany(data);
+        }
       } catch (err) {
         console.warn('MongoDB write error for education:', err);
       }
@@ -601,12 +653,31 @@ export const db = {
     return data;
   },
 
+  deleteEducation: async (id: string) => {
+    let edu = await db.getEducation();
+    edu = edu.filter((ed: any) => ed.id !== id && ed._id !== id);
+    writeJSON('education.json', edu);
+    if (getMongoStatus().connected) {
+      try {
+        await EducationModel.deleteMany({
+          $or: [
+            { id: id },
+            ...(typeof id === 'string' && id.match(/^[0-9a-fA-F]{24}$/) ? [{ _id: id }] : [])
+          ]
+        });
+      } catch (err) {
+        console.warn('MongoDB delete error for education:', err);
+      }
+    }
+    return edu;
+  },
+
   // TESTIMONIALS
   getTestimonials: async () => {
     if (getMongoStatus().connected) {
       try {
         const docs = await TestimonialModel.find().lean();
-        if (docs && docs.length > 0) {
+        if (Array.isArray(docs)) {
           const list = docs.map((t: any) => {
             const authorName = t.authorName || t.name || 'Client';
             const authorRole = t.authorRole || t.role || '';
@@ -633,7 +704,7 @@ export const db = {
         console.warn('MongoDB query notice for testimonials, falling back to local storage:', err);
       }
     }
-    return readJSON('testimonials.json', initialTestimonials);
+    return readJSON('testimonials.json', []);
   },
 
   setTestimonials: async (data: any[]) => {
@@ -641,7 +712,9 @@ export const db = {
     if (getMongoStatus().connected) {
       try {
         await TestimonialModel.deleteMany({});
-        await TestimonialModel.insertMany(data);
+        if (data && data.length > 0) {
+          await TestimonialModel.insertMany(data);
+        }
       } catch (err) {
         console.warn('MongoDB write error for testimonials:', err);
       }
@@ -649,12 +722,31 @@ export const db = {
     return data;
   },
 
+  deleteTestimonial: async (id: string) => {
+    let items = await db.getTestimonials();
+    items = items.filter((t: any) => t.id !== id && t._id !== id);
+    writeJSON('testimonials.json', items);
+    if (getMongoStatus().connected) {
+      try {
+        await TestimonialModel.deleteMany({
+          $or: [
+            { id: id },
+            ...(typeof id === 'string' && id.match(/^[0-9a-fA-F]{24}$/) ? [{ _id: id }] : [])
+          ]
+        });
+      } catch (err) {
+        console.warn('MongoDB delete error for testimonial:', err);
+      }
+    }
+    return items;
+  },
+
   // CERTIFICATES (Verified Credentials)
   getCertificates: async () => {
     if (getMongoStatus().connected) {
       try {
         const docs = await CertificateModel.find().lean();
-        if (docs && docs.length > 0) {
+        if (Array.isArray(docs)) {
           const list = docs.map((c: any) => ({
             id: c.id,
             title: c.title,
@@ -672,7 +764,7 @@ export const db = {
         console.warn('MongoDB query notice for certificates, falling back to local storage:', err);
       }
     }
-    return readJSON('certificates.json', initialCertificates);
+    return readJSON('certificates.json', []);
   },
 
   setCertificates: async (data: any[]) => {
@@ -680,12 +772,33 @@ export const db = {
     if (getMongoStatus().connected) {
       try {
         await CertificateModel.deleteMany({});
-        await CertificateModel.insertMany(data);
+        if (data && data.length > 0) {
+          await CertificateModel.insertMany(data);
+        }
       } catch (err) {
         console.warn('MongoDB write error for certificates:', err);
       }
     }
     return data;
+  },
+
+  deleteCertificate: async (id: string) => {
+    let items = await db.getCertificates();
+    items = items.filter((c: any) => c.id !== id && c._id !== id);
+    writeJSON('certificates.json', items);
+    if (getMongoStatus().connected) {
+      try {
+        await CertificateModel.deleteMany({
+          $or: [
+            { id: id },
+            ...(typeof id === 'string' && id.match(/^[0-9a-fA-F]{24}$/) ? [{ _id: id }] : [])
+          ]
+        });
+      } catch (err) {
+        console.warn('MongoDB delete error for certificate:', err);
+      }
+    }
+    return items;
   },
 
   // DEV.TO ARTICLES CACHE
@@ -700,7 +813,7 @@ export const db = {
     if (getMongoStatus().connected) {
       try {
         const docs = await ContactMessageModel.find().lean();
-        if (docs && docs.length > 0) {
+        if (Array.isArray(docs)) {
           return docs.map((m: any) => ({
             id: m.id,
             name: m.name,
@@ -723,12 +836,33 @@ export const db = {
     if (getMongoStatus().connected) {
       try {
         await ContactMessageModel.deleteMany({});
-        await ContactMessageModel.insertMany(data);
+        if (data && data.length > 0) {
+          await ContactMessageModel.insertMany(data);
+        }
       } catch (err) {
         console.warn('MongoDB write error for messages:', err);
       }
     }
     return data;
+  },
+
+  deleteMessage: async (id: string) => {
+    let msgs = await db.getMessages();
+    msgs = msgs.filter((m: any) => m.id !== id && m._id !== id);
+    writeJSON('messages.json', msgs);
+    if (getMongoStatus().connected) {
+      try {
+        await ContactMessageModel.deleteMany({
+          $or: [
+            { id: id },
+            ...(typeof id === 'string' && id.match(/^[0-9a-fA-F]{24}$/) ? [{ _id: id }] : [])
+          ]
+        });
+      } catch (err) {
+        console.warn('MongoDB delete error for message:', err);
+      }
+    }
+    return msgs;
   },
 
   // VISITOR STATS
