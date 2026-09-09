@@ -418,10 +418,43 @@ app.get('/api/projects/:slug', async (req: Request, res: Response) => {
 
 app.post('/api/projects', authMiddleware, async (req: Request, res: Response) => {
   const projects = await db.getProjects();
+  const shortDesc = req.body.shortDescription || req.body.description || req.body.tagline || '';
+  const tech = Array.isArray(req.body.techStack) && req.body.techStack.length > 0
+    ? req.body.techStack
+    : (Array.isArray(req.body.tags) ? req.body.tags : []);
+  const thumb = req.body.thumbnailUrl || req.body.image || '';
+  const gallery = Array.isArray(req.body.galleryUrls) && req.body.galleryUrls.length > 0
+    ? req.body.galleryUrls
+    : (Array.isArray(req.body.images) ? req.body.images : []);
+
+  let liveUrl = (req.body.liveUrl || '').trim();
+  if (liveUrl && !/^(https?:|mailto:|tel:|sms:|\/\/|#)/i.test(liveUrl)) {
+    liveUrl = `https://${liveUrl}`;
+  }
+  let githubUrl = (req.body.githubUrl || '').trim();
+  if (githubUrl && !/^(https?:|mailto:|tel:|sms:|\/\/|#)/i.test(githubUrl)) {
+    githubUrl = `https://${githubUrl}`;
+  }
+
   const newProject = {
     ...req.body,
     id: `proj-${Date.now()}`,
-    slug: req.body.slug || req.body.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''),
+    title: req.body.title || '',
+    slug: req.body.slug || (req.body.title ? req.body.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : `proj-${Date.now()}`),
+    tagline: req.body.tagline || '',
+    description: shortDesc,
+    shortDescription: shortDesc,
+    fullDescription: req.body.fullDescription || '',
+    category: req.body.category || 'Full-Stack',
+    techStack: tech,
+    tags: tech,
+    thumbnailUrl: thumb,
+    image: thumb,
+    galleryUrls: gallery,
+    images: gallery,
+    liveUrl,
+    githubUrl,
+    featured: Boolean(req.body.featured),
     order: req.body.order ?? projects.length + 1,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
@@ -438,9 +471,45 @@ app.put('/api/projects/:id', authMiddleware, async (req: Request, res: Response)
     res.status(404).json({ error: 'Project not found' });
     return;
   }
+
+  const existing = projects[index];
+  const shortDesc = req.body.shortDescription !== undefined
+    ? req.body.shortDescription
+    : (req.body.description !== undefined ? req.body.description : existing.shortDescription);
+  const tech = req.body.techStack !== undefined
+    ? req.body.techStack
+    : (req.body.tags !== undefined ? req.body.tags : existing.techStack);
+  const thumb = req.body.thumbnailUrl !== undefined
+    ? req.body.thumbnailUrl
+    : (req.body.image !== undefined ? req.body.image : existing.thumbnailUrl);
+  const gallery = req.body.galleryUrls !== undefined
+    ? req.body.galleryUrls
+    : (req.body.images !== undefined ? req.body.images : existing.galleryUrls);
+
+  let liveUrl = req.body.liveUrl !== undefined ? (req.body.liveUrl || '').trim() : (existing.liveUrl || '');
+  if (liveUrl && !/^(https?:|mailto:|tel:|sms:|\/\/|#)/i.test(liveUrl)) {
+    liveUrl = `https://${liveUrl}`;
+  }
+  let githubUrl = req.body.githubUrl !== undefined ? (req.body.githubUrl || '').trim() : (existing.githubUrl || '');
+  if (githubUrl && !/^(https?:|mailto:|tel:|sms:|\/\/|#)/i.test(githubUrl)) {
+    githubUrl = `https://${githubUrl}`;
+  }
+
   projects[index] = {
-    ...projects[index],
+    ...existing,
     ...req.body,
+    title: req.body.title !== undefined ? req.body.title : existing.title,
+    slug: req.body.slug !== undefined ? req.body.slug : existing.slug,
+    description: shortDesc,
+    shortDescription: shortDesc,
+    techStack: Array.isArray(tech) ? tech : [],
+    tags: Array.isArray(tech) ? tech : [],
+    thumbnailUrl: thumb,
+    image: thumb,
+    galleryUrls: Array.isArray(gallery) ? gallery : [],
+    images: Array.isArray(gallery) ? gallery : [],
+    liveUrl,
+    githubUrl,
     updatedAt: new Date().toISOString()
   };
   await db.setProjects(projects);

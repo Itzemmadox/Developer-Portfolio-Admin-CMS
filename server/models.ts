@@ -39,11 +39,15 @@ const ProjectSchema = new Schema({
   title: { type: String, required: true },
   tagline: { type: String, default: '' },
   description: { type: String, default: '' },
+  shortDescription: { type: String, default: '' },
   fullDescription: { type: String, default: '' },
   category: { type: String, default: 'Full-Stack' },
   tags: [{ type: String }],
+  techStack: [{ type: String }],
   image: { type: String, default: '' },
+  thumbnailUrl: { type: String, default: '' },
   images: [{ type: String }],
+  galleryUrls: [{ type: String }],
   liveUrl: { type: String, default: '' },
   githubUrl: { type: String, default: '' },
   featured: { type: Boolean, default: false },
@@ -52,7 +56,7 @@ const ProjectSchema = new Schema({
     stars: { type: Number, default: 0 },
     forks: { type: Number, default: 0 }
   }
-}, { timestamps: true });
+}, { timestamps: true, strict: false });
 
 // Experience Schema
 const ExperienceSchema = new Schema({

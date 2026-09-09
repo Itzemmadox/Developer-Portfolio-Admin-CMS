@@ -1,5 +1,5 @@
 {
-  "totalVisits": 234,
+  "totalVisits": 236,
   "uniqueVisitorIds": [
     "vis-1",
     "vis-2",
@@ -11,15 +11,31 @@
     "sess-1788346656524-666dg",
     "sess-1788450794325-903sj",
     "sess-1788454664063-ymtpj",
-    "sess-1788455235656-iyeel"
+    "sess-1788455235656-iyeel",
+    "sess-1788947749211-qcqqh"
   ],
   "todayVisits": {
     "2026-08-08": 40,
     "2026-09-02": 30,
     "2026-09-03": 16,
-    "2026-09-04": 6
+    "2026-09-04": 6,
+    "2026-09-09": 2
   },
   "recentVisits": [
+    {
+      "id": "v-1788947749698-0kr3",
+      "timestamp": "2026-09-09T09:55:49.698Z",
+      "path": "/",
+      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome",
+      "device": "Mobile Device"
+    },
+    {
+      "id": "v-1788947749677-1be6",
+      "timestamp": "2026-09-09T09:55:49.677Z",
+      "path": "/",
+      "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome",
+      "device": "Mobile Device"
+    },
     {
       "id": "v-1788516916575-395v",
       "timestamp": "2026-09-04T10:15:16.575Z",
@@ -355,20 +371,6 @@
       "path": "/",
       "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
       "device": "Windows PC"
-    },
-    {
-      "id": "v-1788347084759-oj31",
-      "timestamp": "2026-09-02T11:04:44.759Z",
-      "path": "/",
-      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
-      "device": "Windows PC"
-    },
-    {
-      "id": "v-1788347084755-4far",
-      "timestamp": "2026-09-02T11:04:44.755Z",
-      "path": "/",
-      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
-      "device": "Windows PC"
     }
   ],
   "activeSessions": {
@@ -379,6 +381,7 @@
     "sess-1788346656524-666dg": 1788518101733,
     "sess-1788450794325-903sj": 1788454167667,
     "sess-1788454664063-ymtpj": 1788454859989,
-    "sess-1788455235656-iyeel": 1788458439619
+    "sess-1788455235656-iyeel": 1788458439619,
+    "sess-1788947749211-qcqqh": 1788948365652
   }
 }

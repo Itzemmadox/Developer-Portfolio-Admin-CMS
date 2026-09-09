@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Project } from '../../types';
 import { Plus, Edit2, Trash2, Upload, Sparkles, ExternalLink, Github, X, Save, ArrowUp, ArrowDown, AlertTriangle, Check } from 'lucide-react';
 import { api } from '../../lib/api';
+import { formatExternalUrl } from '../../lib/utils';
 
 interface ProjectsManagerProps {
   projects: Project[];
@@ -36,7 +37,28 @@ export const ProjectsManager: React.FC<ProjectsManagerProps> = ({ projects, onRe
   };
 
   const handleOpenEdit = (p: Project) => {
-    setEditingProject({ ...p });
+    const shortDesc = p.shortDescription || (p as any).description || (p as any).tagline || '';
+    const thumb = p.thumbnailUrl || (p as any).image || '';
+    const tech = Array.isArray(p.techStack) && p.techStack.length > 0
+      ? p.techStack
+      : (Array.isArray((p as any).tags) ? (p as any).tags : []);
+    const gallery = Array.isArray(p.galleryUrls) && p.galleryUrls.length > 0
+      ? p.galleryUrls
+      : (Array.isArray((p as any).images) ? (p as any).images : []);
+
+    setEditingProject({
+      ...p,
+      shortDescription: shortDesc,
+      description: shortDesc,
+      thumbnailUrl: thumb,
+      image: thumb,
+      techStack: tech,
+      tags: tech,
+      galleryUrls: gallery,
+      images: gallery,
+      liveUrl: p.liveUrl || '',
+      githubUrl: p.githubUrl || ''
+    });
     setIsNew(false);
   };
 
@@ -72,10 +94,33 @@ export const ProjectsManager: React.FC<ProjectsManagerProps> = ({ projects, onRe
 
     setSaving(true);
     try {
+      const shortDesc = editingProject.shortDescription || (editingProject as any).description || '';
+      const thumb = editingProject.thumbnailUrl || (editingProject as any).image || '';
+      const tech = Array.isArray(editingProject.techStack) && editingProject.techStack.length > 0
+        ? editingProject.techStack
+        : (Array.isArray((editingProject as any).tags) ? (editingProject as any).tags : []);
+      const gallery = Array.isArray(editingProject.galleryUrls) && editingProject.galleryUrls.length > 0
+        ? editingProject.galleryUrls
+        : (Array.isArray((editingProject as any).images) ? (editingProject as any).images : []);
+
+      const payload: Partial<Project> = {
+        ...editingProject,
+        shortDescription: shortDesc,
+        description: shortDesc,
+        thumbnailUrl: thumb,
+        image: thumb,
+        techStack: tech,
+        tags: tech,
+        galleryUrls: gallery,
+        images: gallery,
+        liveUrl: formatExternalUrl(editingProject.liveUrl),
+        githubUrl: formatExternalUrl(editingProject.githubUrl)
+      };
+
       if (isNew) {
-        await api.createProject(editingProject);
+        await api.createProject(payload);
       } else if (editingProject.id) {
-        await api.updateProject(editingProject.id, editingProject);
+        await api.updateProject(editingProject.id, payload);
       }
       setEditingProject(null);
       onRefresh();
@@ -397,24 +442,68 @@ export const ProjectsManager: React.FC<ProjectsManagerProps> = ({ projects, onRe
               </div>
 
               {/* Live & GitHub Links */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-mono text-slate-400 mb-1">Live Demo URL</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-mono text-slate-400">Live Demo URL</label>
+                    {editingProject.liveUrl && formatExternalUrl(editingProject.liveUrl) && (
+                      <a
+                        href={formatExternalUrl(editingProject.liveUrl)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[10px] font-mono text-cyan-400 hover:underline inline-flex items-center gap-1"
+                      >
+                        <span>Test Link</span>
+                        <ExternalLink className="w-2.5 h-2.5" />
+                      </a>
+                    )}
+                  </div>
                   <input
                     type="text"
                     value={editingProject.liveUrl || ''}
+                    placeholder="e.g. https://paycita.com or paycita.com"
                     onChange={(e) => setEditingProject({ ...editingProject, liveUrl: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono"
+                    onBlur={() => {
+                      if (editingProject.liveUrl) {
+                        setEditingProject((prev) => prev ? { ...prev, liveUrl: formatExternalUrl(prev.liveUrl) } : null);
+                      }
+                    }}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:border-cyan-500 focus:outline-none"
                   />
+                  <p className="text-[10px] font-mono text-slate-500 mt-1">
+                    External link to live site. Automatically prepends https:// if omitted.
+                  </p>
                 </div>
                 <div>
-                  <label className="block text-xs font-mono text-slate-400 mb-1">GitHub Repo URL</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-mono text-slate-400">GitHub Repo URL</label>
+                    {editingProject.githubUrl && formatExternalUrl(editingProject.githubUrl) && (
+                      <a
+                        href={formatExternalUrl(editingProject.githubUrl)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[10px] font-mono text-cyan-400 hover:underline inline-flex items-center gap-1"
+                      >
+                        <span>Test Link</span>
+                        <ExternalLink className="w-2.5 h-2.5" />
+                      </a>
+                    )}
+                  </div>
                   <input
                     type="text"
                     value={editingProject.githubUrl || ''}
+                    placeholder="e.g. https://github.com/user/repo"
                     onChange={(e) => setEditingProject({ ...editingProject, githubUrl: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono"
+                    onBlur={() => {
+                      if (editingProject.githubUrl) {
+                        setEditingProject((prev) => prev ? { ...prev, githubUrl: formatExternalUrl(prev.githubUrl) } : null);
+                      }
+                    }}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 focus:border-cyan-500 focus:outline-none"
                   />
+                  <p className="text-[10px] font-mono text-slate-500 mt-1">
+                    Repository link. Automatically prepends https:// if omitted.
+                  </p>
                 </div>
               </div>
 

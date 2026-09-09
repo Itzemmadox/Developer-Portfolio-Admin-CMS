@@ -393,54 +393,121 @@ export const db = {
 
   // PROJECTS
   getProjects: async () => {
+    let list: any[] = [];
     if (getMongoStatus().connected) {
       try {
         const docs = await ProjectModel.find().lean();
-        if (Array.isArray(docs)) {
-          const list = docs.map((p: any) => ({
-            id: p.id,
-            slug: p.slug,
-            title: p.title,
-            tagline: p.tagline || '',
-            description: p.description || '',
-            shortDescription: p.shortDescription || p.description || '',
-            fullDescription: p.fullDescription || '',
-            category: p.category || 'Full-Stack',
-            techStack: Array.isArray(p.techStack) ? p.techStack : (Array.isArray(p.tags) ? p.tags : []),
-            tags: Array.isArray(p.tags) ? p.tags : (Array.isArray(p.techStack) ? p.techStack : []),
-            thumbnailUrl: p.thumbnailUrl || p.image || '',
-            image: p.image || p.thumbnailUrl || '',
-            galleryUrls: Array.isArray(p.galleryUrls) ? p.galleryUrls : (Array.isArray(p.images) ? p.images : []),
-            images: Array.isArray(p.images) ? p.images : (Array.isArray(p.galleryUrls) ? p.galleryUrls : []),
-            liveUrl: p.liveUrl || '',
-            githubUrl: p.githubUrl || '',
-            featured: Boolean(p.featured),
-            order: p.order !== undefined ? Number(p.order) : 0,
-            createdAt: p.createdAt || new Date().toISOString(),
-            updatedAt: p.updatedAt || new Date().toISOString()
-          })).sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
-          return list;
+        if (Array.isArray(docs) && docs.length > 0) {
+          list = docs;
         }
       } catch (err) {
         console.warn('MongoDB query notice for projects, falling back to local storage:', err);
       }
     }
-    return readJSON('projects.json', []);
+    if (!list || list.length === 0) {
+      list = readJSON('projects.json', initialProjects);
+    }
+
+    return list.map((p: any) => {
+      const shortDesc = p.shortDescription || p.description || p.tagline || '';
+      const tech = Array.isArray(p.techStack) && p.techStack.length > 0
+        ? p.techStack
+        : (Array.isArray(p.tags) ? p.tags : []);
+      const thumb = p.thumbnailUrl || p.image || '';
+      const gallery = Array.isArray(p.galleryUrls) && p.galleryUrls.length > 0
+        ? p.galleryUrls
+        : (Array.isArray(p.images) ? p.images : []);
+
+      // Format liveUrl and githubUrl if specified
+      let liveUrl = (p.liveUrl || '').trim();
+      if (liveUrl && !/^(https?:|mailto:|tel:|sms:|\/\/|#)/i.test(liveUrl)) {
+        liveUrl = `https://${liveUrl}`;
+      }
+      let githubUrl = (p.githubUrl || '').trim();
+      if (githubUrl && !/^(https?:|mailto:|tel:|sms:|\/\/|#)/i.test(githubUrl)) {
+        githubUrl = `https://${githubUrl}`;
+      }
+
+      return {
+        id: p.id,
+        slug: p.slug,
+        title: p.title,
+        tagline: p.tagline || '',
+        description: shortDesc,
+        shortDescription: shortDesc,
+        fullDescription: p.fullDescription || '',
+        category: p.category || 'Full-Stack',
+        techStack: tech,
+        tags: tech,
+        thumbnailUrl: thumb,
+        image: thumb,
+        galleryUrls: gallery,
+        images: gallery,
+        liveUrl,
+        githubUrl,
+        featured: Boolean(p.featured),
+        order: p.order !== undefined ? Number(p.order) : 0,
+        createdAt: p.createdAt || new Date().toISOString(),
+        updatedAt: p.updatedAt || new Date().toISOString()
+      };
+    }).sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
   },
 
   setProjects: async (data: any[]) => {
-    writeJSON('projects.json', data);
+    const normalized = (data || []).map((p: any) => {
+      const shortDesc = p.shortDescription || p.description || p.tagline || '';
+      const tech = Array.isArray(p.techStack) && p.techStack.length > 0
+        ? p.techStack
+        : (Array.isArray(p.tags) ? p.tags : []);
+      const thumb = p.thumbnailUrl || p.image || '';
+      const gallery = Array.isArray(p.galleryUrls) && p.galleryUrls.length > 0
+        ? p.galleryUrls
+        : (Array.isArray(p.images) ? p.images : []);
+
+      let liveUrl = (p.liveUrl || '').trim();
+      if (liveUrl && !/^(https?:|mailto:|tel:|sms:|\/\/|#)/i.test(liveUrl)) {
+        liveUrl = `https://${liveUrl}`;
+      }
+      let githubUrl = (p.githubUrl || '').trim();
+      if (githubUrl && !/^(https?:|mailto:|tel:|sms:|\/\/|#)/i.test(githubUrl)) {
+        githubUrl = `https://${githubUrl}`;
+      }
+
+      return {
+        ...p,
+        title: p.title || '',
+        slug: p.slug || (p.title ? p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : ''),
+        tagline: p.tagline || '',
+        description: shortDesc,
+        shortDescription: shortDesc,
+        fullDescription: p.fullDescription || '',
+        category: p.category || 'Full-Stack',
+        techStack: tech,
+        tags: tech,
+        thumbnailUrl: thumb,
+        image: thumb,
+        galleryUrls: gallery,
+        images: gallery,
+        liveUrl,
+        githubUrl,
+        featured: Boolean(p.featured),
+        order: p.order !== undefined ? Number(p.order) : 0,
+        updatedAt: new Date().toISOString()
+      };
+    });
+
+    writeJSON('projects.json', normalized);
     if (getMongoStatus().connected) {
       try {
         await ProjectModel.deleteMany({});
-        if (data && data.length > 0) {
-          await ProjectModel.insertMany(data);
+        if (normalized && normalized.length > 0) {
+          await ProjectModel.insertMany(normalized);
         }
       } catch (err) {
         console.warn('MongoDB write error for projects:', err);
       }
     }
-    return data;
+    return normalized;
   },
 
   deleteProject: async (id: string) => {

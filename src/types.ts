@@ -13,6 +13,11 @@ export interface Project {
   order: number;
   createdAt: string;
   updatedAt: string;
+  description?: string;
+  tagline?: string;
+  tags?: string[];
+  image?: string;
+  images?: string[];
 }
 
 export interface Skill {

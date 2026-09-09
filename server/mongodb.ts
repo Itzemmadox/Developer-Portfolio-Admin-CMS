@@ -144,23 +144,40 @@ export async function syncMongoWithLocalData(localDb: any) {
     const mongoProjects = await ProjectModel.find().lean();
     if (Array.isArray(mongoProjects)) {
       if (mongoProjects.length > 0 || isAlreadyInitialized) {
-        const cleanProjects = mongoProjects.map((p: any) => ({
-          id: p.id,
-          slug: p.slug,
-          title: p.title,
-          tagline: p.tagline || '',
-          description: p.description || '',
-          fullDescription: p.fullDescription || '',
-          category: p.category || 'Full-Stack',
-          tags: Array.isArray(p.tags) ? p.tags : [],
-          image: p.image || '',
-          images: Array.isArray(p.images) ? p.images : [],
-          liveUrl: p.liveUrl || '',
-          githubUrl: p.githubUrl || '',
-          featured: Boolean(p.featured),
-          order: p.order !== undefined ? Number(p.order) : 0,
-          metrics: p.metrics || { stars: 0, forks: 0 }
-        })).sort((a, b) => (a.order || 0) - (b.order || 0));
+        const cleanProjects = mongoProjects.map((p: any) => {
+          const shortDesc = p.shortDescription || p.description || p.tagline || '';
+          const tech = Array.isArray(p.techStack) && p.techStack.length > 0
+            ? p.techStack
+            : (Array.isArray(p.tags) ? p.tags : []);
+          const thumb = p.thumbnailUrl || p.image || '';
+          const gallery = Array.isArray(p.galleryUrls) && p.galleryUrls.length > 0
+            ? p.galleryUrls
+            : (Array.isArray(p.images) ? p.images : []);
+
+          return {
+            id: p.id,
+            slug: p.slug,
+            title: p.title,
+            tagline: p.tagline || '',
+            description: shortDesc,
+            shortDescription: shortDesc,
+            fullDescription: p.fullDescription || '',
+            category: p.category || 'Full-Stack',
+            tags: tech,
+            techStack: tech,
+            image: thumb,
+            thumbnailUrl: thumb,
+            images: gallery,
+            galleryUrls: gallery,
+            liveUrl: p.liveUrl || '',
+            githubUrl: p.githubUrl || '',
+            featured: Boolean(p.featured),
+            order: p.order !== undefined ? Number(p.order) : 0,
+            metrics: p.metrics || { stars: 0, forks: 0 },
+            createdAt: p.createdAt || new Date().toISOString(),
+            updatedAt: p.updatedAt || new Date().toISOString()
+          };
+        }).sort((a, b) => (a.order || 0) - (b.order || 0));
         writeJSON('projects.json', cleanProjects);
         console.log(`📥 Synced ${cleanProjects.length} projects from MongoDB to local cache`);
       } else if (!isAlreadyInitialized) {
