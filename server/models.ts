@@ -20,17 +20,19 @@ const SettingsSchema = new Schema({
   statusText: { type: String, default: 'Available for high-impact projects' },
   socialLinks: {
     github: { type: String, default: '' },
+    githubToken: { type: String, default: '' },
     linkedin: { type: String, default: '' },
     twitter: { type: String, default: '' },
     email: { type: String, default: 'emmanuel@portfolio.dev' }
   },
+  githubToken: { type: String, default: '' },
   aboutStats: {
     yearsExperience: { type: String, default: '2+' },
     projectsDelivered: { type: String, default: '20+' },
     certifications: { type: String, default: 'auto' },
     clientRating: { type: String, default: '100%' }
   }
-}, { timestamps: true });
+}, { timestamps: true, strict: false });
 
 // Project Schema
 const ProjectSchema = new Schema({

@@ -1,23 +1,27 @@
 [
   {
     "id": "proj-1",
-    "slug": "paycita",
+    "slug": "solar-system-installation",
     "title": "Paycita",
-    "tagline": "Business Operations & Payroll Platform",
-    "description": "Business operations platform streamlining salary payments, employee leave management, operations oversight, and procurement.",
-    "shortDescription": "Business operations platform streamlining salary payments, employee leave management, operations oversight, and procurement.",
-    "fullDescription": "## Paycita — Business Operations Platform\n\n**Role:** Technical Assistant & Junior Full-Stack Developer\n**Duration:** September 2026 – Present\n\n### Overview\nPaycita is a business operations platform that helps companies streamline salary payments, manage employee leave, oversee day-to-day operations, and handle procurement — all from a single system.\n\n### What I Do\n- Support the technical team in maintaining and improving the platform across payroll, leave management, procurement, and operations modules.\n- Assist with front-end and back-end development tasks, including building and testing features, fixing bugs, and contributing to overall platform stability.\n- Perform quality assurance checks across platform modules, verifying functionality and surfacing issues to the development team.\n- Provide day-to-day technical support and documentation to help streamline internal development and operational processes.\n\n### Tech Context\nWorking within a full-stack production environment, applying practical JavaScript/Node.js development skills alongside QA and technical support responsibilities.",
+    "tagline": "",
+    "description": "Technical Assistant & Junior Full-Stack Developer at Paycita, helping build and maintain a business operations platform for payroll, leave, and procurement management.",
+    "shortDescription": "Technical Assistant & Junior Full-Stack Developer at Paycita, helping build and maintain a business operations platform for payroll, leave, and procurement management.",
+    "fullDescription": "## Paycita — Business Operations Platform\n\n**Role:** Technical Assistant & Junior Full-Stack Developer\n**Duration:** September 2026 – Present\n\n### Overview\nPaycita is a business operations platform that helps companies streamline\nsalary payments, manage employee leave, oversee day-to-day operations, and\nhandle procurement — all from a single system.\n\n### What I Do\n- Support the technical team in maintaining and improving the platform\n  across payroll, leave management, procurement, and operations modules.\n- Assist with mainly front-end development tasks, including building\n  and testing features, fixing bugs, and contributing to overall platform\n  stability.\n- Perform quality assurance checks across platform modules, verifying\n  functionality and surfacing issues to the development team.\n- Provide day-to-day technical support and documentation to help streamline\n  internal development and operational processes.\n\n### Tech Context\nWorking within a full-stack production environment, applying practical\nJavaScript/Node.js development skills alongside QA and technical support\nresponsibilities.",
     "category": "Full-Stack",
-    "tags": ["Node.js", "Express.js", "React", "JavaScript", "Full-Stack Development", "QA Testing"],
-    "techStack": ["Node.js", "Express.js", "React", "JavaScript", "Full-Stack Development", "QA Testing"],
-    "image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80",
-    "thumbnailUrl": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80",
-    "images": [
-      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80"
+    "tags": [
+      "React",
+      "Tailwindcss",
+      "TypeScripts"
     ],
-    "galleryUrls": [
-      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80"
+    "techStack": [
+      "React",
+      "Tailwindcss",
+      "TypeScripts"
     ],
+    "image": "https://res.cloudinary.com/dokol65cu/image/upload/v1788948888/portfolio_uploads/images/file_eq7mcu.png",
+    "thumbnailUrl": "https://res.cloudinary.com/dokol65cu/image/upload/v1788948888/portfolio_uploads/images/file_eq7mcu.png",
+    "images": [],
+    "galleryUrls": [],
     "liveUrl": "https://paycita.com",
     "githubUrl": "https://github.com/paycita/paycita_admin.git",
     "featured": true,
@@ -25,34 +29,8 @@
     "metrics": {
       "stars": 0,
       "forks": 0
-    }
-  },
-  {
-    "id": "proj-3",
-    "slug": "school-portal-management-system",
-    "title": "Interactive Secondary School Learning & Portal System",
-    "tagline": "Academic Portal & Grade Management System",
-    "description": "PHP & MySQL powered web application for lesson plan management, student grading, and academic event scheduling.",
-    "shortDescription": "PHP & MySQL powered web application for lesson plan management, student grading, and academic event scheduling.",
-    "fullDescription": "Designed during NYSC teaching service at Olcas College Int'l to streamline SS student attendance, interactive problem-solving modules, and academic performance tracking.",
-    "category": "Full-Stack",
-    "tags": ["PHP", "Laravel", "MySQL", "Bootstrap", "JavaScript", "HTML5/CSS3"],
-    "techStack": ["PHP", "Laravel", "MySQL", "Bootstrap", "JavaScript", "HTML5/CSS3"],
-    "image": "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80",
-    "thumbnailUrl": "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80",
-    "images": [
-      "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80"
-    ],
-    "galleryUrls": [
-      "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80"
-    ],
-    "liveUrl": "https://github.com/kehindeoluwaseunemmanuel",
-    "githubUrl": "https://github.com/kehindeoluwaseunemmanuel",
-    "featured": true,
-    "order": 2,
-    "metrics": {
-      "stars": 0,
-      "forks": 0
-    }
+    },
+    "createdAt": "2026-07-31T23:59:00.000Z",
+    "updatedAt": "2026-09-09T10:18:25.130Z"
   }
 ]

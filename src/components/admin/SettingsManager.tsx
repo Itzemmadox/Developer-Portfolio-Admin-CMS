@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SiteSettings, Testimonial } from '../../types';
-import { Save, Upload, Plus, X, Lock, CheckCircle2, ShieldCheck, User, Globe, FileText, Database, HardDrive, Cloud, Server, Sparkles, Award, Briefcase, Code, Star } from 'lucide-react';
+import { Save, Upload, Plus, X, Lock, CheckCircle2, ShieldCheck, User, Globe, FileText, Database, HardDrive, Cloud, Server, Sparkles, Award, Briefcase, Code, Star, Github, Key, Eye, EyeOff, ExternalLink, HelpCircle, Activity } from 'lucide-react';
 import { api, getSafeDocumentUrl } from '../../lib/api';
 import { resolveClientRatingDisplay } from '../../lib/ratingUtils';
 
@@ -17,6 +17,17 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({ settings, onRe
   const [saving, setSaving] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // GitHub token and activity testing state
+  const [showGithubToken, setShowGithubToken] = useState(false);
+  const [testingGithub, setTestingGithub] = useState(false);
+  const [githubTestResult, setGithubTestResult] = useState<{
+    success: boolean;
+    message: string;
+    total?: number;
+    hasPrivateAccess?: boolean;
+    source?: string;
+  } | null>(null);
 
   // System Database & Cloudinary Status State
   const [systemStatus, setSystemStatus] = useState<{
@@ -38,6 +49,32 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({ settings, onRe
       .then((status) => setSystemStatus(status))
       .catch((err) => console.warn('Failed to load system status:', err));
   }, []);
+
+  const handleTestGithub = async () => {
+    setTestingGithub(true);
+    setGithubTestResult(null);
+    try {
+      const username = formData.socialLinks?.github || '';
+      const token = formData.socialLinks?.githubToken || formData.githubToken || '';
+      const res = await api.getGithubContributions(username, token);
+      setGithubTestResult({
+        success: true,
+        total: res.totalContributions,
+        hasPrivateAccess: !!res.hasPrivateAccess,
+        source: res.source,
+        message: res.hasPrivateAccess
+          ? `Verified! Successfully connected with private repo access (${res.totalContributions} contributions loaded from GitHub GraphQL).`
+          : `Connected! Loaded ${res.totalContributions} contributions from GitHub. (Tip: To include private repo commits, enter a Personal Access Token with repo/read:user scope or enable "Include private contributions on your profile" in your GitHub profile settings).`
+      });
+    } catch (err: any) {
+      setGithubTestResult({
+        success: false,
+        message: `Failed to fetch GitHub contributions: ${err.message || 'Check username or token'}`
+      });
+    } finally {
+      setTestingGithub(false);
+    }
+  };
 
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -696,6 +733,7 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({ settings, onRe
                     socialLinks: { ...formData.socialLinks, github: e.target.value }
                   })
                 }
+                placeholder="https://github.com/username"
                 className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono"
               />
             </div>
@@ -743,6 +781,97 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({ settings, onRe
                 }
                 className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono"
               />
+            </div>
+          </div>
+
+          {/* GitHub Contributions & Private Repos Integration Box */}
+          <div className="mt-4 p-4 rounded-xl bg-slate-950/70 border border-slate-800/90 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Github className="w-4 h-4 text-slate-300" />
+                <span className="text-xs font-bold font-mono text-slate-200">GitHub Private Repositories & Token</span>
+              </div>
+              <a
+                href="https://github.com/settings/profile"
+                target="_blank"
+                rel="noreferrer"
+                className="text-[11px] font-mono text-cyan-400 hover:underline flex items-center gap-1"
+              >
+                GitHub Profile Settings
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+
+            <p className="text-xs text-slate-400 leading-relaxed">
+              By default, GitHub hides private repository activity from public viewers. You can make private repo commits count towards your heatmap in two ways:
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-slate-300">
+              <div className="p-3 rounded-lg bg-slate-900/60 border border-slate-800">
+                <p className="font-semibold text-white mb-1 flex items-center gap-1.5">
+                  <span className="w-4 h-4 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-[10px] font-bold">1</span>
+                  GitHub Profile Option
+                </p>
+                <p className="text-slate-400 text-[11px] leading-relaxed">
+                  Go to <a href="https://github.com/settings/profile" target="_blank" rel="noreferrer" className="text-cyan-400 underline">GitHub Settings &rarr; Profile</a>, scroll to <em>Contribution settings</em>, and check <strong>&ldquo;Include private contributions on your profile&rdquo;</strong>.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-lg bg-slate-900/60 border border-slate-800">
+                <p className="font-semibold text-white mb-1 flex items-center gap-1.5">
+                  <span className="w-4 h-4 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-[10px] font-bold">2</span>
+                  Personal Access Token (PAT)
+                </p>
+                <p className="text-slate-400 text-[11px] leading-relaxed">
+                  Generate a <a href="https://github.com/settings/tokens" target="_blank" rel="noreferrer" className="text-cyan-400 underline">Personal Access Token</a> with <code className="text-cyan-300 bg-slate-950 px-1 py-0.5 rounded">repo</code> & <code className="text-cyan-300 bg-slate-950 px-1 py-0.5 rounded">read:user</code> scope and paste it below.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-1.5 pt-1">
+              <label className="block text-xs font-mono text-slate-400">GitHub Personal Access Token (PAT)</label>
+              <div className="relative">
+                <input
+                  type={showGithubToken ? 'text' : 'password'}
+                  value={formData.socialLinks?.githubToken || formData.githubToken || ''}
+                  onChange={(e) => {
+                    const token = e.target.value;
+                    setFormData({
+                      ...formData,
+                      githubToken: token,
+                      socialLinks: { ...formData.socialLinks, githubToken: token }
+                    });
+                  }}
+                  placeholder="ghp_xxxxxxxxxxxxxxxxxxxx or github_pat_xxxxxxxxxxxxxxxxxxxx"
+                  className="w-full pl-3 pr-24 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs font-mono text-slate-200 placeholder:text-slate-600 focus:outline-hidden focus:border-cyan-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowGithubToken(!showGithubToken)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-1 text-[11px] font-mono text-slate-400 hover:text-slate-200 flex items-center gap-1"
+                >
+                  {showGithubToken ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  {showGithubToken ? 'Hide' : 'Show'}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <button
+                type="button"
+                onClick={handleTestGithub}
+                disabled={testingGithub}
+                className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 hover:text-cyan-200 text-xs font-mono flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                <Activity className={`w-3.5 h-3.5 ${testingGithub ? 'animate-spin' : ''}`} />
+                {testingGithub ? 'Testing Connection...' : 'Test GitHub Activity'}
+              </button>
+              {githubTestResult && (
+                <span className={`text-xs font-mono flex items-center gap-1 ${githubTestResult.success ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  {githubTestResult.success ? <CheckCircle2 className="w-3.5 h-3.5 shrink-0" /> : <X className="w-3.5 h-3.5 shrink-0" />}
+                  {githubTestResult.message}
+                </span>
+              )}
             </div>
           </div>
         </div>

@@ -436,15 +436,22 @@ export const api = {
     }>('/api/system/status'),
 
   // GitHub Contributions
-  getGithubContributions: (username?: string) =>
-    request<{
+  getGithubContributions: (username?: string, token?: string) => {
+    const params = new URLSearchParams();
+    if (username) params.append('username', username);
+    if (token) params.append('token', token);
+    const qs = params.toString();
+    return request<{
       username: string;
       totalContributions: number;
       contributions: Array<{ date: string; count: number; level: number }>;
       currentStreak: number;
       maxStreak: number;
       isFallback?: boolean;
-    }>(`/api/github/contributions${username ? `?username=${encodeURIComponent(username)}` : ''}`)
+      source?: string;
+      hasPrivateAccess?: boolean;
+    }>(`/api/github/contributions${qs ? `?${qs}` : ''}`);
+  }
 };
 
 export function getSafeDocumentUrl(url?: string, mode: 'view' | 'download' = 'view'): string {

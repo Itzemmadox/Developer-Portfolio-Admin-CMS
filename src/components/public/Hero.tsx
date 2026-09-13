@@ -47,7 +47,7 @@ export const Hero: React.FC<HeroProps> = ({ settings }) => {
           <span>{settings.statusText || 'Available for high-impact projects'}</span>
         </div>
 
-        {/* Profile Image Avatar */}
+        {/* Profile Image Avatar with Pop-Out Top Overflow & Animated Rotating Color Ring */}
         {(() => {
           const profilePhoto =
             settings.profilePictureUrl ||
@@ -64,22 +64,74 @@ export const Hero: React.FC<HeroProps> = ({ settings }) => {
             .toUpperCase();
 
           return (
-            <div className="relative mb-6 group">
-              <div className="absolute -inset-1.5 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 blur opacity-40 group-hover:opacity-75 transition duration-500 animate-pulse" />
+            <div className="relative mb-6 group flex flex-col items-center justify-end select-none">
+              {/* SVG ClipPath Definition for Avatar Pop-Out (Unclipped top, circular bottom) */}
+              <svg width="0" height="0" className="absolute pointer-events-none" aria-hidden="true">
+                <defs>
+                  <clipPath id="avatar-popout-clip" clipPathUnits="objectBoundingBox">
+                    {/*
+                      In objectBoundingBox coordinates (0..1):
+                      Total container height is 1.0 (e.g. 215px).
+                      Circle occupies bottom 82% (from y=0.18 to y=1.0).
+                      Circle center is at x=0.5, y=0.59.
+                      Radius along x is 0.5, radius along y is 0.41.
+                      Top rectangle is unclipped from (0,0) to (1,0) to (1,0.59).
+                      Bottom semicircle smoothly clips along the circle arc from (1,0.59) to (0,0.59) via (0.5,1.0).
+                    */}
+                    <path d="M 0 0 L 1 0 L 1 0.59 A 0.5 0.41 0 0 1 0 0.59 Z" />
+                  </clipPath>
+                </defs>
+              </svg>
+
               {profilePhoto ? (
-                <img
-                  src={profilePhoto}
-                  alt={settings.name || 'Developer Avatar'}
-                  referrerPolicy="no-referrer"
-                  className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover border-2 border-white dark:border-slate-800 shadow-xl"
-                  onError={(e) => {
-                    // If image fails to load, gracefully hide it so parent initials monogram can render
-                    (e.target as HTMLElement).style.display = 'none';
-                  }}
-                />
+                /* The Pop-out Avatar Stage (Taller than circle to allow natural top overflow) */
+                <div className="relative w-36 h-[176px] sm:w-44 sm:h-[215px] flex items-end justify-center">
+                  {/* 1. Behind: Circular Base with Rotating Color Border Ring (strictly z-0 behind image) */}
+                  <div className="absolute bottom-0 w-36 h-36 sm:w-44 sm:h-44 rounded-full pointer-events-none z-0">
+                    {/* Outer rotating color border ring (tightly hugging the circle) */}
+                    <div
+                      className="absolute -inset-[3px] rounded-full overflow-hidden p-[3px] shadow-[0_0_12px_rgba(79,70,229,0.3)] dark:shadow-[0_0_16px_rgba(129,140,248,0.4)]"
+                      aria-hidden="true"
+                    >
+                      {/* Spinning conic gradient */}
+                      <div className="avatar-rotating-ring absolute inset-[-50%] w-[200%] h-[200%]" />
+                      {/* Inner circle backdrop disc */}
+                      <div className="relative w-full h-full rounded-full bg-gradient-to-b from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-950 border border-slate-200/80 dark:border-slate-800" />
+                    </div>
+                  </div>
+
+                  {/* 2. Front: Pop-Out Image (z-10, sits cleanly in front of circle disc and ring, top head unclipped) */}
+                  <div
+                    className="relative z-10 w-full h-full pointer-events-auto"
+                    style={{
+                      clipPath: 'url(#avatar-popout-clip)',
+                      WebkitClipPath: 'url(#avatar-popout-clip)',
+                    }}
+                  >
+                    <img
+                      src={profilePhoto}
+                      alt={settings.name || 'Developer Avatar'}
+                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-cover object-[center_8%] transition-transform duration-500 ease-out group-hover:scale-105"
+                      onError={(e) => {
+                        // If image fails to load, gracefully hide it so parent fallback can render
+                        (e.target as HTMLElement).style.display = 'none';
+                      }}
+                    />
+                  </div>
+                </div>
               ) : (
-                <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-800 border-2 border-white dark:border-slate-800 shadow-xl flex items-center justify-center text-white font-bold text-2xl sm:text-3xl tracking-wider select-none">
-                  {initials}
+                /* Fallback Initials Badge with the same animated rotating border ring */
+                <div className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-full">
+                  <div
+                    className="absolute -inset-[3px] rounded-full overflow-hidden p-[3px] shadow-[0_0_12px_rgba(79,70,229,0.3)] dark:shadow-[0_0_16px_rgba(129,140,248,0.4)]"
+                    aria-hidden="true"
+                  >
+                    <div className="avatar-rotating-ring absolute inset-[-50%] w-[200%] h-[200%]" />
+                    <div className="relative w-full h-full rounded-full bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-800 flex items-center justify-center text-white font-bold text-3xl sm:text-4xl tracking-wider select-none border-2 border-white dark:border-slate-900">
+                      {initials}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

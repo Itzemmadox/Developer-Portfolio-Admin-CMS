@@ -289,68 +289,259 @@ app.put('/api/settings', authMiddleware, handleSettingsUpdate);
 app.post('/api/settings', authMiddleware, handleSettingsUpdate);
 app.patch('/api/settings', authMiddleware, handleSettingsUpdate);
 
-// GITHUB CONTRIBUTIONS API
+// GITHUB CONTRIBUTIONS API WITH PRIVATE REPO & GRAPHQL SUPPORT
+async function fetchContributionsViaGraphQL(username: string, token: string) {
+  const query = `
+    query($login: String!) {
+      user(login: $login) {
+        contributionsCollection {
+          contributionCalendar {
+            totalContributions
+            weeks {
+              contributionDays {
+                contributionCount
+                contributionLevel
+                date
+                weekday
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  const response = await fetch('https://api.github.com/graphql', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      'User-Agent': 'Portfolio-App'
+    },
+    body: JSON.stringify({
+      query,
+      variables: { login: username }
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`GitHub GraphQL API returned ${response.status}: ${response.statusText}`);
+  }
+
+  const result = await response.json();
+  if (result.errors && result.errors.length > 0) {
+    throw new Error(`GitHub GraphQL Error: ${result.errors[0].message}`);
+  }
+
+  const calendar = result.data?.user?.contributionsCollection?.contributionCalendar;
+  if (!calendar || !Array.isArray(calendar.weeks)) {
+    throw new Error('No contribution calendar returned by GitHub GraphQL');
+  }
+
+  const levelMap: Record<string, number> = {
+    'NONE': 0,
+    'FIRST_QUARTILE': 1,
+    'SECOND_QUARTILE': 2,
+    'THIRD_QUARTILE': 3,
+    'FOURTH_QUARTILE': 4
+  };
+
+  const contributions: Array<{ date: string; count: number; level: number }> = [];
+  for (const week of calendar.weeks) {
+    if (!week.contributionDays) continue;
+    for (const day of week.contributionDays) {
+      contributions.push({
+        date: day.date,
+        count: day.contributionCount || 0,
+        level: levelMap[day.contributionLevel] ?? (day.contributionCount > 0 ? 1 : 0)
+      });
+    }
+  }
+
+  return {
+    totalContributions: calendar.totalContributions ?? contributions.reduce((acc, c) => acc + c.count, 0),
+    contributions,
+    source: 'github-graphql-token',
+    hasPrivateAccess: true
+  };
+}
+
+async function fetchContributionsViaGitHubHTML(username: string) {
+  const response = await fetch(`https://github.com/users/${username}/contributions`, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+      'Accept': 'text/html,application/xhtml+xml,application/xml'
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`GitHub HTML status ${response.status}: ${response.statusText}`);
+  }
+
+  const html = await response.text();
+
+  // Extract total contributions from header if available
+  const totalMatch = html.match(/id="js-contribution-activity-description"[^>]*>[\s\n]*([\d,]+)[\s\n]*contributions/i);
+  const totalFromHeader = totalMatch ? parseInt(totalMatch[1].replace(/,/g, ''), 10) : 0;
+
+  // Extract day cells
+  const dayRegex = /<td[^>]*data-date="([^"]+)"[^>]*id="([^"]+)"[^>]*data-level="([^"]+)"[^>]*>/g;
+  let match;
+  const contributions: Array<{ date: string; count: number; level: number }> = [];
+
+  while ((match = dayRegex.exec(html)) !== null) {
+    const [_, date, id, levelStr] = match;
+    const level = parseInt(levelStr, 10) || 0;
+
+    // Extract precise count from tooltip
+    const tipRegex = new RegExp(`<tool-tip[^>]*for="${id}"[^>]*>([\\s\\S]*?)<\\/tool-tip>`);
+    const tipMatch = html.match(tipRegex);
+    let count = 0;
+    if (tipMatch) {
+      const tipText = tipMatch[1].trim();
+      const countMatch = tipText.match(/(\d+)\s+contribution/i);
+      if (countMatch) {
+        count = parseInt(countMatch[1], 10);
+      }
+    } else if (level > 0) {
+      count = level;
+    }
+
+    contributions.push({ date, count, level });
+  }
+
+  if (contributions.length === 0) {
+    throw new Error('No contribution cells parsed from GitHub HTML');
+  }
+
+  const calculatedTotal = contributions.reduce((acc, c) => acc + c.count, 0);
+
+  return {
+    totalContributions: totalFromHeader || calculatedTotal,
+    contributions,
+    source: 'github-html-official',
+    hasPrivateAccess: false
+  };
+}
+
 app.get('/api/github/contributions', async (req: Request, res: Response) => {
   const rawUsername = (req.query.username as string) || '';
   let username = rawUsername.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, '').replace(/^@/, '').split('/')[0];
+  const settings = await db.getSettings();
   if (!username) {
-    const settings = await db.getSettings();
     const githubLink = settings.socialLinks?.github || '';
     username = githubLink.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, '').replace(/^@/, '').split('/')[0] || 'octocat';
   }
 
-  try {
-    const response = await fetch(`https://github-contributions-api.jogruber.de/v4/${username}?y=last`, {
-      headers: { 'User-Agent': 'Portfolio-App' }
-    });
+  // Token resolution: check query, settings, env variables, or data/env.json
+  let token = (req.query.token as string) ||
+              settings.socialLinks?.githubToken ||
+              settings.githubToken ||
+              process.env.GITHUB_TOKEN ||
+              process.env.GH_TOKEN ||
+              process.env.GITHUB_PAT ||
+              process.env.GH_PAT ||
+              '';
 
-    if (response.ok) {
-      const data = await response.json();
-      if (data && Array.isArray(data.contributions)) {
-        const contributions = data.contributions;
-        const total = data.total
-          ? (Object.values(data.total).reduce((a: any, b: any) => Number(a) + Number(b), 0) as number)
-          : contributions.reduce((acc: number, c: any) => acc + (c.count || 0), 0);
-
-        const sorted = [...contributions].sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-        let currentStreak = 0;
-        let maxStreak = 0;
-        let tempStreak = 0;
-
-        for (let i = sorted.length - 1; i >= 0; i--) {
-          if (sorted[i].count > 0) {
-            currentStreak++;
-          } else {
-            if (i === sorted.length - 1) continue;
-            break;
-          }
-        }
-
-        for (const day of sorted) {
-          if (day.count > 0) {
-            tempStreak++;
-            if (tempStreak > maxStreak) maxStreak = tempStreak;
-          } else {
-            tempStreak = 0;
-          }
-        }
-
-        res.json({
-          username,
-          totalContributions: total || contributions.reduce((acc: number, c: any) => acc + (c.count || 0), 0),
-          contributions,
-          currentStreak,
-          maxStreak
-        });
-        return;
+  if (!token) {
+    try {
+      const envPath = path.join(process.cwd(), 'data', 'env.json');
+      if (fs.existsSync(envPath)) {
+        const envObj = JSON.parse(fs.readFileSync(envPath, 'utf8'));
+        token = envObj.GITHUB_TOKEN || envObj.GH_TOKEN || envObj.GITHUB_PAT || '';
       }
+    } catch {
+      // ignore
     }
-  } catch (err) {
-    console.warn(`GitHub contribution fetch notice for ${username}:`, err);
   }
 
-  // Fallback generation if external API fails or is rate-limited
+  let result: any = null;
+
+  // 1. Try GitHub Official GraphQL API if a Personal Access Token is configured (fetches all private + public contributions)
+  if (token) {
+    try {
+      result = await fetchContributionsViaGraphQL(username, token.trim());
+    } catch (err: any) {
+      console.warn(`GitHub GraphQL fetch notice for ${username}:`, err.message || err);
+    }
+  }
+
+  // 2. If no token or GraphQL failed, query GitHub's official HTML contributions calendar
+  // (which automatically includes private contributions if the user has enabled "Include private contributions on your profile" in GitHub profile settings)
+  if (!result) {
+    try {
+      result = await fetchContributionsViaGitHubHTML(username);
+    } catch (err: any) {
+      console.warn(`GitHub official HTML fetch notice for ${username}:`, err.message || err);
+    }
+  }
+
+  // 3. Third fallback: jogruber API
+  if (!result) {
+    try {
+      const response = await fetch(`https://github-contributions-api.jogruber.de/v4/${username}?y=last`, {
+        headers: { 'User-Agent': 'Portfolio-App' }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data && Array.isArray(data.contributions) && data.contributions.length > 0) {
+          const contributions = data.contributions;
+          const total = data.total
+            ? (Object.values(data.total).reduce((a: any, b: any) => Number(a) + Number(b), 0) as number)
+            : contributions.reduce((acc: number, c: any) => acc + (c.count || 0), 0);
+          result = {
+            totalContributions: total,
+            contributions,
+            source: 'jogruber-api',
+            hasPrivateAccess: false
+          };
+        }
+      }
+    } catch (err) {
+      console.warn(`GitHub jogruber API notice for ${username}:`, err);
+    }
+  }
+
+  // If we have contributions from any of the sources, compute streaks and return
+  if (result && Array.isArray(result.contributions) && result.contributions.length > 0) {
+    const sorted = [...result.contributions].sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    let currentStreak = 0;
+    let maxStreak = 0;
+    let tempStreak = 0;
+
+    for (let i = sorted.length - 1; i >= 0; i--) {
+      if (sorted[i].count > 0) {
+        currentStreak++;
+      } else {
+        if (i === sorted.length - 1) continue;
+        break;
+      }
+    }
+
+    for (const day of sorted) {
+      if (day.count > 0) {
+        tempStreak++;
+        if (tempStreak > maxStreak) maxStreak = tempStreak;
+      } else {
+        tempStreak = 0;
+      }
+    }
+
+    res.json({
+      username,
+      totalContributions: result.totalContributions ?? result.contributions.reduce((acc: number, c: any) => acc + (c.count || 0), 0),
+      contributions: result.contributions,
+      currentStreak,
+      maxStreak,
+      source: result.source,
+      hasPrivateAccess: !!result.hasPrivateAccess
+    });
+    return;
+  }
+
+  // 4. Fallback generation if all live sources fail or are rate-limited
   const today = new Date();
   const contributions: Array<{ date: string; count: number; level: number }> = [];
   let totalCount = 0;
@@ -395,7 +586,8 @@ app.get('/api/github/contributions', async (req: Request, res: Response) => {
     contributions,
     currentStreak: tempStreak,
     maxStreak,
-    isFallback: true
+    isFallback: true,
+    hasPrivateAccess: false
   });
 });
 

@@ -83,6 +83,7 @@ export interface Certificate {
 
 export interface SocialLinks {
   github?: string;
+  githubToken?: string;
   linkedin?: string;
   twitter?: string;
   email?: string;
@@ -113,6 +114,7 @@ export interface SiteSettings {
   avatar?: string;
   resumeUrl: string;
   socialLinks: SocialLinks;
+  githubToken?: string;
   seo?: SEOConfig;
   location?: string;
   statusText?: string;

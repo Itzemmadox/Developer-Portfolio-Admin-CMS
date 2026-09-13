@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Github, ExternalLink, Flame, Calendar as CalendarIcon, RefreshCw, Trophy } from 'lucide-react';
+import { Github, ExternalLink, Flame, Calendar as CalendarIcon, RefreshCw, Trophy, ShieldCheck, Info } from 'lucide-react';
 import { api } from '../../lib/api';
 
 interface GitHubCalendarProps {
@@ -20,6 +20,8 @@ interface ContributionData {
   currentStreak: number;
   maxStreak: number;
   isFallback?: boolean;
+  source?: string;
+  hasPrivateAccess?: boolean;
 }
 
 export const GitHubCalendar: React.FC<GitHubCalendarProps> = ({
@@ -137,7 +139,7 @@ export const GitHubCalendar: React.FC<GitHubCalendarProps> = ({
             <Github className="w-5 h-5" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
                 GitHub Contribution Activity
               </h3>
@@ -150,6 +152,30 @@ export const GitHubCalendar: React.FC<GitHubCalendarProps> = ({
                 @{targetUsername}
                 <ExternalLink className="w-3 h-3" />
               </a>
+              {data && !loading && (
+                data.hasPrivateAccess ? (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                    <ShieldCheck className="w-3 h-3" />
+                    Public & Private
+                  </span>
+                ) : (
+                  <div className="relative group inline-block">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700/60 cursor-help">
+                      <Info className="w-3 h-3 text-slate-400" />
+                      Public Repos
+                    </span>
+                    <div className="hidden group-hover:block absolute left-0 top-full mt-1.5 z-40 w-72 p-3 rounded-xl bg-slate-900 text-slate-200 text-[11px] shadow-2xl border border-slate-800">
+                      <p className="font-semibold text-white mb-1">To include private repo contributions:</p>
+                      <p className="text-slate-300 leading-relaxed mb-1.5">
+                        1. Enable <strong>&ldquo;Include private contributions on your profile&rdquo;</strong> in your <a href="https://github.com/settings/profile" target="_blank" rel="noreferrer" className="text-indigo-400 underline">GitHub profile settings</a>.
+                      </p>
+                      <p className="text-slate-300 leading-relaxed">
+                        2. Or add a <strong>GitHub Token (PAT)</strong> in your Admin CMS Settings.
+                      </p>
+                    </div>
+                  </div>
+                )
+              )}
             </div>
             <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
               Live engineering commits, pull requests, & open-source contributions
@@ -282,11 +308,15 @@ export const GitHubCalendar: React.FC<GitHubCalendarProps> = ({
           </div>
 
           {/* Footer Legend */}
-          <div className="flex items-center justify-between text-[11px] font-medium text-slate-500 dark:text-slate-400 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] font-medium text-slate-500 dark:text-slate-400 pt-3 border-t border-slate-100 dark:border-slate-800/80">
             <span className="text-xs text-slate-400">
-              {data?.isFallback ? 'Simulated pattern (GitHub API rate limited)' : `Data synced with GitHub API`}
+              {data?.hasPrivateAccess
+                ? 'Synced via GitHub GraphQL (including private repo contributions)'
+                : data?.isFallback
+                ? 'Simulated pattern (GitHub API rate limited)'
+                : `Live synced via GitHub (${data?.source === 'github-html-official' ? 'Official Profile' : 'API'})`}
             </span>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 self-end sm:self-auto">
               <span className="text-[10px] font-semibold text-slate-400">Less</span>
               {[0, 1, 2, 3, 4].map((lvl) => (
                 <div
