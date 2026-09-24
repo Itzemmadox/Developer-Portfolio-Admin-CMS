@@ -25,6 +25,9 @@ import { Testimonials } from './components/public/Testimonials';
 import { NewsSection } from './components/public/NewsSection';
 import { ContactSection } from './components/public/ContactSection';
 import { Footer } from './components/public/Footer';
+import { BackToTop } from './components/public/BackToTop';
+import { ScrollProgressBar } from './components/public/ScrollProgressBar';
+import { SectionDivider } from './components/public/SectionDivider';
 
 // Admin Components
 import { AdminLogin } from './components/admin/AdminLogin';
@@ -319,30 +322,44 @@ export default function App() {
   // Render Public Portfolio View
   return (
     <div className="min-h-screen max-w-full overflow-x-clip bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-indigo-500 selection:text-white font-sans antialiased transition-colors duration-300">
+      {/* Viewport Top Reading Progress Bar */}
+      <ScrollProgressBar />
+
       <Navbar settings={defaultSettings} onOpenAdmin={handleOpenAdmin} darkMode={darkMode} onToggleDarkMode={toggleDarkMode} />
 
       <main className="max-w-full overflow-x-clip">
         <Hero settings={defaultSettings} />
+        <SectionDivider />
         <About
           settings={defaultSettings}
           certificatesCount={certificates.length}
           onOpenCertificates={() => setShowCertificatesModal(true)}
           testimonials={testimonials}
         />
+        <SectionDivider />
         <Skills
           skills={skills}
           certificatesCount={certificates.length}
           onOpenCertificates={() => setShowCertificatesModal(true)}
         />
+        <SectionDivider />
         <ExperienceSection experience={experience} />
+        <SectionDivider />
         <EducationSection education={education} />
+        <SectionDivider />
         <Projects projects={projects} />
+        <SectionDivider />
         <Testimonials testimonials={testimonials} />
+        <SectionDivider />
         <NewsSection articles={news} onRefreshSuccess={setNews} />
+        <SectionDivider />
         <ContactSection settings={defaultSettings} />
       </main>
 
       <Footer settings={defaultSettings} onOpenAdmin={handleOpenAdmin} darkMode={darkMode} onToggleDarkMode={toggleDarkMode} />
+
+      {/* Floating Back to Top Button */}
+      <BackToTop />
 
       {/* Certificates List & Search Modal */}
       {showCertificatesModal && (

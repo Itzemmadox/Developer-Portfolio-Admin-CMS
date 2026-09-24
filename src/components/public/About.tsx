@@ -79,7 +79,7 @@ export const About: React.FC<AboutProps> = ({ settings, certificatesCount = 0, o
   ];
 
   return (
-    <section id="about" className="py-24 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 relative transition-colors duration-300">
+    <section id="about" className="py-24 bg-white dark:bg-slate-900 relative transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <RevealOnScroll>
           {/* Section Header */}
@@ -96,8 +96,8 @@ export const About: React.FC<AboutProps> = ({ settings, certificatesCount = 0, o
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           {/* Profile Photo & Stats Column */}
-          <RevealOnScroll className="lg:col-span-5 space-y-6" delay={100}>
-            <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-2 group shadow-sm">
+          <RevealOnScroll className="lg:col-span-5 space-y-6 max-w-sm sm:max-w-md md:max-w-md mx-auto lg:max-w-none w-full" delay={100}>
+            <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-2 group shadow-sm flex items-center justify-center w-full max-w-sm sm:max-w-md md:max-w-md lg:max-w-none mx-auto">
               {(() => {
                 const photo =
                   settings.profilePictureUrl ||
@@ -122,7 +122,8 @@ export const About: React.FC<AboutProps> = ({ settings, certificatesCount = 0, o
                       onError={(e) => {
                         (e.target as HTMLElement).style.display = 'none';
                       }}
-                      className="w-full h-80 sm:h-96 object-cover rounded-xl group-hover:scale-102 transition-transform duration-500"
+                      style={{ marginTop: '0px' }}
+                      className="w-full h-80 sm:h-96 md:h-[480px] lg:h-[460px] object-cover object-[center_top] rounded-xl group-hover:scale-102 transition-transform duration-500 mt-0 mx-auto block"
                     />
                   );
                 }

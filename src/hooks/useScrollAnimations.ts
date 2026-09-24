@@ -43,6 +43,7 @@ export function useScrollAnimations(enabled: boolean = true) {
     });
 
     lenisRef.current = lenis;
+    (window as any).__lenis = lenis;
 
     // Sync Lenis scroll updates directly with GSAP ScrollTrigger
     lenis.on('scroll', () => {
@@ -224,6 +225,11 @@ export function useScrollAnimations(enabled: boolean = true) {
       ctx.revert();
       lenis.destroy();
       lenisRef.current = null;
+      try {
+        delete (window as any).__lenis;
+      } catch {
+        (window as any).__lenis = null;
+      }
     };
   }, [enabled]);
 

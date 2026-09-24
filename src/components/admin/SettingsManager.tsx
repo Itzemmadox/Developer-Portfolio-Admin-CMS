@@ -267,12 +267,16 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({ settings, onRe
             </div>
 
             <div>
-              <label className="block text-xs font-mono text-slate-400 mb-1">Engineering Role / Title</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-mono text-slate-400">Engineering Role / Title</label>
+                <span className="text-[10px] text-slate-400 font-mono">Use | to cycle multiple roles in Hero typing animation</span>
+              </div>
               <input
                 type="text"
+                placeholder="e.g. Senior Full-Stack Engineer | Systems Architect | AI Integrator"
                 value={formData.role || ''}
                 onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-slate-100"
+                className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-slate-100 placeholder:text-slate-600"
               />
             </div>
           </div>

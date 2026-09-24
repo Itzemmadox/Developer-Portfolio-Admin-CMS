@@ -3,6 +3,7 @@ import { HeroBackground } from '../three/HeroBackground';
 import { SiteSettings } from '../../types';
 import { getSafeDocumentUrl } from '../../lib/api';
 import { Github, Linkedin, Twitter, Mail, ArrowDownRight, Eye, Sparkles, Code2 } from 'lucide-react';
+import { TypewriterRole } from './TypewriterRole';
 
 interface HeroProps {
   settings: SiteSettings;
@@ -69,15 +70,6 @@ export const Hero: React.FC<HeroProps> = ({ settings }) => {
               <svg width="0" height="0" className="absolute pointer-events-none" aria-hidden="true">
                 <defs>
                   <clipPath id="avatar-popout-clip" clipPathUnits="objectBoundingBox">
-                    {/*
-                      In objectBoundingBox coordinates (0..1):
-                      Total container height is 1.0 (e.g. 215px).
-                      Circle occupies bottom 82% (from y=0.18 to y=1.0).
-                      Circle center is at x=0.5, y=0.59.
-                      Radius along x is 0.5, radius along y is 0.41.
-                      Top rectangle is unclipped from (0,0) to (1,0) to (1,0.59).
-                      Bottom semicircle smoothly clips along the circle arc from (1,0.59) to (0,0.59) via (0.5,1.0).
-                    */}
                     <path d="M 0 0 L 1 0 L 1 0.59 A 0.5 0.41 0 0 1 0 0.59 Z" />
                   </clipPath>
                 </defs>
@@ -146,10 +138,8 @@ export const Hero: React.FC<HeroProps> = ({ settings }) => {
           </span>
         </h1>
 
-        {/* Role */}
-        <p className="text-lg sm:text-xl font-semibold text-indigo-600 dark:text-indigo-400 mb-3">
-          {settings.role || 'Senior Full-Stack Engineer'}
-        </p>
+        {/* Role with Typing Animation */}
+        <TypewriterRole role={settings.role} className="mb-3" />
 
         {/* Dynamic Rotating Tagline */}
         <div className="h-9 mb-6 flex items-center justify-center">
